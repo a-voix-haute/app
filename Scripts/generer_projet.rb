@@ -186,6 +186,26 @@ if icone.exist?
   puts '  icône incluse'
 end
 
+# Catalogues de traduction. Chaque dossier .lproj est ajouté tel quel : Xcode
+# reproduit l'arborescence dans le bundle, et macOS choisit le catalogue selon
+# les préférences de langue du système.
+langues = Dir.glob("#{RACINE}/Ressources/*.lproj").map { |d| File.basename(d, '.lproj') }.sort
+langues.each do |langue|
+  %w[Localizable.strings InfoPlist.strings].each do |fichier|
+    chemin = RACINE + "Ressources/#{langue}.lproj/#{fichier}"
+    next unless chemin.exist?
+    reference = groupe_ressources.new_reference("#{langue}.lproj/#{fichier}")
+    cible_app.resources_build_phase.add_file_reference(reference)
+  end
+end
+
+unless langues.empty?
+  # Sans cette liste, macOS n'annonce qu'une seule langue et ignore les autres
+  # catalogues, même présents dans le bundle.
+  projet.root_object.known_regions = (langues + ['Base']).uniq
+  puts "  traductions : #{langues.join(', ')}"
+end
+
 projet.save
 
 puts "  cible AVoixHaute : #{fichiers_app.count} fichier(s) Swift"

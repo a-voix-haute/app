@@ -21,12 +21,12 @@ struct VueBienvenue: View {
 
         var titre: String {
             switch self {
-            case .presentation: return "Bienvenue"
-            case .voix:         return "Votre voix"
-            case .autorisation: return "Autorisation"
-            case .raccourcis:   return "Raccourcis"
-            case .terminal:     return "Terminal"
-            case .fin:          return "Tout est prêt"
+            case .presentation: return tr("bienvenue.fenetre")
+            case .voix:         return tr("bienvenue.voix.titre")
+            case .autorisation: return tr("raccourci.autorisationTitre")
+            case .raccourcis:   return tr("reglages.section.raccourci")
+            case .terminal:     return tr("reglages.section.terminal")
+            case .fin:          return tr("bienvenue.fin.titre")
             }
         }
     }
@@ -79,16 +79,16 @@ struct VueBienvenue: View {
                 Spacer()
 
                 if etape != .presentation {
-                    Button("Précédent") { reculer() }
+                    Button(tr("bienvenue.precedent")) { reculer() }
                         .buttonStyle(.bordered)
                 }
 
                 if etape == .fin {
-                    Button("Terminer") { surFermeture() }
+                    Button(tr("bienvenue.terminer")) { surFermeture() }
                         .buttonStyle(.borderedProminent)
                         .keyboardShortcut(.defaultAction)
                 } else {
-                    Button("Continuer") { avancer() }
+                    Button(tr("bienvenue.continuer")) { avancer() }
                         .buttonStyle(.borderedProminent)
                         .keyboardShortcut(.defaultAction)
                 }
@@ -120,10 +120,10 @@ private struct EtapePresentation: View {
                 .symbolEffect(.variableColor.iterative.dimInactiveLayers, options: .repeating)
 
             VStack(spacing: 8) {
-                Text("À Voix Haute")
+                Text(cle: "bienvenue.presentation.titre")
                     .font(.system(size: 26, weight: .semibold))
 
-                Text("Écoutez n'importe quel texte, où qu'il se trouve.")
+                Text(cle: "bienvenue.presentation.sousTitre")
                     .font(.system(size: 14))
                     .foregroundStyle(.secondary)
             }
@@ -131,18 +131,18 @@ private struct EtapePresentation: View {
             VStack(alignment: .leading, spacing: 14) {
                 Atout(
                     symbole: "gauge.with.dots.needle.bottom.50percent",
-                    titre: "Vitesse ajustable en cours d'écoute",
-                    detail: "De 0,5 à 3 fois, sans que la voix monte dans les aigus."
+                    titre: tr("bienvenue.atout1.titre"),
+                    detail: tr("bienvenue.atout1.detail")
                 )
                 Atout(
                     symbole: "number",
-                    titre: "Markdown nettoyé",
-                    detail: "Ni croisillons, ni astérisques, ni adresses prononcées."
+                    titre: tr("bienvenue.atout2.titre"),
+                    detail: tr("bienvenue.atout2.detail")
                 )
                 Atout(
                     symbole: "macwindow.on.rectangle",
-                    titre: "Lecteur toujours visible",
-                    detail: "Il reste au-dessus des autres fenêtres, même en plein écran."
+                    titre: tr("bienvenue.atout3.titre"),
+                    detail: tr("bienvenue.atout3.detail")
                 )
             }
             .padding(.top, 4)
@@ -187,13 +187,12 @@ private struct EtapeVoix: View {
         VStack(alignment: .leading, spacing: 18) {
             EnTeteEtape(
                 symbole: "person.wave.2",
-                titre: "Choisissez une voix",
-                detail: "Les voix marquées Premium ou Améliorée sonnent nettement "
-                      + "mieux que les voix compactes."
+                titre: tr("bienvenue.voix.titre"),
+                detail: tr("bienvenue.voix.detail")
             )
 
-            Picker("Voix", selection: $voixChoisie) {
-                Text("Automatique (selon la langue du texte)").tag("")
+            Picker(tr("voix.libelle"), selection: $voixChoisie) {
+                Text(cle: "voix.automatique").tag("")
                 ForEach(groupes, id: \.langue) { groupe in
                     SwiftUI.Section(CatalogueVoix.nomLangue(groupe.langue)) {
                         ForEach(groupe.voix) { voix in
@@ -212,22 +211,22 @@ private struct EtapeVoix: View {
                         CatalogueVoix.ecouterApercu(voix)
                     }
                 } label: {
-                    Label("Écouter un extrait", systemImage: "play.circle")
+                    Label(tr("voix.ecouterExtrait"), systemImage: "play.circle")
                 }
                 .disabled(voixChoisie.isEmpty)
 
-                Button("Arrêter") { CatalogueVoix.arreterApercu() }
+                Button(tr("voix.arreter")) { CatalogueVoix.arreterApercu() }
 
                 Spacer()
 
                 Button {
                     CatalogueVoix.ouvrirTelechargementVoix()
                 } label: {
-                    Label("En télécharger d'autres", systemImage: "arrow.down.circle")
+                    Label(tr("bienvenue.voix.telecharger"), systemImage: "arrow.down.circle")
                 }
             }
 
-            Text("Ce choix reste modifiable à tout moment dans les réglages.")
+            Text(cle: "bienvenue.voix.note")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -257,8 +256,8 @@ private struct EtapeAutorisation: View {
         VStack(alignment: .leading, spacing: 18) {
             EnTeteEtape(
                 symbole: "lock.shield",
-                titre: "Lire la sélection",
-                detail: "Pour lire le texte sélectionné dans une autre application, "
+                titre: tr("bienvenue.autorisation.titre"),
+                detail: tr("bienvenue.autorisation.detail")
                       + "macOS demande une autorisation d'accessibilité."
             )
 
@@ -268,11 +267,11 @@ private struct EtapeAutorisation: View {
                     .foregroundStyle(autorise ? .green : .orange)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(autorise ? "Autorisation accordée" : "Autorisation non accordée")
+                    Text(tr(autorise ? "bienvenue.autorisation.accordee" : "bienvenue.autorisation.nonAccordee"))
                         .font(.system(size: 13, weight: .medium))
-                    Text(autorise
-                         ? "Le raccourci lira le texte sélectionné."
-                         : "Sans elle, le raccourci lit le presse-papiers.")
+                    Text(tr(autorise
+                         ? "bienvenue.autorisation.detailAccordee"
+                         : "bienvenue.autorisation.detailNonAccordee"))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
@@ -280,7 +279,7 @@ private struct EtapeAutorisation: View {
                 Spacer()
 
                 if !autorise {
-                    Button("Autoriser…") {
+                    Button(tr("bienvenue.autorisation.autoriser")) {
                         CaptureSelection.demanderAutorisation()
                         CaptureSelection.ouvrirReglagesAccessibilite()
                     }
@@ -295,10 +294,9 @@ private struct EtapeAutorisation: View {
 
             if !autorise {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Dans la fenêtre qui s'ouvre :")
+                    Text(cle: "bienvenue.autorisation.marche")
                         .font(.system(size: 12, weight: .medium))
-                    Text("1. Trouvez « À Voix Haute » dans la liste\n"
-                       + "2. Activez l'interrupteur à côté de son nom")
+                    Text(cle: "bienvenue.autorisation.etapes")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
@@ -319,7 +317,7 @@ private struct EtapeAutorisation: View {
                 }
             }
 
-            Text("Cette étape est facultative : tout le reste fonctionne sans elle.")
+            Text(cle: "bienvenue.autorisation.facultative")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -351,34 +349,34 @@ private struct EtapeRaccourcis: View {
         VStack(alignment: .leading, spacing: 18) {
             EnTeteEtape(
                 symbole: "command",
-                titre: "Quatre façons de lancer une lecture",
-                detail: "Choisissez celle qui convient au moment."
+                titre: tr("bienvenue.raccourcis.titre"),
+                detail: tr("bienvenue.raccourcis.detail")
             )
 
             VStack(alignment: .leading, spacing: 13) {
                 Moyen(
                     symbole: "cursorarrow.click.2",
-                    titre: "Clic droit sur une sélection",
-                    detail: "Services, puis « Lire à voix haute »."
+                    titre: tr("bienvenue.moyen1.titre"),
+                    detail: tr("bienvenue.moyen1.detail")
                 )
                 Moyen(
                     symbole: "keyboard",
-                    titre: "Raccourci ⌃⌥L",
-                    detail: "Lit la sélection courante, depuis n'importe quelle application."
+                    titre: tr("bienvenue.moyen2.titre"),
+                    detail: tr("bienvenue.moyen2.detail")
                 )
                 Moyen(
                     symbole: "menubar.arrow.up.rectangle",
-                    titre: "Barre de menus",
-                    detail: "L'icône en forme d'onde, pour lire le presse-papiers."
+                    titre: tr("bienvenue.moyen3.titre"),
+                    detail: tr("bienvenue.moyen3.detail")
                 )
                 Moyen(
                     symbole: "terminal",
-                    titre: "Terminal",
-                    detail: "pbpaste | lire — ou lire document.md"
+                    titre: tr("bienvenue.moyen4.titre"),
+                    detail: tr("bienvenue.moyen4.detail")
                 )
             }
 
-            Toggle("Activer le raccourci ⌃⌥L", isOn: Binding(
+            Toggle(tr("bienvenue.raccourcis.activer"), isOn: Binding(
                 get: { reglages.raccourciGlobalActif },
                 set: { actif in
                     reglages.raccourciGlobalActif = actif
@@ -434,13 +432,13 @@ private struct EtapeTerminal: View {
         VStack(alignment: .leading, spacing: 16) {
             EnTeteEtape(
                 symbole: "terminal",
-                titre: "Assistants en ligne de commande",
+                titre: tr("bienvenue.terminal.titre"),
                 detail: "Faites lire la réponse d'un assistant sans quitter le "
                       + "terminal."
             )
 
             if detectes.isEmpty {
-                Text("Aucun assistant détecté sur cette machine.")
+                Text(cle: "terminal.aucun")
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
             } else {
@@ -462,7 +460,7 @@ private struct EtapeTerminal: View {
                                 // Les compétences n'ont pas de commande à
                                 // taper : l'assistant s'en saisit de lui-même.
                                 Text(assistant.invocation.isEmpty
-                                     ? "automatique"
+                                     ? tr("terminal.automatique")
                                      : assistant.invocation)
                                     .font(.system(
                                         size: 11,
@@ -484,19 +482,19 @@ private struct EtapeTerminal: View {
                     installes = IntegrationIA.installerPartout()
                     revision += 1
                 } label: {
-                    Label("Installer la commande partout", systemImage: "square.and.arrow.down.on.square")
+                    Label(tr("bienvenue.terminal.installerPartout"), systemImage: "square.and.arrow.down.on.square")
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(!detectes.contains { !$0.commandeInstallee })
 
                 if installes > 0 {
-                    Text("Installée pour \(installes) assistant\(installes > 1 ? "s" : "").")
+                    Text(tr("bienvenue.terminal.installees", installes))
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
             }
 
-            Text("Modifiable à tout moment dans les réglages, rubrique Terminal.")
+            Text(cle: "bienvenue.terminal.note")
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
@@ -516,23 +514,21 @@ private struct EtapeFin: View {
                 .foregroundStyle(.green)
 
             VStack(spacing: 8) {
-                Text("Tout est prêt")
+                Text(cle: "bienvenue.fin.titre")
                     .font(.system(size: 22, weight: .semibold))
 
-                Text("À Voix Haute vit dans votre barre de menus et démarre\n"
-                   + "avec votre session.")
+                Text(cle: "bienvenue.fin.detail")
                     .font(.system(size: 13))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Pour essayer tout de suite")
+                Text(cle: "bienvenue.fin.essayerTitre")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.secondary)
 
-                Text("Sélectionnez un paragraphe dans votre navigateur,\n"
-                   + "puis appuyez sur ⌃⌥L.")
+                Text(cle: "bienvenue.fin.essayer")
                     .font(.system(size: 13))
             }
             .padding(16)
@@ -600,7 +596,7 @@ final class FenetreBienvenue {
         })
 
         let nouvelle = NSWindow(contentViewController: hebergeur)
-        nouvelle.title = "Bienvenue"
+        nouvelle.title = tr("bienvenue.fenetre")
         nouvelle.styleMask = [.titled, .closable]
         nouvelle.isReleasedWhenClosed = false
         nouvelle.setContentSize(NSSize(width: 560, height: 480))

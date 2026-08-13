@@ -16,7 +16,7 @@ enum CatalogueVoix {
     ///
     /// Elle mêle nasales, liaisons et une question, de quoi juger une voix
     /// française sur autre chose qu'un mot isolé.
-    static let phraseApercu = "Bonjour, voici un aperçu de ma voix. Est-ce qu'elle vous convient ?"
+    static var phraseApercu: String { tr("voix.apercu") }
 
     /// Voix regroupées par langue, triées par qualité décroissante puis par nom.
     static func parLangue(_ moteur: MoteurSynthese) -> [(langue: String, voix: [VoixDisponible])] {

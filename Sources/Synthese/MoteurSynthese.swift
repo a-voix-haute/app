@@ -28,9 +28,9 @@ enum QualiteVoix: Int, Comparable, Codable {
 
     var libelle: String {
         switch self {
-        case .compacte:  return "Compacte"
-        case .amelioree: return "Améliorée"
-        case .premium:   return "Premium"
+        case .compacte:  return tr("voix.qualite.compacte")
+        case .amelioree: return tr("voix.qualite.amelioree")
+        case .premium:   return tr("voix.qualite.premium")
         }
     }
 }
@@ -89,17 +89,17 @@ enum ErreurSynthese: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .texteVide:
-            return "Aucun texte à lire."
+            return tr("erreur.texteVide")
         case .voixIntrouvable(let id):
-            return "Voix introuvable : \(id)"
+            return tr("erreur.voixIntrouvable", id)
         case .echecEcriture(let détail):
-            return "Écriture du fichier audio impossible : \(détail)"
+            return tr("erreur.echecEcriture", détail)
         case .processusEchoue(let code, let message):
             return message.isEmpty
                 ? "La synthèse a échoué (code \(code))."
                 : "La synthèse a échoué : \(message)"
         case .annulee:
-            return "Synthèse annulée."
+            return tr("erreur.annulee")
         }
     }
 }

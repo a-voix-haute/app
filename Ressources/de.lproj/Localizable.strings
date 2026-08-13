@@ -1,0 +1,181 @@
+/* À Voix Haute — Deutsch */
+
+/* MARK: - Menüleiste */
+"menu.lirePressePapiers" = "Zwischenablage vorlesen";
+"menu.toutArreter" = "Alle Wiedergaben stoppen";
+"menu.guide" = "Erste Schritte…";
+"menu.reglages" = "Einstellungen…";
+"menu.quitter" = "À Voix Haute beenden";
+
+/* MARK: - Player */
+"lecteur.pressePapiers" = "Zwischenablage";
+"lecteur.document" = "Dokument";
+"lecteur.selection" = "Auswahl";
+"lecteur.lecture" = "Wiedergabe";
+"lecteur.fermer" = "Schließen (Esc)";
+"lecteur.pause" = "Pause (Leertaste)";
+"lecteur.lire" = "Abspielen (Leertaste)";
+"lecteur.reculer" = "%d Sekunden zurück (←)";
+"lecteur.avancer" = "%d Sekunden vor (→)";
+"lecteur.ralentir" = "Langsamer (↓)";
+"lecteur.accelerer" = "Schneller (↑)";
+"lecteur.epinglerVitesse" = "%@ als Standardgeschwindigkeit festlegen";
+"lecteur.vitesseDejaParDefaut" = "%@ ist bereits die Standardgeschwindigkeit";
+
+/* MARK: - Einstellungen, Bereiche */
+"reglages.titre" = "À Voix Haute – Einstellungen";
+"reglages.section.voix" = "Stimme";
+"reglages.section.lecture" = "Wiedergabe";
+"reglages.section.raccourci" = "Kurzbefehl";
+"reglages.section.terminal" = "Terminal";
+"reglages.section.texte" = "Text";
+
+/* MARK: - Einstellungen, Stimme */
+"voix.titre" = "Vorlesestimme";
+"voix.libelle" = "Stimme";
+"voix.automatique" = "Automatisch (nach der Sprache des Textes)";
+"voix.ecouterExtrait" = "Hörprobe abspielen";
+"voix.arreter" = "Stoppen";
+"voix.noteAutomatique" = "Die automatische Stimme richtet sich nach der im Text erkannten Sprache.";
+"voix.debitTitre" = "Sprechgeschwindigkeit";
+"voix.debit" = "Tempo der Stimme";
+"voix.debitLent" = "langsam";
+"voix.debitRapide" = "schnell";
+"voix.debitActuel" = "Aktuelles Tempo";
+"voix.noteDebit" = "Wird bei der Sprachsynthese angewendet. Die Geschwindigkeit im Player wirkt dagegen auf die Wiedergabe, ohne die Tonhöhe zu verändern.";
+"voix.detectionLangue" = "Sprache automatisch erkennen";
+"voix.telecharger" = "Weitere Stimmen laden…";
+"voix.noteTelecharger" = "Erweiterte und Premium-Stimmen werden in den Systemeinstellungen unter Bedienungshilfen und dann Gesprochene Inhalte geladen. Siri-Stimmen bleiben dem System vorbehalten und stehen keiner App zur Verfügung.";
+"voix.qualite.compacte" = "Kompakt";
+"voix.qualite.amelioree" = "Erweitert";
+"voix.qualite.premium" = "Premium";
+"voix.apercu" = "Guten Tag, dies ist eine Probe meiner Stimme. Sagt sie Ihnen zu?";
+
+/* MARK: - Einstellungen, Wiedergabe */
+"lecture.demarrageTitre" = "Start";
+"lecture.demarrageAuto" = "Wiedergabe automatisch starten";
+"lecture.siLectureEnCours" = "Wenn bereits etwas läuft";
+"lecture.continuer" = "Laufende Wiedergabe fortsetzen";
+"lecture.mettreEnPause" = "Anhalten und die neue abspielen";
+"lecture.noteDemarrage" = "Läuft nichts, startet eine neue Anfrage sofort. Andernfalls gilt die obige Regel.";
+"lecture.limite" = "Gleichzeitige Player: %d";
+"lecture.noteLimite" = "Über dieses Limit hinaus schließt der älteste Player – zuerst die beendeten, dann die pausierten.";
+"lecture.controlesTitre" = "Bedienelemente";
+"lecture.vitesseParDefaut" = "Standardgeschwindigkeit";
+"lecture.pasDecalage" = "Vor- und Zurückspringen";
+"lecture.secondes" = "%d Sekunden";
+
+/* MARK: - Einstellungen, Kurzbefehl */
+"raccourci.titre" = "Tastaturkurzbefehl";
+"raccourci.activer" = "Globalen Kurzbefehl aktivieren";
+"raccourci.combinaison" = "Tastenkombination";
+"raccourci.conflit" = "Diese Kombination wird bereits von einer anderen App verwendet.";
+"raccourci.note" = "Liest den in der vordersten App ausgewählten Text vor, welche es auch sei.";
+"raccourci.autorisationTitre" = "Berechtigung";
+"raccourci.accessibilite" = "Bedienungshilfen";
+"raccourci.autorise" = "Erteilt";
+"raccourci.nonAutorise" = "Nicht erteilt";
+"raccourci.ouvrirReglages" = "Einstellungen für Bedienungshilfen öffnen…";
+"raccourci.verifier" = "Erneut prüfen";
+"raccourci.restaurerPressePapiers" = "Zwischenablage danach wiederherstellen";
+"raccourci.noteAutorisation" = "Das Erfassen der Auswahl beruht auf einem simulierten Kopiervorgang, den macOS nur Apps erlaubt, die unter Bedienungshilfen eingetragen sind. Ohne diese Berechtigung liest der Kurzbefehl die Zwischenablage.\n\nDie Berechtigung ist an den Ort der App gebunden: Eine Kopie, die aus einem anderen Ordner als „Programme“ gestartet wird, gilt für macOS als eigene App.";
+"raccourci.alerteTitre" = "Berechtigung erforderlich";
+"raccourci.alerteMessage" = "Um in einer anderen App ausgewählten Text vorzulesen, muss À Voix Haute unter Datenschutz & Sicherheit im Bereich Bedienungshilfen freigegeben sein.\n\nOhne diese Berechtigung liest der Kurzbefehl den Inhalt der Zwischenablage.";
+"raccourci.alerteOuvrir" = "Einstellungen öffnen";
+"raccourci.alertePlusTard" = "Später";
+
+/* MARK: - Einstellungen, Terminal */
+"terminal.detectes" = "Erkannte Assistenten";
+"terminal.aucun" = "Auf diesem Rechner wurde kein Assistent erkannt.";
+"terminal.nonDetectes" = "Nicht erkannt";
+"terminal.nonInstalle" = "nicht installiert";
+"terminal.noteNonDetectes" = "Diese Assistenten erscheinen hier, sobald sie installiert sind.";
+"terminal.installer" = "Installieren";
+"terminal.retirer" = "Entfernen";
+"terminal.installerPartout" = "Überall installieren";
+"terminal.installee" = "Installiert — %@";
+"terminal.pasInstallee" = "Nicht installiert";
+"terminal.tapez" = "%@ eingeben";
+"terminal.automatique" = "bitten Sie ihn einfach, vorzulesen";
+"terminal.aucuneInstallation" = "Es wurde nichts installiert.";
+"terminal.note" = "Lassen Sie die Antwort eines Assistenten, eine Datei oder die Zwischenablage vorlesen, ohne das Terminal zu verlassen.\n\nManche Assistenten werden per Befehl aufgerufen, andere – Codex, Cursor – erkennen von selbst, dass vorgelesen werden soll: Sie müssen nur darum bitten.";
+"terminal.noteCommande" = "Der Befehl `lire` muss im Terminal verfügbar sein: Er wird zusammen mit der App installiert.";
+
+/* MARK: - Einstellungen, Text */
+"texte.preparationTitre" = "Textaufbereitung";
+"texte.nettoyageMarkdown" = "Markdown-Auszeichnung entfernen";
+"texte.noteNettoyage" = "Entfernt Rauten, Sternchen, Links und Tabellen, damit die Stimme sie nicht ausspricht. Codeblöcke werden angekündigt statt vorgelesen.";
+"texte.informationsTitre" = "Informationen";
+"texte.version" = "Version";
+"texte.helper" = "Terminal-Befehl";
+"texte.journal" = "Protokoll";
+"texte.noteTerminal" = "Im Terminal: pbpaste | lire, lire datei.md oder lire --stop.";
+
+/* MARK: - Einrichtungsassistent */
+"bienvenue.fenetre" = "Willkommen";
+"bienvenue.precedent" = "Zurück";
+"bienvenue.continuer" = "Fortfahren";
+"bienvenue.terminer" = "Fertig";
+
+"bienvenue.presentation.titre" = "À Voix Haute";
+"bienvenue.presentation.sousTitre" = "Hören Sie jeden Text, wo immer er steht.";
+"bienvenue.atout1.titre" = "Tempo beim Hören anpassbar";
+"bienvenue.atout1.detail" = "Von 0,5- bis 3-fach, ohne dass die Stimme höher wird.";
+"bienvenue.atout2.titre" = "Markdown bereinigt";
+"bienvenue.atout2.detail" = "Keine Rauten, keine Sternchen, keine vorgelesenen Adressen.";
+"bienvenue.atout3.titre" = "Player immer sichtbar";
+"bienvenue.atout3.detail" = "Er bleibt über den anderen Fenstern, auch im Vollbild.";
+
+"bienvenue.voix.titre" = "Wählen Sie eine Stimme";
+"bienvenue.voix.detail" = "Stimmen mit der Kennzeichnung Premium oder Erweitert klingen deutlich besser als kompakte.";
+"bienvenue.voix.telecharger" = "Weitere laden";
+"bienvenue.voix.note" = "Sie können dies jederzeit in den Einstellungen ändern.";
+
+"bienvenue.autorisation.titre" = "Die Auswahl vorlesen";
+"bienvenue.autorisation.detail" = "Um in einer anderen App ausgewählten Text vorzulesen, verlangt macOS eine Berechtigung für Bedienungshilfen.";
+"bienvenue.autorisation.accordee" = "Berechtigung erteilt";
+"bienvenue.autorisation.nonAccordee" = "Berechtigung nicht erteilt";
+"bienvenue.autorisation.detailAccordee" = "Der Kurzbefehl liest den ausgewählten Text vor.";
+"bienvenue.autorisation.detailNonAccordee" = "Ohne sie liest der Kurzbefehl die Zwischenablage.";
+"bienvenue.autorisation.autoriser" = "Erteilen…";
+"bienvenue.autorisation.marche" = "Im Fenster, das sich öffnet:";
+"bienvenue.autorisation.etapes" = "1. Suchen Sie „À Voix Haute“ in der Liste\n2. Aktivieren Sie den Schalter neben dem Namen";
+"bienvenue.autorisation.horsApplications" = "Diese Kopie liegt nicht im Ordner „Programme“. Die der installierten Version erteilte Berechtigung gilt nicht für sie.";
+"bienvenue.autorisation.facultative" = "Dieser Schritt ist optional: Alles andere funktioniert auch ohne ihn.";
+
+"bienvenue.raccourcis.titre" = "Vier Wege, eine Wiedergabe zu starten";
+"bienvenue.raccourcis.detail" = "Wählen Sie, was gerade passt.";
+"bienvenue.moyen1.titre" = "Rechtsklick auf eine Auswahl";
+"bienvenue.moyen1.detail" = "Dienste, dann „Vorlesen“.";
+"bienvenue.moyen2.titre" = "Kurzbefehl ⌃⌥L";
+"bienvenue.moyen2.detail" = "Liest die aktuelle Auswahl vor, aus jeder App.";
+"bienvenue.moyen3.titre" = "Menüleiste";
+"bienvenue.moyen3.detail" = "Das Wellen-Symbol, um die Zwischenablage vorzulesen.";
+"bienvenue.moyen4.titre" = "Terminal";
+"bienvenue.moyen4.detail" = "pbpaste | lire — oder lire dokument.md";
+"bienvenue.raccourcis.activer" = "Kurzbefehl ⌃⌥L aktivieren";
+
+"bienvenue.terminal.titre" = "Terminal-Assistenten";
+"bienvenue.terminal.detail" = "Lassen Sie die Antwort eines Assistenten vorlesen, ohne das Terminal zu verlassen.";
+"bienvenue.terminal.installerPartout" = "Befehl überall installieren";
+"bienvenue.terminal.installees" = "Für %d Assistent(en) installiert.";
+"bienvenue.terminal.note" = "Jederzeit in den Einstellungen unter Terminal änderbar.";
+
+"bienvenue.fin.titre" = "Alles bereit";
+"bienvenue.fin.detail" = "À Voix Haute liegt in Ihrer Menüleiste und startet mit Ihrer Sitzung.";
+"bienvenue.fin.essayerTitre" = "Gleich ausprobieren";
+"bienvenue.fin.essayer" = "Markieren Sie einen Absatz im Browser und drücken Sie ⌃⌥L.";
+
+/* MARK: - macOS-Dienst */
+"service.lireAVoixHaute" = "Vorlesen";
+"service.aucunTexte" = "Kein Text ausgewählt.";
+
+/* MARK: - Fehler */
+"erreur.lectureImpossible" = "Wiedergabe fehlgeschlagen";
+"erreur.fermer" = "Schließen";
+"erreur.texteVide" = "Nichts vorzulesen.";
+"erreur.voixIntrouvable" = "Stimme nicht gefunden: %@";
+"erreur.echecEcriture" = "Audiodatei konnte nicht geschrieben werden: %@";
+"erreur.syntheseEchouee" = "Sprachsynthese fehlgeschlagen: %@";
+"erreur.syntheseEchoueeCode" = "Sprachsynthese fehlgeschlagen (Code %d).";
+"erreur.annulee" = "Sprachsynthese abgebrochen.";

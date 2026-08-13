@@ -16,8 +16,8 @@ enum ComportementNouvelleLecture: String, CaseIterable, Codable {
 
     var libelle: String {
         switch self {
-        case .continuer:     return "Poursuivre la lecture en cours"
-        case .mettreEnPause: return "Mettre en pause et lire la nouvelle"
+        case .continuer:     return tr("lecture.continuer")
+        case .mettreEnPause: return tr("lecture.mettreEnPause")
         }
     }
 }

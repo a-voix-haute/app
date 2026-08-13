@@ -1,0 +1,181 @@
+/* À Voix Haute — English */
+
+/* MARK: - Menu bar */
+"menu.lirePressePapiers" = "Read Clipboard";
+"menu.toutArreter" = "Stop All Playback";
+"menu.guide" = "Getting Started…";
+"menu.reglages" = "Settings…";
+"menu.quitter" = "Quit À Voix Haute";
+
+/* MARK: - Player */
+"lecteur.pressePapiers" = "Clipboard";
+"lecteur.document" = "Document";
+"lecteur.selection" = "Selection";
+"lecteur.lecture" = "Playback";
+"lecteur.fermer" = "Close (Esc)";
+"lecteur.pause" = "Pause (Space)";
+"lecteur.lire" = "Play (Space)";
+"lecteur.reculer" = "Back %d seconds (←)";
+"lecteur.avancer" = "Forward %d seconds (→)";
+"lecteur.ralentir" = "Slower (↓)";
+"lecteur.accelerer" = "Faster (↑)";
+"lecteur.epinglerVitesse" = "Pin %@ as the default speed";
+"lecteur.vitesseDejaParDefaut" = "%@ is already the default speed";
+
+/* MARK: - Settings, sections */
+"reglages.titre" = "À Voix Haute Settings";
+"reglages.section.voix" = "Voice";
+"reglages.section.lecture" = "Playback";
+"reglages.section.raccourci" = "Shortcut";
+"reglages.section.terminal" = "Terminal";
+"reglages.section.texte" = "Text";
+
+/* MARK: - Settings, voice */
+"voix.titre" = "Reading voice";
+"voix.libelle" = "Voice";
+"voix.automatique" = "Automatic (based on the text’s language)";
+"voix.ecouterExtrait" = "Play a sample";
+"voix.arreter" = "Stop";
+"voix.noteAutomatique" = "The automatic voice follows the language detected in the text.";
+"voix.debitTitre" = "Synthesis rate";
+"voix.debit" = "Voice rate";
+"voix.debitLent" = "slow";
+"voix.debitRapide" = "fast";
+"voix.debitActuel" = "Current rate";
+"voix.noteDebit" = "Applied when the audio is synthesised. The speed control in the player acts on playback instead, without altering the pitch of the voice.";
+"voix.detectionLangue" = "Detect the language automatically";
+"voix.telecharger" = "Download more voices…";
+"voix.noteTelecharger" = "Enhanced and Premium voices are downloaded in System Settings, under Accessibility then Spoken Content. Siri voices remain reserved for the system and are not available to any app.";
+"voix.qualite.compacte" = "Compact";
+"voix.qualite.amelioree" = "Enhanced";
+"voix.qualite.premium" = "Premium";
+"voix.apercu" = "Hello, this is a sample of my voice. Does it suit you?";
+
+/* MARK: - Settings, playback */
+"lecture.demarrageTitre" = "Starting";
+"lecture.demarrageAuto" = "Start playing automatically";
+"lecture.siLectureEnCours" = "When something is already playing";
+"lecture.continuer" = "Keep the current playback going";
+"lecture.mettreEnPause" = "Pause it and play the new one";
+"lecture.noteDemarrage" = "With nothing playing, a new request starts right away. Otherwise it follows the rule above.";
+"lecture.limite" = "Simultaneous players: %d";
+"lecture.noteLimite" = "Beyond this limit the oldest player closes — finished ones first, then paused ones.";
+"lecture.controlesTitre" = "Controls";
+"lecture.vitesseParDefaut" = "Default speed";
+"lecture.pasDecalage" = "Skip forward and back";
+"lecture.secondes" = "%d seconds";
+
+/* MARK: - Settings, shortcut */
+"raccourci.titre" = "Keyboard shortcut";
+"raccourci.activer" = "Enable the global shortcut";
+"raccourci.combinaison" = "Combination";
+"raccourci.conflit" = "This combination is already used by another app.";
+"raccourci.note" = "Reads the text selected in the frontmost app, whichever it is.";
+"raccourci.autorisationTitre" = "Permission";
+"raccourci.accessibilite" = "Accessibility";
+"raccourci.autorise" = "Granted";
+"raccourci.nonAutorise" = "Not granted";
+"raccourci.ouvrirReglages" = "Open Accessibility settings…";
+"raccourci.verifier" = "Check again";
+"raccourci.restaurerPressePapiers" = "Restore the clipboard afterwards";
+"raccourci.noteAutorisation" = "Capturing the selection relies on a simulated copy, which macOS only allows to apps listed under Accessibility. Without this permission, the shortcut reads the clipboard.\n\nThe permission is tied to where the app lives: a copy launched from a folder other than Applications is seen by macOS as a separate app.";
+"raccourci.alerteTitre" = "Permission required";
+"raccourci.alerteMessage" = "To read text selected in another app, À Voix Haute must be allowed under Privacy & Security, in the Accessibility section.\n\nWithout this permission, the shortcut reads the clipboard instead.";
+"raccourci.alerteOuvrir" = "Open Settings";
+"raccourci.alertePlusTard" = "Later";
+
+/* MARK: - Settings, terminal */
+"terminal.detectes" = "Detected assistants";
+"terminal.aucun" = "No assistant detected on this machine.";
+"terminal.nonDetectes" = "Not detected";
+"terminal.nonInstalle" = "not installed";
+"terminal.noteNonDetectes" = "These assistants will appear here once installed.";
+"terminal.installer" = "Install";
+"terminal.retirer" = "Remove";
+"terminal.installerPartout" = "Install everywhere";
+"terminal.installee" = "Installed — %@";
+"terminal.pasInstallee" = "Not installed";
+"terminal.tapez" = "type %@";
+"terminal.automatique" = "just ask it to read aloud";
+"terminal.aucuneInstallation" = "Nothing was installed.";
+"terminal.note" = "Have an assistant’s answer, a file or the clipboard read aloud without leaving the terminal.\n\nSome assistants are invoked by a command; others — Codex, Cursor — work out on their own that reading is called for: just ask them.";
+"terminal.noteCommande" = "The `lire` command must be available in the terminal: it is installed alongside the app.";
+
+/* MARK: - Settings, text */
+"texte.preparationTitre" = "Text preparation";
+"texte.nettoyageMarkdown" = "Strip Markdown formatting";
+"texte.noteNettoyage" = "Removes hashes, asterisks, links and tables so the voice does not read them out. Code blocks are announced rather than recited.";
+"texte.informationsTitre" = "Information";
+"texte.version" = "Version";
+"texte.helper" = "Command-line helper";
+"texte.journal" = "Log";
+"texte.noteTerminal" = "From the terminal: pbpaste | lire, lire file.md, or lire --stop.";
+
+/* MARK: - Setup assistant */
+"bienvenue.fenetre" = "Welcome";
+"bienvenue.precedent" = "Back";
+"bienvenue.continuer" = "Continue";
+"bienvenue.terminer" = "Done";
+
+"bienvenue.presentation.titre" = "À Voix Haute";
+"bienvenue.presentation.sousTitre" = "Listen to any text, wherever it is.";
+"bienvenue.atout1.titre" = "Speed you can change while listening";
+"bienvenue.atout1.detail" = "From 0.5× to 3×, without the voice rising in pitch.";
+"bienvenue.atout2.titre" = "Markdown stripped";
+"bienvenue.atout2.detail" = "No hashes, no asterisks, no spoken addresses.";
+"bienvenue.atout3.titre" = "Player always in view";
+"bienvenue.atout3.detail" = "It stays above other windows, even in full screen.";
+
+"bienvenue.voix.titre" = "Choose a voice";
+"bienvenue.voix.detail" = "Voices marked Premium or Enhanced sound markedly better than compact ones.";
+"bienvenue.voix.telecharger" = "Download more";
+"bienvenue.voix.note" = "You can change this at any time in the settings.";
+
+"bienvenue.autorisation.titre" = "Reading the selection";
+"bienvenue.autorisation.detail" = "To read text selected in another app, macOS asks for an accessibility permission.";
+"bienvenue.autorisation.accordee" = "Permission granted";
+"bienvenue.autorisation.nonAccordee" = "Permission not granted";
+"bienvenue.autorisation.detailAccordee" = "The shortcut will read the selected text.";
+"bienvenue.autorisation.detailNonAccordee" = "Without it, the shortcut reads the clipboard.";
+"bienvenue.autorisation.autoriser" = "Grant…";
+"bienvenue.autorisation.marche" = "In the window that opens:";
+"bienvenue.autorisation.etapes" = "1. Find “À Voix Haute” in the list\n2. Turn on the switch beside its name";
+"bienvenue.autorisation.horsApplications" = "This copy is not in the Applications folder. The permission granted to the installed version does not apply to it.";
+"bienvenue.autorisation.facultative" = "This step is optional: everything else works without it.";
+
+"bienvenue.raccourcis.titre" = "Four ways to start playback";
+"bienvenue.raccourcis.detail" = "Pick whichever suits the moment.";
+"bienvenue.moyen1.titre" = "Right-click a selection";
+"bienvenue.moyen1.detail" = "Services, then “Read aloud”.";
+"bienvenue.moyen2.titre" = "⌃⌥L shortcut";
+"bienvenue.moyen2.detail" = "Reads the current selection, from any app.";
+"bienvenue.moyen3.titre" = "Menu bar";
+"bienvenue.moyen3.detail" = "The waveform icon, to read the clipboard.";
+"bienvenue.moyen4.titre" = "Terminal";
+"bienvenue.moyen4.detail" = "pbpaste | lire — or lire document.md";
+"bienvenue.raccourcis.activer" = "Enable the ⌃⌥L shortcut";
+
+"bienvenue.terminal.titre" = "Command-line assistants";
+"bienvenue.terminal.detail" = "Have an assistant’s answer read aloud without leaving the terminal.";
+"bienvenue.terminal.installerPartout" = "Install the command everywhere";
+"bienvenue.terminal.installees" = "Installed for %d assistant(s).";
+"bienvenue.terminal.note" = "You can change this at any time in the settings, under Terminal.";
+
+"bienvenue.fin.titre" = "You’re all set";
+"bienvenue.fin.detail" = "À Voix Haute lives in your menu bar and starts with your session.";
+"bienvenue.fin.essayerTitre" = "To try it right away";
+"bienvenue.fin.essayer" = "Select a paragraph in your browser, then press ⌃⌥L.";
+
+/* MARK: - macOS service */
+"service.lireAVoixHaute" = "Read aloud";
+"service.aucunTexte" = "No text selected.";
+
+/* MARK: - Errors */
+"erreur.lectureImpossible" = "Playback failed";
+"erreur.fermer" = "Close";
+"erreur.texteVide" = "Nothing to read.";
+"erreur.voixIntrouvable" = "Voice not found: %@";
+"erreur.echecEcriture" = "Could not write the audio file: %@";
+"erreur.syntheseEchouee" = "Synthesis failed: %@";
+"erreur.syntheseEchoueeCode" = "Synthesis failed (code %d).";
+"erreur.annulee" = "Synthesis cancelled.";

@@ -106,18 +106,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     /// Explique pourquoi l'autorisation est nécessaire et conduit au réglage.
     private func proposerAutorisationAccessibilite() {
         let alerte = NSAlert()
-        alerte.messageText = "Autorisation requise"
-        alerte.informativeText = """
-            Pour lire le texte sélectionné dans une autre application, À Voix Haute \
-            doit être autorisé dans Confidentialité et sécurité, rubrique \
-            Accessibilité.
-
-            Sans cette autorisation, le raccourci lit le contenu du \
-            presse-papiers.
-            """
+        alerte.messageText = tr("raccourci.alerteTitre")
+        alerte.informativeText = tr("raccourci.alerteMessage")
         alerte.alertStyle = .informational
-        alerte.addButton(withTitle: "Ouvrir les réglages")
-        alerte.addButton(withTitle: "Plus tard")
+        alerte.addButton(withTitle: tr("raccourci.alerteOuvrir"))
+        alerte.addButton(withTitle: tr("raccourci.alertePlusTard"))
 
         NSApp.activate(ignoringOtherApps: true)
         if alerte.runModal() == .alertFirstButtonReturn {
@@ -185,29 +178,29 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
         menu.addItem(
-            withTitle: "Lire le presse-papiers",
+            withTitle: tr("menu.lirePressePapiers"),
             action: #selector(lirePressePapiers),
             keyEquivalent: ""
         ).target = self
         menu.addItem(
-            withTitle: "Arrêter toutes les lectures",
+            withTitle: tr("menu.toutArreter"),
             action: #selector(toutArreter),
             keyEquivalent: ""
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "Guide de prise en main…",
+            withTitle: tr("menu.guide"),
             action: #selector(ouvrirAssistant),
             keyEquivalent: ""
         ).target = self
         menu.addItem(
-            withTitle: "Réglages…",
+            withTitle: tr("menu.reglages"),
             action: #selector(ouvrirReglages),
             keyEquivalent: ","
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "Quitter À Voix Haute",
+            withTitle: tr("menu.quitter"),
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )

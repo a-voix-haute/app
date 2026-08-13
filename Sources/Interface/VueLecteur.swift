@@ -64,7 +64,7 @@ struct VueLecteur: View {
             }
             .buttonStyle(.plain)
             .onHover { survolFermeture = $0 }
-            .help("Fermer (Échap)")
+            .help(tr("lecteur.fermer"))
         }
     }
 
@@ -126,21 +126,21 @@ struct VueLecteur: View {
 
     private var transport: some View {
         HStack(spacing: 0) {
-            boutonIcone("gobackward.15", aide: "Reculer de 15 secondes (←)") {
+            boutonIcone("gobackward.15", aide: tr("lecteur.reculer", 15)) {
                 lecteur.decaler(de: -15)
             }
 
             boutonIcone(
                 lecteur.etat == .enLecture ? "pause.fill" : "play.fill",
                 taille: 18,
-                aide: lecteur.etat == .enLecture ? "Pause (Espace)" : "Lecture (Espace)"
+                aide: tr(lecteur.etat == .enLecture ? "lecteur.pause" : "lecteur.lire")
             ) {
                 lecteur.basculerLecture()
             }
             .padding(.horizontal, 12)
             .contentTransition(.symbolEffect(.replace))
 
-            boutonIcone("goforward.15", aide: "Avancer de 15 secondes (→)") {
+            boutonIcone("goforward.15", aide: tr("lecteur.avancer", 15)) {
                 lecteur.decaler(de: 15)
             }
 
@@ -166,7 +166,7 @@ struct VueLecteur: View {
         HStack(spacing: 2) {
             boutonPalier(
                 "minus",
-                aide: "Ralentir (↓)",
+                aide: tr("lecteur.ralentir"),
                 actif: lecteur.vitesse > Lecteur.vitessesDisponibles.first!
             ) {
                 lecteur.vitessePrecedente()
@@ -182,7 +182,7 @@ struct VueLecteur: View {
 
             boutonPalier(
                 "plus",
-                aide: "Accélérer (↑)",
+                aide: tr("lecteur.accelerer"),
                 actif: lecteur.vitesse < Lecteur.vitessesDisponibles.last!
             ) {
                 lecteur.vitesseSuivante()
@@ -212,8 +212,8 @@ struct VueLecteur: View {
         .disabled(vitesseDejaParDefaut)
         .contentTransition(.symbolEffect(.replace))
         .help(vitesseDejaParDefaut
-              ? "\(Lecteur.formaterVitesse(lecteur.vitesse)) est déjà la vitesse par défaut"
-              : "Épingler \(Lecteur.formaterVitesse(lecteur.vitesse)) comme vitesse par défaut")
+              ? tr("lecteur.vitesseDejaParDefaut", Lecteur.formaterVitesse(lecteur.vitesse))
+              : tr("lecteur.epinglerVitesse", Lecteur.formaterVitesse(lecteur.vitesse)))
     }
 
     private func boutonPalier(

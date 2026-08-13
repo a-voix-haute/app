@@ -11,11 +11,11 @@ private enum SectionReglages: String, CaseIterable, Identifiable {
 
     var libelle: String {
         switch self {
-        case .voix:      return "Voix"
-        case .lecture:   return "Lecture"
-        case .raccourci: return "Raccourci"
-        case .integrations: return "Terminal"
-        case .texte:     return "Texte"
+        case .voix:      return tr("reglages.section.voix")
+        case .lecture:   return tr("reglages.section.lecture")
+        case .raccourci: return tr("reglages.section.raccourci")
+        case .integrations: return tr("reglages.section.terminal")
+        case .texte:     return tr("reglages.section.texte")
         }
     }
 
@@ -121,14 +121,14 @@ private struct OngletVoix: View {
     var body: some View {
         Form {
             Section {
-                Picker("Voix", selection: Binding(
+                Picker(tr("voix.libelle"), selection: Binding(
                     get: { voixChoisie ?? "" },
                     set: { nouvelle in
                         voixChoisie = nouvelle.isEmpty ? nil : nouvelle
                         reglages.definirVoix(nouvelle.isEmpty ? nil : nouvelle, pour: .say)
                     }
                 )) {
-                    Text("Automatique (selon la langue du texte)").tag("")
+                    Text(cle: "voix.automatique").tag("")
                     ForEach(groupes, id: \.langue) { groupe in
                         Section(CatalogueVoix.nomLangue(groupe.langue)) {
                             ForEach(groupe.voix) { voix in
@@ -145,16 +145,16 @@ private struct OngletVoix: View {
                             CatalogueVoix.ecouterApercu(voix)
                         }
                     } label: {
-                        Label("Écouter un extrait", systemImage: "play.circle")
+                        Label(tr("voix.ecouterExtrait"), systemImage: "play.circle")
                     }
                     .disabled(voixChoisie == nil)
 
-                    Button("Arrêter") { CatalogueVoix.arreterApercu() }
+                    Button(tr("voix.arreter")) { CatalogueVoix.arreterApercu() }
                 }
             } header: {
-                Text("Voix de lecture")
+                Text(cle: "voix.titre")
             } footer: {
-                Text("La voix automatique suit la langue détectée dans le texte.")
+                Text(cle: "voix.noteAutomatique")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -168,30 +168,28 @@ private struct OngletVoix: View {
                     in: 0.5...2.0,
                     step: 0.05
                 ) {
-                    Text("Débit de la voix")
+                    Text(cle: "voix.debit")
                 } minimumValueLabel: {
-                    Text("lent").font(.caption2)
+                    Text(cle: "voix.debitLent").font(.caption2)
                 } maximumValueLabel: {
-                    Text("rapide").font(.caption2)
+                    Text(cle: "voix.debitRapide").font(.caption2)
                 }
 
-                LabeledContent("Débit actuel") {
+                LabeledContent(tr("voix.debitActuel")) {
                     Text(String(format: "%.2f×", reglages.vitesseSyntheseBase))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                 }
             } header: {
-                Text("Débit de synthèse")
+                Text(cle: "voix.debitTitre")
             } footer: {
-                Text("Réglage appliqué au moment de la synthèse. La vitesse "
-                   + "ajustable dans le lecteur agit, elle, sur la lecture, "
-                   + "sans altérer la hauteur de la voix.")
+                Text(cle: "voix.noteDebit")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Toggle("Détecter la langue automatiquement", isOn: Binding(
+                Toggle(tr("voix.detectionLangue"), isOn: Binding(
                     get: { reglages.detectionLangueAuto },
                     set: { reglages.detectionLangueAuto = $0 }
                 ))
@@ -199,13 +197,10 @@ private struct OngletVoix: View {
                 Button {
                     CatalogueVoix.ouvrirTelechargementVoix()
                 } label: {
-                    Label("Télécharger d'autres voix…", systemImage: "arrow.down.circle")
+                    Label(tr("voix.telecharger"), systemImage: "arrow.down.circle")
                 }
             } footer: {
-                Text("Les voix Améliorées et Premium se téléchargent dans "
-                   + "Réglages Système, rubrique Accessibilité puis Contenu "
-                   + "énoncé. Les voix Siri restent réservées au système et ne "
-                   + "sont accessibles à aucune application.")
+                Text(cle: "voix.noteTelecharger")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -234,12 +229,12 @@ private struct OngletLecture: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Démarrer la lecture automatiquement", isOn: Binding(
+                Toggle(tr("lecture.demarrageAuto"), isOn: Binding(
                     get: { reglages.demarrageAutomatique },
                     set: { reglages.demarrageAutomatique = $0 }
                 ))
 
-                Picker("Si une lecture est en cours", selection: Binding(
+                Picker(tr("lecture.siLectureEnCours"), selection: Binding(
                     get: { reglages.comportementNouvelleLecture },
                     set: { reglages.comportementNouvelleLecture = $0 }
                 )) {
@@ -250,17 +245,16 @@ private struct OngletLecture: View {
                 .pickerStyle(.radioGroup)
                 .disabled(!reglages.demarrageAutomatique)
             } header: {
-                Text("Démarrage")
+                Text(cle: "lecture.demarrageTitre")
             } footer: {
-                Text("Sans lecture en cours, une nouvelle demande démarre "
-                   + "aussitôt. Sinon, elle suit la règle ci-dessus.")
+                Text(cle: "lecture.noteDemarrage")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
                 Stepper(
-                    "Lecteurs simultanés : \(reglages.limiteLecteurs)",
+                    tr("lecture.limite", reglages.limiteLecteurs),
                     value: Binding(
                         get: { reglages.limiteLecteurs },
                         set: { reglages.limiteLecteurs = $0 }
@@ -268,15 +262,13 @@ private struct OngletLecture: View {
                     in: 1...10
                 )
             } footer: {
-                Text("Au-delà de cette limite, le lecteur le plus ancien se "
-                   + "ferme — d'abord ceux dont la lecture est terminée, puis "
-                   + "ceux en pause.")
+                Text(cle: "lecture.noteLimite")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Picker("Vitesse par défaut", selection: Binding(
+                Picker(tr("lecture.vitesseParDefaut"), selection: Binding(
                     get: { reglages.vitesseParDefaut },
                     set: { reglages.vitesseParDefaut = $0 }
                 )) {
@@ -285,16 +277,16 @@ private struct OngletLecture: View {
                     }
                 }
 
-                Picker("Avance et recul", selection: Binding(
+                Picker(tr("lecture.pasDecalage"), selection: Binding(
                     get: { reglages.pasDecalage },
                     set: { reglages.pasDecalage = $0 }
                 )) {
                     ForEach([5, 10, 15, 30, 60], id: \.self) { secondes in
-                        Text("\(secondes) secondes").tag(secondes)
+                        Text(tr("lecture.secondes", secondes)).tag(secondes)
                     }
                 }
             } header: {
-                Text("Contrôles")
+                Text(cle: "lecture.controlesTitre")
             }
         }
         .formStyle(.grouped)
@@ -320,7 +312,7 @@ private struct OngletRaccourci: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Activer le raccourci global", isOn: Binding(
+                Toggle(tr("raccourci.activer"), isOn: Binding(
                     get: { reglages.raccourciGlobalActif },
                     set: { actif in
                         reglages.raccourciGlobalActif = actif
@@ -329,7 +321,7 @@ private struct OngletRaccourci: View {
                     }
                 ))
 
-                Picker("Combinaison", selection: Binding(
+                Picker(tr("raccourci.combinaison"), selection: Binding(
                     get: { combinaisonCourante },
                     set: { libelle in
                         guard let choix = RaccourciGlobal.combinaisonsProposees
@@ -348,25 +340,24 @@ private struct OngletRaccourci: View {
 
                 if conflit {
                     Label(
-                        "Cette combinaison est déjà utilisée par une autre application.",
+                        tr("raccourci.conflit"),
                         systemImage: "exclamationmark.triangle"
                     )
                     .foregroundStyle(.orange)
                     .font(.callout)
                 }
             } header: {
-                Text("Raccourci clavier")
+                Text(cle: "raccourci.titre")
             } footer: {
-                Text("Lit le texte sélectionné dans l'application au premier "
-                   + "plan, quelle qu'elle soit.")
+                Text(cle: "raccourci.note")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                LabeledContent("Accessibilité") {
+                LabeledContent(tr("raccourci.accessibilite")) {
                     Label(
-                        autorise ? "Autorisé" : "Non autorisé",
+                        tr(autorise ? "raccourci.autorise" : "raccourci.nonAutorise"),
                         systemImage: autorise ? "checkmark.circle.fill" : "xmark.circle"
                     )
                     .foregroundStyle(autorise ? .green : .orange)
@@ -377,28 +368,22 @@ private struct OngletRaccourci: View {
                         CaptureSelection.demanderAutorisation()
                         CaptureSelection.ouvrirReglagesAccessibilite()
                     } label: {
-                        Label("Ouvrir les réglages d'Accessibilité…", systemImage: "lock.open")
+                        Label(tr("raccourci.ouvrirReglages"), systemImage: "lock.open")
                     }
                 }
 
-                Button("Vérifier à nouveau") {
+                Button(tr("raccourci.verifier")) {
                     autorise = CaptureSelection.estAutorisee
                 }
 
-                Toggle("Restaurer le presse-papiers après lecture", isOn: Binding(
+                Toggle(tr("raccourci.restaurerPressePapiers"), isOn: Binding(
                     get: { reglages.restaurerPressePapiers },
                     set: { reglages.restaurerPressePapiers = $0 }
                 ))
             } header: {
-                Text("Autorisation")
+                Text(cle: "raccourci.autorisationTitre")
             } footer: {
-                Text("La capture de la sélection passe par une copie simulée, "
-                   + "ce que macOS n'autorise qu'aux applications inscrites en "
-                   + "Accessibilité. Sans cette autorisation, le raccourci lit "
-                   + "le presse-papiers.\n\nL'autorisation est attachée à "
-                   + "l'emplacement de l'application : une copie lancée depuis "
-                   + "un autre dossier que Applications est vue par macOS comme "
-                   + "une application distincte.")
+                Text(cle: "raccourci.noteAutorisation")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -428,32 +413,30 @@ private struct OngletTexte: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Nettoyer le balisage Markdown", isOn: Binding(
+                Toggle(tr("texte.nettoyageMarkdown"), isOn: Binding(
                     get: { reglages.nettoyageMarkdown },
                     set: { reglages.nettoyageMarkdown = $0 }
                 ))
             } header: {
-                Text("Préparation du texte")
+                Text(cle: "texte.preparationTitre")
             } footer: {
-                Text("Retire les croisillons, astérisques, liens et tableaux "
-                   + "pour que la voix ne les prononce pas. Les blocs de code "
-                   + "sont annoncés sans être lus.")
+                Text(cle: "texte.noteNettoyage")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                LabeledContent("Version") {
+                LabeledContent(tr("texte.version")) {
                     Text(Self.versionComplete)
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                         .textSelection(.enabled)
                 }
 
-                LabeledContent("Helper en ligne de commande") {
+                LabeledContent(tr("texte.helper")) {
                     Text("lire").monospaced().foregroundStyle(.secondary)
                 }
-                LabeledContent("Journal") {
+                LabeledContent(tr("texte.journal")) {
                     Text("~/Library/Logs/AVoixHaute.log")
                         .font(.caption)
                         .monospaced()
@@ -461,10 +444,9 @@ private struct OngletTexte: View {
                         .textSelection(.enabled)
                 }
             } header: {
-                Text("Informations")
+                Text(cle: "texte.informationsTitre")
             } footer: {
-                Text("Depuis le terminal : pbpaste | lire, lire fichier.md, "
-                   + "ou lire --stop.")
+                Text(cle: "texte.noteTerminal")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -500,7 +482,7 @@ final class FenetreReglages {
         hebergeur.view.wantsLayer = true
 
         let nouvelle = NSWindow(contentViewController: hebergeur)
-        nouvelle.title = "Réglages d’À Voix Haute"
+        nouvelle.title = tr("reglages.titre")
         nouvelle.styleMask = [.titled, .closable, .miniaturizable]
         nouvelle.isReleasedWhenClosed = false
         nouvelle.titlebarAppearsTransparent = false

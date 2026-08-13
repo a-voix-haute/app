@@ -43,9 +43,9 @@ struct AssistantIA: Identifiable, Hashable {
     var modeEmploi: String {
         switch format {
         case .commande:
-            return "tapez \(invocation)"
+            return tr("terminal.tapez", invocation)
         case .skill:
-            return "demandez-lui de lire à voix haute"
+            return tr("terminal.automatique")
         }
     }
 

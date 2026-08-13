@@ -19,12 +19,12 @@ enum SourceLecture: String {
 
     var titreParDefaut: String {
         switch self {
-        case .pressePapiers: return "Presse-papiers"
-        case .fichier:       return "Document"
-        case .service:       return "Sélection"
-        case .raccourci:     return "Sélection"
-        case .url:           return "Lecture"
-        case .cli:           return "Lecture"
+        case .pressePapiers: return tr("lecteur.pressePapiers")
+        case .fichier:       return tr("lecteur.document")
+        case .service:       return tr("lecteur.selection")
+        case .raccourci:     return tr("lecteur.selection")
+        case .url:           return tr("lecteur.lecture")
+        case .cli:           return tr("lecteur.lecture")
         }
     }
 }
@@ -289,10 +289,10 @@ final class GestionnaireLecteurs {
 
     private func signalerEchec(_ erreur: Error) {
         let alerte = NSAlert()
-        alerte.messageText = "Lecture impossible"
+        alerte.messageText = tr("erreur.lectureImpossible")
         alerte.informativeText = erreur.localizedDescription
         alerte.alertStyle = .warning
-        alerte.addButton(withTitle: "Fermer")
+        alerte.addButton(withTitle: tr("erreur.fermer"))
         alerte.runModal()
     }
 }

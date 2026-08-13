@@ -1,0 +1,181 @@
+/* À Voix Haute — italiano */
+
+/* MARK: - Barra dei menu */
+"menu.lirePressePapiers" = "Leggi gli appunti";
+"menu.toutArreter" = "Interrompi tutte le letture";
+"menu.guide" = "Primi passi…";
+"menu.reglages" = "Impostazioni…";
+"menu.quitter" = "Esci da À Voix Haute";
+
+/* MARK: - Lettore */
+"lecteur.pressePapiers" = "Appunti";
+"lecteur.document" = "Documento";
+"lecteur.selection" = "Selezione";
+"lecteur.lecture" = "Lettura";
+"lecteur.fermer" = "Chiudi (Esc)";
+"lecteur.pause" = "Pausa (Spazio)";
+"lecteur.lire" = "Riproduci (Spazio)";
+"lecteur.reculer" = "Indietro di %d secondi (←)";
+"lecteur.avancer" = "Avanti di %d secondi (→)";
+"lecteur.ralentir" = "Più lento (↓)";
+"lecteur.accelerer" = "Più veloce (↑)";
+"lecteur.epinglerVitesse" = "Fissa %@ come velocità predefinita";
+"lecteur.vitesseDejaParDefaut" = "%@ è già la velocità predefinita";
+
+/* MARK: - Impostazioni, sezioni */
+"reglages.titre" = "Impostazioni di À Voix Haute";
+"reglages.section.voix" = "Voce";
+"reglages.section.lecture" = "Lettura";
+"reglages.section.raccourci" = "Scorciatoia";
+"reglages.section.terminal" = "Terminale";
+"reglages.section.texte" = "Testo";
+
+/* MARK: - Impostazioni, voce */
+"voix.titre" = "Voce di lettura";
+"voix.libelle" = "Voce";
+"voix.automatique" = "Automatica (secondo la lingua del testo)";
+"voix.ecouterExtrait" = "Ascolta un estratto";
+"voix.arreter" = "Interrompi";
+"voix.noteAutomatique" = "La voce automatica segue la lingua rilevata nel testo.";
+"voix.debitTitre" = "Velocità di sintesi";
+"voix.debit" = "Velocità della voce";
+"voix.debitLent" = "lenta";
+"voix.debitRapide" = "veloce";
+"voix.debitActuel" = "Velocità attuale";
+"voix.noteDebit" = "Applicata al momento della sintesi. La velocità regolabile nel lettore agisce invece sulla riproduzione, senza alterare l’altezza della voce.";
+"voix.detectionLangue" = "Rileva la lingua automaticamente";
+"voix.telecharger" = "Scarica altre voci…";
+"voix.noteTelecharger" = "Le voci Migliorate e Premium si scaricano in Impostazioni di Sistema, alla voce Accessibilità e poi Contenuto pronunciato. Le voci di Siri restano riservate al sistema e nessuna app può usarle.";
+"voix.qualite.compacte" = "Compatta";
+"voix.qualite.amelioree" = "Migliorata";
+"voix.qualite.premium" = "Premium";
+"voix.apercu" = "Buongiorno, questo è un estratto della mia voce. Le sembra adatta?";
+
+/* MARK: - Impostazioni, lettura */
+"lecture.demarrageTitre" = "Avvio";
+"lecture.demarrageAuto" = "Avvia la lettura automaticamente";
+"lecture.siLectureEnCours" = "Se una lettura è già in corso";
+"lecture.continuer" = "Prosegui la lettura in corso";
+"lecture.mettreEnPause" = "Mettila in pausa e leggi la nuova";
+"lecture.noteDemarrage" = "Se non c’è nulla in riproduzione, una nuova richiesta parte subito. Altrimenti si applica la regola qui sopra.";
+"lecture.limite" = "Lettori simultanei: %d";
+"lecture.noteLimite" = "Oltre questo limite si chiude il lettore più vecchio: prima quelli terminati, poi quelli in pausa.";
+"lecture.controlesTitre" = "Comandi";
+"lecture.vitesseParDefaut" = "Velocità predefinita";
+"lecture.pasDecalage" = "Avanti e indietro";
+"lecture.secondes" = "%d secondi";
+
+/* MARK: - Impostazioni, scorciatoia */
+"raccourci.titre" = "Scorciatoia da tastiera";
+"raccourci.activer" = "Attiva la scorciatoia globale";
+"raccourci.combinaison" = "Combinazione";
+"raccourci.conflit" = "Questa combinazione è già usata da un’altra app.";
+"raccourci.note" = "Legge il testo selezionato nell’app in primo piano, qualunque essa sia.";
+"raccourci.autorisationTitre" = "Autorizzazione";
+"raccourci.accessibilite" = "Accessibilità";
+"raccourci.autorise" = "Concessa";
+"raccourci.nonAutorise" = "Non concessa";
+"raccourci.ouvrirReglages" = "Apri le impostazioni di Accessibilità…";
+"raccourci.verifier" = "Verifica di nuovo";
+"raccourci.restaurerPressePapiers" = "Ripristina gli appunti dopo la lettura";
+"raccourci.noteAutorisation" = "La cattura della selezione si basa su una copia simulata, che macOS consente solo alle app registrate in Accessibilità. Senza questa autorizzazione la scorciatoia legge gli appunti.\n\nL’autorizzazione è legata alla posizione dell’app: una copia avviata da una cartella diversa da Applicazioni è considerata da macOS un’app distinta.";
+"raccourci.alerteTitre" = "Autorizzazione necessaria";
+"raccourci.alerteMessage" = "Per leggere il testo selezionato in un’altra app, À Voix Haute deve essere autorizzata in Privacy e sicurezza, sezione Accessibilità.\n\nSenza questa autorizzazione la scorciatoia legge il contenuto degli appunti.";
+"raccourci.alerteOuvrir" = "Apri le impostazioni";
+"raccourci.alertePlusTard" = "Più tardi";
+
+/* MARK: - Impostazioni, terminale */
+"terminal.detectes" = "Assistenti rilevati";
+"terminal.aucun" = "Nessun assistente rilevato su questa macchina.";
+"terminal.nonDetectes" = "Non rilevati";
+"terminal.nonInstalle" = "non installato";
+"terminal.noteNonDetectes" = "Questi assistenti appariranno qui una volta installati.";
+"terminal.installer" = "Installa";
+"terminal.retirer" = "Rimuovi";
+"terminal.installerPartout" = "Installa ovunque";
+"terminal.installee" = "Installata — %@";
+"terminal.pasInstallee" = "Non installata";
+"terminal.tapez" = "digita %@";
+"terminal.automatique" = "chiedigli di leggere ad alta voce";
+"terminal.aucuneInstallation" = "Non è stato installato nulla.";
+"terminal.note" = "Fai leggere ad alta voce la risposta di un assistente, un file o gli appunti senza lasciare il terminale.\n\nAlcuni assistenti si invocano con un comando, altri — Codex, Cursor — capiscono da soli che bisogna leggere: basta chiederglielo.";
+"terminal.noteCommande" = "Il comando `lire` deve essere disponibile nel terminale: viene installato insieme all’app.";
+
+/* MARK: - Impostazioni, testo */
+"texte.preparationTitre" = "Preparazione del testo";
+"texte.nettoyageMarkdown" = "Ripulisci la formattazione Markdown";
+"texte.noteNettoyage" = "Rimuove cancelletti, asterischi, link e tabelle perché la voce non li pronunci. I blocchi di codice vengono annunciati anziché letti.";
+"texte.informationsTitre" = "Informazioni";
+"texte.version" = "Versione";
+"texte.helper" = "Comando da terminale";
+"texte.journal" = "Registro";
+"texte.noteTerminal" = "Dal terminale: pbpaste | lire, lire file.md oppure lire --stop.";
+
+/* MARK: - Assistente di configurazione */
+"bienvenue.fenetre" = "Benvenuto";
+"bienvenue.precedent" = "Indietro";
+"bienvenue.continuer" = "Continua";
+"bienvenue.terminer" = "Fine";
+
+"bienvenue.presentation.titre" = "À Voix Haute";
+"bienvenue.presentation.sousTitre" = "Ascolta qualsiasi testo, ovunque si trovi.";
+"bienvenue.atout1.titre" = "Velocità regolabile durante l’ascolto";
+"bienvenue.atout1.detail" = "Da 0,5 a 3 volte, senza che la voce salga di tono.";
+"bienvenue.atout2.titre" = "Markdown ripulito";
+"bienvenue.atout2.detail" = "Niente cancelletti, niente asterischi, niente indirizzi pronunciati.";
+"bienvenue.atout3.titre" = "Lettore sempre in vista";
+"bienvenue.atout3.detail" = "Resta sopra le altre finestre, anche a schermo intero.";
+
+"bienvenue.voix.titre" = "Scegli una voce";
+"bienvenue.voix.detail" = "Le voci contrassegnate come Premium o Migliorata suonano nettamente meglio di quelle compatte.";
+"bienvenue.voix.telecharger" = "Scaricane altre";
+"bienvenue.voix.note" = "Puoi cambiarla in qualsiasi momento nelle impostazioni.";
+
+"bienvenue.autorisation.titre" = "Leggere la selezione";
+"bienvenue.autorisation.detail" = "Per leggere il testo selezionato in un’altra app, macOS richiede un’autorizzazione di accessibilità.";
+"bienvenue.autorisation.accordee" = "Autorizzazione concessa";
+"bienvenue.autorisation.nonAccordee" = "Autorizzazione non concessa";
+"bienvenue.autorisation.detailAccordee" = "La scorciatoia leggerà il testo selezionato.";
+"bienvenue.autorisation.detailNonAccordee" = "Senza di essa, la scorciatoia legge gli appunti.";
+"bienvenue.autorisation.autoriser" = "Concedi…";
+"bienvenue.autorisation.marche" = "Nella finestra che si apre:";
+"bienvenue.autorisation.etapes" = "1. Trova «À Voix Haute» nell’elenco\n2. Attiva l’interruttore accanto al suo nome";
+"bienvenue.autorisation.horsApplications" = "Questa copia non si trova nella cartella Applicazioni. L’autorizzazione concessa alla versione installata non vale per essa.";
+"bienvenue.autorisation.facultative" = "Questo passaggio è facoltativo: tutto il resto funziona senza.";
+
+"bienvenue.raccourcis.titre" = "Quattro modi per avviare una lettura";
+"bienvenue.raccourcis.detail" = "Scegli quello che serve sul momento.";
+"bienvenue.moyen1.titre" = "Clic destro su una selezione";
+"bienvenue.moyen1.detail" = "Servizi, poi «Leggi ad alta voce».";
+"bienvenue.moyen2.titre" = "Scorciatoia ⌃⌥L";
+"bienvenue.moyen2.detail" = "Legge la selezione corrente, da qualsiasi app.";
+"bienvenue.moyen3.titre" = "Barra dei menu";
+"bienvenue.moyen3.detail" = "L’icona a forma d’onda, per leggere gli appunti.";
+"bienvenue.moyen4.titre" = "Terminale";
+"bienvenue.moyen4.detail" = "pbpaste | lire — oppure lire documento.md";
+"bienvenue.raccourcis.activer" = "Attiva la scorciatoia ⌃⌥L";
+
+"bienvenue.terminal.titre" = "Assistenti da terminale";
+"bienvenue.terminal.detail" = "Fai leggere la risposta di un assistente senza lasciare il terminale.";
+"bienvenue.terminal.installerPartout" = "Installa il comando ovunque";
+"bienvenue.terminal.installees" = "Installata per %d assistente/i.";
+"bienvenue.terminal.note" = "Modificabile in qualsiasi momento nelle impostazioni, sezione Terminale.";
+
+"bienvenue.fin.titre" = "Tutto pronto";
+"bienvenue.fin.detail" = "À Voix Haute vive nella barra dei menu e si avvia con la tua sessione.";
+"bienvenue.fin.essayerTitre" = "Per provarlo subito";
+"bienvenue.fin.essayer" = "Seleziona un paragrafo nel browser, poi premi ⌃⌥L.";
+
+/* MARK: - Servizio macOS */
+"service.lireAVoixHaute" = "Leggi ad alta voce";
+"service.aucunTexte" = "Nessun testo selezionato.";
+
+/* MARK: - Errori */
+"erreur.lectureImpossible" = "Lettura non riuscita";
+"erreur.fermer" = "Chiudi";
+"erreur.texteVide" = "Niente da leggere.";
+"erreur.voixIntrouvable" = "Voce non trovata: %@";
+"erreur.echecEcriture" = "Impossibile scrivere il file audio: %@";
+"erreur.syntheseEchouee" = "Sintesi non riuscita: %@";
+"erreur.syntheseEchoueeCode" = "Sintesi non riuscita (codice %d).";
+"erreur.annulee" = "Sintesi annullata.";

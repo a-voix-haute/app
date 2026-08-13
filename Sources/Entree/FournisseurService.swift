@@ -24,7 +24,7 @@ final class FournisseurService: NSObject {
     ) {
         guard let texte = pboard.string(forType: .string),
               !texte.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            error?.pointee = "Aucun texte sélectionné." as NSString
+            error?.pointee = tr("service.aucunTexte") as NSString
             return
         }
 

@@ -1,0 +1,6 @@
+/* Libellés lus par le système dans l'Info.plist */
+"CFBundleDisplayName" = "À Voix Haute";
+"CFBundleName" = "À Voix Haute";
+
+/* Entrée du menu Services */
+"NSServices/0/NSMenuItem/default" = "Read aloud";

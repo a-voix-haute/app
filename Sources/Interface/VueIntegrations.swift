@@ -22,17 +22,13 @@ struct VueIntegrations: View {
                         LigneAssistant(assistant: assistant) { rafraichir() }
                     }
                 } else {
-                    Text("Aucun assistant détecté sur cette machine.")
+                    Text(cle: "terminal.aucun")
                         .foregroundStyle(.secondary)
                 }
             } header: {
-                Text("Assistants détectés")
+                Text(cle: "terminal.detectes")
             } footer: {
-                Text("Faites lire à voix haute la réponse d'un assistant, un "
-                   + "fichier ou le presse-papiers, sans quitter le terminal."
-                   + "\n\nCertains assistants s'invoquent par une commande, "
-                   + "d'autres — Codex, Cursor — repèrent d'eux-mêmes qu'il "
-                   + "faut lire : il suffit de le leur demander.")
+                Text(cle: "terminal.note")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -45,15 +41,15 @@ struct VueIntegrations: View {
                             Text(assistant.nom)
                                 .foregroundStyle(.secondary)
                             Spacer()
-                            Text("non installé")
+                            Text(cle: "terminal.nonInstalle")
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                         }
                     }
                 } header: {
-                    Text("Non détectés")
+                    Text(cle: "terminal.nonDetectes")
                 } footer: {
-                    Text("Ces assistants apparaîtront ici une fois installés.")
+                    Text(cle: "terminal.noteNonDetectes")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -64,10 +60,10 @@ struct VueIntegrations: View {
                     let nombre = IntegrationIA.installerPartout()
                     rafraichir()
                     messageErreur = nombre == 0
-                        ? "Aucune installation effectuée."
+                        ? tr("terminal.aucuneInstallation")
                         : nil
                 } label: {
-                    Label("Installer partout", systemImage: "square.and.arrow.down.on.square")
+                    Label(tr("terminal.installerPartout"), systemImage: "square.and.arrow.down.on.square")
                 }
                 .disabled(!assistants.contains { $0.estPresent && !$0.commandeInstallee })
 
@@ -77,8 +73,7 @@ struct VueIntegrations: View {
                         .foregroundStyle(.orange)
                 }
             } footer: {
-                Text("La commande `lire` doit être disponible dans le terminal : "
-                   + "elle est installée avec l'application.")
+                Text(cle: "terminal.noteCommande")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -111,8 +106,8 @@ private struct LigneAssistant: View {
                     .font(.system(size: 13))
 
                 Text(assistant.commandeInstallee
-                     ? "Installée — \(assistant.modeEmploi)"
-                     : "Non installée")
+                     ? tr("terminal.installee", assistant.modeEmploi)
+                     : tr("terminal.pasInstallee"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -120,14 +115,14 @@ private struct LigneAssistant: View {
             Spacer()
 
             if assistant.commandeInstallee {
-                Button("Retirer") {
+                Button(tr("terminal.retirer")) {
                     IntegrationIA.desinstaller(de: assistant)
                     surChangement()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
             } else {
-                Button("Installer") {
+                Button(tr("terminal.installer")) {
                     IntegrationIA.installer(dans: assistant)
                     surChangement()
                 }
