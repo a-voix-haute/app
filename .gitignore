@@ -12,3 +12,7 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Couverture de code produite par xcodebuild test
+*.profraw
+*.profdata
