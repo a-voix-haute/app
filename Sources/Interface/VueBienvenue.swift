@@ -245,6 +245,11 @@ private struct EtapeAutorisation: View {
     @State private var autorise = CaptureSelection.estAutorisee
     @State private var minuteur: Timer?
 
+    /// L'application s'exécute-t-elle depuis le dossier Applications ?
+    private static var installeeDansApplications: Bool {
+        Bundle.main.bundlePath.hasPrefix("/Applications/")
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             EnTeteEtape(
@@ -293,6 +298,21 @@ private struct EtapeAutorisation: View {
                        + "2. Activez l'interrupteur à côté de son nom")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
+                }
+
+                // L'autorisation est attachée à l'emplacement du bundle : une
+                // copie lancée depuis un dossier de compilation reste vue comme
+                // une autre application, même autorisation accordée par ailleurs.
+                if !Self.installeeDansApplications {
+                    Label(
+                        "Cette copie n'est pas dans le dossier Applications. "
+                        + "L'autorisation accordée à la version installée ne "
+                        + "s'applique pas à elle.",
+                        systemImage: "info.circle"
+                    )
+                    .font(.system(size: 11))
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
                 }
             }
 

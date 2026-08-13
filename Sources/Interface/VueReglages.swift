@@ -28,18 +28,16 @@ private enum SectionReglages: String, CaseIterable, Identifiable {
     }
 }
 
-// Le TabView de SwiftUI se comporte mal dans une NSWindow hébergée : son fond
-// laisse apparaître des séparateurs parasites entre les onglets, et toute marge
-// appliquée pour l'écarter de la barre de titre décale ce fond au lieu de la
-// vue. Un sélecteur segmenté posé sur un VStack évite les deux écueils, et
-// donne le même résultat visuel.
+// Barre de sections dessinée à la main plutôt qu'un Picker segmenté : ce
+// dernier trace un séparateur entre ses segments non sélectionnés, ce qui
+// donnait des traits verticaux parasites entre les libellés.
 struct VueReglages: View {
 
     @State private var section: SectionReglages = .voix
 
     var body: some View {
         VStack(spacing: 0) {
-            selecteur
+            barreSections
 
             Divider()
 
@@ -53,21 +51,58 @@ struct VueReglages: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 520, height: 470)
+        .frame(width: 540, height: 480)
     }
 
-    private var selecteur: some View {
-        Picker("", selection: $section) {
-            ForEach(SectionReglages.allCases) { section in
-                Label(section.libelle, systemImage: section.symbole)
-                    .tag(section)
+    private var barreSections: some View {
+        HStack(spacing: 4) {
+            ForEach(SectionReglages.allCases) { uneSection in
+                BoutonSection(
+                    section: uneSection,
+                    actif: uneSection == section
+                ) {
+                    withAnimation(.snappy(duration: 0.15)) { section = uneSection }
+                }
             }
         }
-        .pickerStyle(.segmented)
-        .labelsHidden()
-        .fixedSize()
+        .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// Un onglet de la barre de sections.
+private struct BoutonSection: View {
+
+    let section: SectionReglages
+    let actif: Bool
+    let action: () -> Void
+
+    @State private var survole = false
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: section.symbole)
+                    .font(.system(size: 16, weight: .regular))
+                Text(section.libelle)
+                    .font(.system(size: 11, weight: .medium))
+            }
+            .foregroundStyle(actif ? Color.accentColor : Color.primary.opacity(0.75))
+            .frame(width: 78, height: 50)
+            .background(
+                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    .fill(fondCourant)
+            )
+            .contentShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .onHover { survole = $0 }
+    }
+
+    private var fondCourant: Color {
+        if actif { return Color.accentColor.opacity(0.14) }
+        return survole ? Color.primary.opacity(0.06) : .clear
     }
 }
 
@@ -357,9 +392,10 @@ private struct OngletRaccourci: View {
                 Text("La capture de la sélection passe par une copie simulée, "
                    + "ce que macOS n'autorise qu'aux applications inscrites en "
                    + "Accessibilité. Sans cette autorisation, le raccourci lit "
-                   + "le presse-papiers.\n\nL'autorisation est liée à la "
-                   + "signature de l'application : elle est à redonner après "
-                   + "chaque recompilation.")
+                   + "le presse-papiers.\n\nL'autorisation est attachée à "
+                   + "l'emplacement de l'application : une copie lancée depuis "
+                   + "un autre dossier que Applications est vue par macOS comme "
+                   + "une application distincte.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
