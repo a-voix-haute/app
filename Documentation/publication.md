@@ -32,16 +32,23 @@ Dans **Trousseaux d'accès** :
 2. Repérer *Developer ID Application: …*
 3. Clic droit → **Exporter…**, format *Échange d'informations personnelles
    (.p12)*
-4. Choisir un mot de passe et le noter : il devient le secret
-   `CERTIFICAT_MOT_DE_PASSE`
+4. Choisir un mot de passe **non vide** et le noter : il devient le secret
+   `CERTIFICAT_MOT_DE_PASSE`.
+
+   Un `.p12` exporté sans mot de passe est refusé à l'import par macOS, avec
+   un message trompeur — « passphrase you entered is not correct ».
 
 Puis encoder le fichier :
 
 ```bash
-base64 -i ~/Desktop/certificat.p12 | pbcopy
+base64 -i ~/Desktop/certificat.p12 -o /tmp/cert.b64
+gh secret set CERTIFICAT_P12_BASE64 --repo dimer47/a-voix-haute < /tmp/cert.b64
+rm /tmp/cert.b64
 ```
 
-Le contenu du presse-papiers devient le secret `CERTIFICAT_P12_BASE64`.
+L'enregistrement se fait depuis un fichier plutôt que par un collage dans
+l'invite : une saisie interactive peut aboutir à un secret vide sans que rien
+ne le signale.
 
 Supprimez le `.p12` du disque une fois l'opération faite : il contient votre clé
 privée.

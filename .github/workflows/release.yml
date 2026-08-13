@@ -50,7 +50,12 @@ jobs:
           CERTIFICAT="$RUNNER_TEMP/certificat.p12"
 
           if [ -z "$CERTIFICAT_P12_BASE64" ]; then
-            echo "::error::Le secret CERTIFICAT_P12_BASE64 est vide."
+            echo "::error::Le secret CERTIFICAT_P12_BASE64 est vide. Enregistrez-le depuis un fichier : gh secret set CERTIFICAT_P12_BASE64 --repo … < cert.b64"
+            exit 1
+          fi
+
+          if [ -z "$CERTIFICAT_MOT_DE_PASSE" ]; then
+            echo "::error::Le secret CERTIFICAT_MOT_DE_PASSE est vide. Un .p12 exporté sans mot de passe ne peut pas être importé par macOS : réexportez le certificat en en choisissant un."
             exit 1
           fi
 
