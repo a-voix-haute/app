@@ -89,6 +89,18 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
         surFermeture?(self)
     }
 
+    /// Ferme sans déclencher `surFermeture`.
+    ///
+    /// Utilisé par le gestionnaire quand il retire lui-même la session de sa
+    /// liste : le rappel modifierait la collection pendant son parcours.
+    func fermerSansNotifier() {
+        surFermeture = nil
+        retirerRaccourcisClavier()
+        lecteur.fermer()
+        fenetre.delegate = nil
+        fenetre.orderOut(nil)
+    }
+
     // MARK: - Clavier
 
     /// Les raccourcis n'agissent que lorsque cette fenêtre est au premier plan,

@@ -14,7 +14,7 @@ import AppKit
 
 final class FenetreFlottante: NSPanel {
 
-    static let taille = NSSize(width: 320, height: 104)
+    static let taille = NSSize(width: 360, height: 104)
 
     /// Rayon des coins, appliqué par la couche Liquid Glass et par elle seule.
     ///

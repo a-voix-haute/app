@@ -13,6 +13,8 @@ struct VueLecteur: View {
     let titre: String
     let surFermeture: () -> Void
 
+    private var reglages: Reglages { Reglages.partage }
+
     /// Position montrée pendant un glissement sur la barre : tant que le doigt
     /// est posé, l'affichage suit le curseur et non la lecture.
     @State private var positionGlissee: Double?
@@ -144,43 +146,92 @@ struct VueLecteur: View {
 
             Spacer()
 
-            boutonVitesse
+            blocVitesse
         }
     }
 
-    /// Le bouton de vitesse adopte le style Glass d'Apple, qui rend visible
-    /// l'écart avec la vitesse normale sans recourir à une couleur d'accent.
-    @ViewBuilder
-    private var boutonVitesse: some View {
-        let etiquette = Text(Lecteur.formaterVitesse(lecteur.vitesse))
-            .font(.system(size: 12, weight: .semibold, design: .rounded))
-            .monospacedDigit()
+    // MARK: - Vitesse
 
-        if #available(macOS 26.0, *) {
-            Button {
-                lecteur.vitesseSuivante()
-            } label: {
-                etiquette.frame(minWidth: 30)
+    /// Vrai quand la vitesse courante est déjà celle enregistrée par défaut.
+    private var vitesseDejaParDefaut: Bool {
+        abs(lecteur.vitesse - reglages.vitesseParDefaut) < 0.001
+    }
+
+    /// Réglage de la vitesse par paliers, avec enregistrement du défaut.
+    ///
+    /// Deux boutons distincts plutôt qu'un bouton cyclique : le sens de la
+    /// correction est explicite, sans avoir à faire défiler toute la liste pour
+    /// revenir d'un cran en arrière.
+    private var blocVitesse: some View {
+        HStack(spacing: 2) {
+            boutonPalier(
+                "minus",
+                aide: "Ralentir (↓)",
+                actif: lecteur.vitesse > Lecteur.vitessesDisponibles.first!
+            ) {
+                lecteur.vitessePrecedente()
             }
-            .buttonStyle(.glass)
-            .controlSize(.small)
-            .tint(lecteur.vitesse == 1.0 ? .secondary : .accentColor)
-            .help("Vitesse de lecture (↑ ↓)")
-        } else {
-            Button {
+
+            Text(Lecteur.formaterVitesse(lecteur.vitesse))
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(vitesseDejaParDefaut ? .secondary : .primary)
+                .frame(minWidth: 38)
+                .contentTransition(.numericText())
+                .animation(.snappy(duration: 0.15), value: lecteur.vitesse)
+
+            boutonPalier(
+                "plus",
+                aide: "Accélérer (↑)",
+                actif: lecteur.vitesse < Lecteur.vitessesDisponibles.last!
+            ) {
                 lecteur.vitesseSuivante()
-            } label: {
-                etiquette
-                    .foregroundStyle(lecteur.vitesse == 1.0 ? Color.secondary : Color.accentColor)
-                    .frame(minWidth: 34, minHeight: 22)
-                    .background(
-                        Capsule().fill(.primary.opacity(lecteur.vitesse == 1.0 ? 0.08 : 0.14))
-                    )
-                    .contentShape(Capsule())
             }
-            .buttonStyle(.plain)
-            .help("Vitesse de lecture (↑ ↓)")
+
+            boutonEnregistrer
+                .padding(.leading, 3)
         }
+    }
+
+    /// Épingle la vitesse courante comme valeur par défaut des prochaines
+    /// lectures. Désactivé lorsqu'elle l'est déjà.
+    ///
+    /// L'épingle pleine signale que la vitesse affichée est celle retenue :
+    /// l'état est lisible sans avoir à ouvrir les réglages.
+    private var boutonEnregistrer: some View {
+        Button {
+            reglages.vitesseParDefaut = lecteur.vitesse
+        } label: {
+            Image(systemName: vitesseDejaParDefaut ? "pin.fill" : "pin")
+                .font(.system(size: 11, weight: .semibold))
+                .frame(width: 22, height: 22)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(vitesseDejaParDefaut ? Color.accentColor : .secondary)
+        .disabled(vitesseDejaParDefaut)
+        .contentTransition(.symbolEffect(.replace))
+        .help(vitesseDejaParDefaut
+              ? "\(Lecteur.formaterVitesse(lecteur.vitesse)) est déjà la vitesse par défaut"
+              : "Épingler \(Lecteur.formaterVitesse(lecteur.vitesse)) comme vitesse par défaut")
+    }
+
+    private func boutonPalier(
+        _ symbole: String,
+        aide: String,
+        actif: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: symbole)
+                .font(.system(size: 10, weight: .bold))
+                .frame(width: 20, height: 20)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(actif ? .primary : .quaternary)
+        .disabled(!actif)
+        .help(aide)
     }
 
     private func boutonIcone(

@@ -219,7 +219,9 @@ final class Lecteur {
     // MARK: - Affichage
 
     /// Formate une durée en `m:ss` ou `h:mm:ss`.
-    static func formaterDuree(_ secondes: TimeInterval) -> String {
+    ///
+    /// `nonisolated` : fonction pure, utilisable depuis n'importe quel contexte.
+    nonisolated static func formaterDuree(_ secondes: TimeInterval) -> String {
         guard secondes.isFinite, secondes >= 0 else { return "0:00" }
         let total = Int(secondes.rounded())
         let heures = total / 3600
@@ -231,7 +233,7 @@ final class Lecteur {
     }
 
     /// Vitesse formatée pour l'affichage : « 1× », « 1,5× ».
-    static func formaterVitesse(_ vitesse: Float) -> String {
+    nonisolated static func formaterVitesse(_ vitesse: Float) -> String {
         if vitesse == vitesse.rounded() {
             return String(format: "%.0f×", vitesse)
         }

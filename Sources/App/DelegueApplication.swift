@@ -2,12 +2,10 @@
 
 import AppKit
 
+@MainActor
 final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     private var elementBarreMenus: NSStatusItem?
-
-    /// Lecteurs ouverts. Repris par GestionnaireLecteurs à l'étape 6.
-    private var controleurs: [ControleurFenetreLecteur] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Journal.app.info("Démarrage de Lecteur")
@@ -31,7 +29,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
             case "texte":
                 let composants = URLComponents(url: url, resolvingAgainstBaseURL: false)
                 if let texte = composants?.queryItems?.first(where: { $0.name == "t" })?.value {
-                    lire(texte: texte, titre: "Lecture")
+                    lire(texte: texte, source: .url)
                 }
             default:
                 Journal.entree.notice("URL non reconnue : \(url.absoluteString, privacy: .public)")
@@ -59,6 +57,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
             action: #selector(lirePressePapiers),
             keyEquivalent: ""
         ).target = self
+        menu.addItem(
+            withTitle: "Arrêter toutes les lectures",
+            action: #selector(toutArreter),
+            keyEquivalent: ""
+        ).target = self
         menu.addItem(.separator())
         menu.addItem(
             withTitle: "Réglages…",
@@ -82,51 +85,19 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
             return
         }
         Journal.entree.info("Lecture depuis le presse-papiers : \(texte.count) caractères")
-        lire(texte: texte, titre: "Presse-papiers")
+        lire(texte: texte, source: .pressePapiers)
     }
 
-    /// Chaîne complète : nettoyage, synthèse, ouverture du lecteur.
-    ///
-    /// Remplacé par GestionnaireLecteurs à l'étape 6, qui y ajoutera les règles
-    /// de coexistence entre lecteurs.
-    private func lire(texte: String, titre: String) {
-        let propre = NettoyeurMarkdown.nettoyer(texte)
-        guard !propre.isEmpty else {
-            Journal.entree.notice("Texte vide après nettoyage")
-            return
-        }
+    private func lire(texte: String, source: SourceLecture, titre: String? = nil) {
+        GestionnaireLecteurs.partage.demanderLecture(
+            texte: texte,
+            source: source,
+            titre: titre
+        )
+    }
 
-        let moteur = MoteurSay()
-        guard let voix = moteur.voixDisponibles().first(where: { $0.nom == "Thomas" })
-                ?? moteur.voixDisponibles().first(where: { $0.codeLangue == "fr" }) else {
-            Journal.synthese.error("Aucune voix française disponible")
-            return
-        }
-
-        Task { @MainActor in
-            do {
-                let audio = try await moteur.synthetiser(
-                    texte: propre,
-                    voix: voix,
-                    vitesseBase: 1.0
-                ) { _ in }
-
-                let lecteur = Lecteur(fichier: audio)
-                let controleur = ControleurFenetreLecteur(
-                    lecteur: lecteur,
-                    titre: titre,
-                    rang: self.controleurs.count
-                )
-                controleur.surFermeture = { [weak self] ferme in
-                    self?.controleurs.removeAll { $0 === ferme }
-                }
-                self.controleurs.append(controleur)
-                controleur.afficher()
-                lecteur.lire()
-            } catch {
-                Journal.synthese.error("Synthèse échouée : \(error.localizedDescription, privacy: .public)")
-            }
-        }
+    @objc private func toutArreter() {
+        GestionnaireLecteurs.partage.toutArreter()
     }
 
     @objc private func ouvrirReglages() {
