@@ -49,17 +49,37 @@ jobs:
           MOT_DE_PASSE_TROUSSEAU="$(uuidgen)"
           CERTIFICAT="$RUNNER_TEMP/certificat.p12"
 
-          echo -n "$CERTIFICAT_P12_BASE64" | base64 --decode > "$CERTIFICAT"
+          if [ -z "$CERTIFICAT_P12_BASE64" ]; then
+            echo "::error::Le secret CERTIFICAT_P12_BASE64 est vide."
+            exit 1
+          fi
+
+          # tr supprime les retours ligne éventuels : certains outils de copie
+          # en introduisent, et le décodage échouerait sans message clair.
+          echo "$CERTIFICAT_P12_BASE64" | tr -d '\n\r ' | base64 --decode > "$CERTIFICAT"
+
+          TAILLE="$(wc -c < "$CERTIFICAT" | tr -d ' ')"
+          echo "Certificat décodé : $TAILLE octets"
+          if [ "$TAILLE" -lt 1000 ]; then
+            echo "::error::Le certificat décodé fait $TAILLE octets, ce qui est trop peu pour un .p12 contenant une clé privée."
+            exit 1
+          fi
 
           security create-keychain -p "$MOT_DE_PASSE_TROUSSEAU" "$TROUSSEAU"
           security set-keychain-settings -lut 21600 "$TROUSSEAU"
           security unlock-keychain -p "$MOT_DE_PASSE_TROUSSEAU" "$TROUSSEAU"
 
+          # -f pkcs12 et -A sont nécessaires : sans le format explicite,
+          # SecKeychainItemImport rejette le fichier avec un message
+          # d'« invalid parameters » peu explicite.
           security import "$CERTIFICAT" \
             -k "$TROUSSEAU" \
             -P "$CERTIFICAT_MOT_DE_PASSE" \
+            -f pkcs12 \
+            -A \
             -T /usr/bin/codesign \
-            -T /usr/bin/security
+            -T /usr/bin/security \
+            -T /usr/bin/productbuild
 
           # Sans cette autorisation, codesign demanderait une confirmation
           # interactive, impossible sur un runner.
