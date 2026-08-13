@@ -6,6 +6,9 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     private var elementBarreMenus: NSStatusItem?
 
+    /// Lecteurs ouverts. Repris par GestionnaireLecteurs à l'étape 6.
+    private var controleurs: [ControleurFenetreLecteur] = []
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         Journal.app.info("Démarrage de Lecteur")
 
@@ -14,6 +17,26 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         GestionnaireFichiersTemp.nettoyerOrphelins()
 
         installerElementBarreMenus()
+    }
+
+    /// Canal d'entrée URL : `lire://presse-papiers` ou `lire://texte?t=…`
+    ///
+    /// Ce canal convient aux textes courts ; au-delà, les limites de longueur
+    /// d'URL s'appliquent, d'où le socket Unix comme canal principal.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls where url.scheme == "lire" {
+            switch url.host {
+            case "presse-papiers", "clipboard", nil:
+                lirePressePapiers()
+            case "texte":
+                let composants = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                if let texte = composants?.queryItems?.first(where: { $0.name == "t" })?.value {
+                    lire(texte: texte, titre: "Lecture")
+                }
+            default:
+                Journal.entree.notice("URL non reconnue : \(url.absoluteString, privacy: .public)")
+            }
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -59,7 +82,51 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
             return
         }
         Journal.entree.info("Lecture depuis le presse-papiers : \(texte.count) caractères")
-        // Raccordé au GestionnaireLecteurs à l'étape 6.
+        lire(texte: texte, titre: "Presse-papiers")
+    }
+
+    /// Chaîne complète : nettoyage, synthèse, ouverture du lecteur.
+    ///
+    /// Remplacé par GestionnaireLecteurs à l'étape 6, qui y ajoutera les règles
+    /// de coexistence entre lecteurs.
+    private func lire(texte: String, titre: String) {
+        let propre = NettoyeurMarkdown.nettoyer(texte)
+        guard !propre.isEmpty else {
+            Journal.entree.notice("Texte vide après nettoyage")
+            return
+        }
+
+        let moteur = MoteurSay()
+        guard let voix = moteur.voixDisponibles().first(where: { $0.nom == "Thomas" })
+                ?? moteur.voixDisponibles().first(where: { $0.codeLangue == "fr" }) else {
+            Journal.synthese.error("Aucune voix française disponible")
+            return
+        }
+
+        Task { @MainActor in
+            do {
+                let audio = try await moteur.synthetiser(
+                    texte: propre,
+                    voix: voix,
+                    vitesseBase: 1.0
+                ) { _ in }
+
+                let lecteur = Lecteur(fichier: audio)
+                let controleur = ControleurFenetreLecteur(
+                    lecteur: lecteur,
+                    titre: titre,
+                    rang: self.controleurs.count
+                )
+                controleur.surFermeture = { [weak self] ferme in
+                    self?.controleurs.removeAll { $0 === ferme }
+                }
+                self.controleurs.append(controleur)
+                controleur.afficher()
+                lecteur.lire()
+            } catch {
+                Journal.synthese.error("Synthèse échouée : \(error.localizedDescription, privacy: .public)")
+            }
+        }
     }
 
     @objc private func ouvrirReglages() {
