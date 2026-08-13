@@ -121,7 +121,6 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     }
 
     @objc private func ouvrirReglages() {
-        // Fenêtre de réglages ajoutée à l'étape 9.
-        Journal.app.debug("Ouverture des réglages demandée")
+        FenetreReglages.partage.afficher()
     }
 }

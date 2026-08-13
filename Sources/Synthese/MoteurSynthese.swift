@@ -63,8 +63,19 @@ struct VoixDisponible: Identifiable, Hashable, Codable {
         String(langue.prefix(2)).lowercased()
     }
 
+    /// Nom débarrassé des mentions techniques.
+    ///
+    /// `say` nomme ses variantes « Thomas (Enhanced) » ou « Grandma (Français
+    /// (France)) » ; seule la première partie intéresse l'utilisateur, la
+    /// qualité et la langue étant affichées séparément.
+    var nomAffiche: String {
+        guard let parenthese = nom.firstIndex(of: "(") else { return nom }
+        let court = nom[..<parenthese].trimmingCharacters(in: .whitespaces)
+        return court.isEmpty ? nom : court
+    }
+
     var descriptionComplete: String {
-        qualite == .compacte ? nom : "\(nom) (\(qualite.libelle))"
+        qualite == .compacte ? nomAffiche : "\(nomAffiche) (\(qualite.libelle))"
     }
 }
 

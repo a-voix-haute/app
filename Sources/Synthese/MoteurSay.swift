@@ -101,14 +101,24 @@ final class MoteurSay: MoteurSynthese {
                 id: nom,
                 nom: nom,
                 langue: langue,
-                // `say` n'expose aucune information de qualité, et n'accède
-                // qu'aux voix compactes.
-                qualite: .compacte,
+                qualite: Self.qualiteDapresLeNom(nom),
                 moteur: .say
             ))
         }
 
         return voix.sorted { ($0.langue, $0.nom) < ($1.langue, $1.nom) }
+    }
+
+    /// Déduit la qualité d'une voix de son nom.
+    ///
+    /// `say` n'expose aucun champ de qualité, mais nomme les variantes
+    /// téléchargées « Thomas (Enhanced) » ou « Audrey (Premium) ». C'est la
+    /// seule information disponible, et elle suffit à trier le catalogue.
+    private static func qualiteDapresLeNom(_ nom: String) -> QualiteVoix {
+        let minuscule = nom.lowercased()
+        if minuscule.contains("(premium)") { return .premium }
+        if minuscule.contains("(enhanced)") || minuscule.contains("(améliorée)") { return .amelioree }
+        return .compacte
     }
 
     // MARK: - Synthèse
