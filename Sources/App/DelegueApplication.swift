@@ -39,6 +39,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         guard !Self.sousTest else { return }
         FournisseurService.installer()
         installerRaccourciGlobal()
+
+        // L'application n'ayant pas de fenêtre principale, rien n'indiquerait
+        // au nouvel utilisateur ce qu'elle sait faire ni comment l'invoquer.
+        FenetreBienvenue.partage.afficherSiPremierLancement()
     }
 
     /// L'application est-elle hébergée par le harnais de tests ?
@@ -192,6 +196,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
+            withTitle: "Guide de prise en main…",
+            action: #selector(ouvrirAssistant),
+            keyEquivalent: ""
+        ).target = self
+        menu.addItem(
             withTitle: "Réglages…",
             action: #selector(ouvrirReglages),
             keyEquivalent: ","
@@ -226,6 +235,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     @objc private func toutArreter() {
         GestionnaireLecteurs.partage.toutArreter()
+    }
+
+    @objc private func ouvrirAssistant() {
+        FenetreBienvenue.partage.afficher()
     }
 
     @objc private func ouvrirReglages() {

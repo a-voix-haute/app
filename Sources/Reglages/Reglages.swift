@@ -67,6 +67,7 @@ final class Reglages {
         static let raccourciGlobalActif = "raccourciGlobalActif"
         static let raccourciCodeTouche = "raccourciCodeTouche"
         static let raccourciModificateurs = "raccourciModificateurs"
+        static let assistantVu = "assistantVu"
     }
 
     // MARK: - Lecture
@@ -157,6 +158,14 @@ final class Reglages {
     var raccourciGlobalActif: Bool {
         get { stockage.bool(forKey: Cle.raccourciGlobalActif) }
         set { stockage.set(newValue, forKey: Cle.raccourciGlobalActif) }
+    }
+
+    // MARK: - Premier lancement
+
+    /// L'assistant de configuration a-t-il déjà été parcouru ?
+    var assistantVu: Bool {
+        get { stockage.bool(forKey: Cle.assistantVu) }
+        set { stockage.set(newValue, forKey: Cle.assistantVu) }
     }
 
     /// Code de touche du raccourci global. 37 correspond à « L ».

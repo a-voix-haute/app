@@ -54,11 +54,19 @@ if ! codesign --verify --deep --strict "$APP" 2>/dev/null; then
     exit 1
 fi
 
-# Le runtime durci est obligatoire pour la notarisation.
-if ! codesign -d --verbose=2 "$APP" 2>&1 | grep -q "runtime"; then
-    echo "Erreur : runtime durci absent. Relancez Scripts/construire.sh --distribuer" >&2
-    exit 1
-fi
+# Le runtime durci est obligatoire pour la notarisation. Il apparaît dans les
+# indicateurs de la signature sous la forme « flags=0x10000(runtime) ».
+#
+# La sortie est capturée avant d'être filtrée : sous `set -o pipefail`, le code
+# de retour de codesign ferait échouer le pipeline avant même le test.
+DESCRIPTION_SIGNATURE="$(codesign -d --verbose=2 "$APP" 2>&1 || true)"
+case "$DESCRIPTION_SIGNATURE" in
+    *"0x10000(runtime)"*) ;;
+    *)
+        echo "Erreur : runtime durci absent. Relancez Scripts/construire.sh --distribuer" >&2
+        exit 1
+        ;;
+esac
 echo "  signature et runtime durci vérifiés"
 
 # --- Envoi ------------------------------------------------------------------
@@ -97,8 +105,10 @@ echo
 echo "Création du disque d'installation…"
 rm -f "$IMAGE"
 
+# Le dossier est supprimé juste après la création de l'image, plutôt que par un
+# trap : un trap posé ici s'exécuterait à la sortie du script, y compris sur une
+# sortie anticipée, alors que l'image a besoin du dossier jusqu'au bout.
 MONTAGE="$(mktemp -d)"
-trap 'rm -rf "$MONTAGE"' EXIT
 
 cp -R "$APP" "$MONTAGE/À Voix Haute.app"
 ln -s /Applications "$MONTAGE/Applications"
@@ -108,6 +118,8 @@ hdiutil create \
     -srcfolder "$MONTAGE" \
     -ov -format UDZO \
     "$IMAGE" >/dev/null
+
+rm -rf "$MONTAGE"
 
 # L'image elle-même est signée puis notarisée : c'est elle qui circulera.
 codesign --sign "Developer ID Application" --timestamp "$IMAGE"
