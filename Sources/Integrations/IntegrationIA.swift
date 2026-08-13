@@ -257,128 +257,20 @@ enum IntegrationIA {
 
     // MARK: - Contenu
 
-    /// Texte de la commande, adapté au format de l'assistant.
+    /// Texte de la commande, adapté au format de l'assistant et à la langue.
+    ///
+    /// Les textes vivent dans des fichiers Markdown localisés plutôt que dans le
+    /// code : ils font une soixantaine de lignes chacun, et un littéral Swift
+    /// multiligne les rendrait illisibles. macOS choisit le fichier selon la
+    /// langue du système, exactement comme pour le reste de l'interface.
     static func contenu(pour assistant: AssistantIA) -> String {
-        switch assistant.format {
-        case .commande: return commandeMarkdown
-        case .skill:    return competenceMarkdown
+        let nom = assistant.format == .commande ? "commande-lire" : "competence-lire"
+
+        guard let chemin = Bundle.main.path(forResource: nom, ofType: "md"),
+              let texte = try? String(contentsOfFile: chemin, encoding: .utf8) else {
+            Journal.fichier("integration", "texte \(nom) introuvable dans le bundle")
+            return ""
         }
+        return texte
     }
-
-    /// Format « commande » : invoquée explicitement par l'utilisateur.
-    private static let commandeMarkdown = """
-    Lit un texte à voix haute dans le lecteur flottant d'À Voix Haute.
-
-    Le Markdown est nettoyé avant la synthèse : ni croisillons, ni astérisques,
-    ni URL prononcées. Le lecteur reste au-dessus des autres fenêtres, même en
-    plein écran, et sa vitesse s'ajuste en cours d'écoute sans que la voix monte
-    dans les aigus.
-
-    ## Comportement
-
-    Choisis la source selon ce que contient `$ARGUMENTS` :
-
-    **Sans argument** — lis ta dernière réponse, dans son intégralité et telle
-    que tu l'as écrite en Markdown :
-
-    ```bash
-    cat <<'TEXTE' | lire
-    <ta dernière réponse>
-    TEXTE
-    ```
-
-    **Un chemin de fichier** :
-
-    ```bash
-    lire "$ARGUMENTS"
-    ```
-
-    **`presse-papiers`** :
-
-    ```bash
-    pbpaste | lire
-    ```
-
-    **`stop`** :
-
-    ```bash
-    lire --stop
-    ```
-
-    **Tout autre texte** — lis-le directement :
-
-    ```bash
-    cat <<'TEXTE' | lire
-    $ARGUMENTS
-    TEXTE
-    ```
-
-    ## Règles
-
-    - N'annonce pas ce que tu vas faire : lance la commande, puis confirme en
-      une ligne.
-    - Pour ta dernière réponse, transmets le texte complet, sans le résumer.
-      Le nettoyage du balisage est fait par l'application.
-    - Si `lire` est introuvable, indique que l'application À Voix Haute doit
-      être installée, et sa commande activée dans ses réglages.
-
-    ## Exemples
-
-    - `/lire` — écoute la dernière réponse
-    - `/lire README.md` — écoute un fichier
-    - `/lire presse-papiers` — écoute le presse-papiers
-    - `/lire stop` — arrête toutes les lectures
-    """
-
-    /// Format « compétence » : l'assistant décide lui-même quand s'en servir,
-    /// d'où une description centrée sur les situations d'usage.
-    private static let competenceMarkdown = """
-    ---
-    name: lire
-    description: Lit un texte à voix haute sur macOS, dans un lecteur audio flottant. À utiliser lorsque l'utilisateur demande d'écouter quelque chose, de lire à voix haute, de vocaliser un texte, ou dit qu'il préfère écouter plutôt que lire. Fonctionne avec la dernière réponse, un fichier, le presse-papiers ou un texte fourni.
-    ---
-
-    # Lire à voix haute
-
-    La commande `lire` transmet du texte à l'application À Voix Haute, qui le
-    synthétise et l'ouvre dans un lecteur flottant. Le balisage Markdown est
-    retiré avant la lecture : ni croisillons, ni astérisques, ni URL prononcées.
-
-    ## Utilisation
-
-    Lire la dernière réponse — transmettre le texte complet, sans le résumer :
-
-    ```bash
-    cat <<'TEXTE' | lire
-    <le texte à lire>
-    TEXTE
-    ```
-
-    Lire un fichier :
-
-    ```bash
-    lire chemin/vers/document.md
-    ```
-
-    Lire le presse-papiers :
-
-    ```bash
-    pbpaste | lire
-    ```
-
-    Arrêter toutes les lectures :
-
-    ```bash
-    lire --stop
-    ```
-
-    ## À savoir
-
-    - L'application se lance d'elle-même si elle ne tourne pas.
-    - Le nettoyage du Markdown est fait par l'application : transmettre le texte
-      brut, sans le préparer.
-    - Ne pas annoncer l'action avant de la faire ; confirmer en une ligne après.
-    - Si `lire` est introuvable, l'application À Voix Haute n'est pas installée,
-      ou sa commande n'a pas été activée dans ses réglages.
-    """
 }

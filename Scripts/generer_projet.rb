@@ -191,7 +191,15 @@ end
 # les préférences de langue du système.
 langues = Dir.glob("#{RACINE}/Ressources/*.lproj").map { |d| File.basename(d, '.lproj') }.sort
 langues.each do |langue|
-  %w[Localizable.strings InfoPlist.strings].each do |fichier|
+  # Les textes installés dans les assistants sont des fichiers Markdown
+  # localisés : ils font une soixantaine de lignes et n'auraient pas leur place
+  # dans un catalogue de chaînes.
+  %w[
+    Localizable.strings
+    InfoPlist.strings
+    commande-lire.md
+    competence-lire.md
+  ].each do |fichier|
     chemin = RACINE + "Ressources/#{langue}.lproj/#{fichier}"
     next unless chemin.exist?
     reference = groupe_ressources.new_reference("#{langue}.lproj/#{fichier}")
