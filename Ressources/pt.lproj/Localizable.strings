@@ -204,3 +204,9 @@
 "maj.erreur.signature" = "A assinatura do disco transferido não é a esperada. Instalação cancelada.";
 "maj.erreur.montage" = "Não foi possível montar o disco.";
 "maj.erreur.applicationIntrouvable" = "Nenhuma aplicação no disco transferido.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Licença";
+"texte.voirLicence" = "Ver a licença…";
+"texte.codeSource" = "Código-fonte";
+"texte.ouvrirDepot" = "Abrir o repositório…";

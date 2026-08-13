@@ -204,3 +204,9 @@
 "maj.erreur.signature" = "The downloaded disk is not signed as expected. Installation cancelled.";
 "maj.erreur.montage" = "The disk could not be mounted.";
 "maj.erreur.applicationIntrouvable" = "No application inside the downloaded disk.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Licence";
+"texte.voirLicence" = "View the licence…";
+"texte.codeSource" = "Source code";
+"texte.ouvrirDepot" = "Open the repository…";

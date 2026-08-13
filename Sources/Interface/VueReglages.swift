@@ -399,6 +399,22 @@ private struct OngletTexte: View {
 
     @State private var reglages = Reglages.partage
 
+    /// Ouvre la licence embarquée dans l'éditeur de texte du système.
+    ///
+    /// Le fichier est copié hors du bundle : une application signée n'autorise
+    /// pas qu'on ouvre son contenu depuis une autre application.
+    private func ouvrirLicence() {
+        guard let source = Bundle.main.path(forResource: "LICENSE", ofType: "txt") else { return }
+
+        let destination = FileManager.default.temporaryDirectory
+            .appendingPathComponent("À Voix Haute — Licence.txt")
+
+        try? FileManager.default.removeItem(at: destination)
+        try? FileManager.default.copyItem(atPath: source, toPath: destination.path)
+
+        NSWorkspace.shared.open(destination)
+    }
+
     /// Version publiée, suivie du numéro de compilation.
     ///
     /// Les deux viennent de l'Info.plist, alimenté par le tag Git au moment de
@@ -462,6 +478,20 @@ private struct OngletTexte: View {
                 LabeledContent(tr("texte.helper")) {
                     Text("lire").monospaced().foregroundStyle(.secondary)
                 }
+                Button {
+                    ouvrirLicence()
+                } label: {
+                    Label(tr("texte.voirLicence"), systemImage: "doc.text")
+                }
+
+                Button {
+                    NSWorkspace.shared.open(
+                        URL(string: "https://github.com/a-voix-haute/app")!
+                    )
+                } label: {
+                    Label(tr("texte.ouvrirDepot"), systemImage: "chevron.left.forwardslash.chevron.right")
+                }
+
                 LabeledContent(tr("texte.journal")) {
                     Text("~/Library/Logs/AVoixHaute.log")
                         .font(.caption)

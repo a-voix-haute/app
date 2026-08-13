@@ -4,78 +4,81 @@
 
 # À Voix Haute
 
-**Écoutez n'importe quel texte, où qu'il se trouve.**
+**Listen to any text, wherever it is.**
 
-Application macOS native — Swift, AppKit et SwiftUI
+A native macOS application — Swift, AppKit and SwiftUI
 
-[**Télécharger la dernière version**](https://github.com/a-voix-haute/app/releases/latest)
+[**Download the latest version**](https://github.com/a-voix-haute/app/releases/latest)
+
+[Français](README_FR.md)
 
 </div>
 
 ---
 
-## Le problème
+## The problem
 
-macOS sait déjà lire une sélection à voix haute : c'est le raccourci
-« Énoncer la sélection », Option + Échap par défaut. Il souffre d'un défaut
-structurel : **la vitesse est fixée au moment de la synthèse**. Impossible de
-l'ajuster une fois la lecture lancée, et accélérer dégrade la voix.
+macOS can already read a selection aloud: that is the “Speak Selection”
+shortcut, Option + Escape by default. It suffers from a structural flaw:
+**the speed is locked at synthesis time**. You cannot adjust it once playback
+has started, and speeding up degrades the voice.
 
-La mesure est sans appel. Sur une même phrase, en portant `say` de 175 à
-437 mots par minute, la fréquence fondamentale passe de **76 Hz à 151 Hz** : la
-voix double de hauteur. C'est l'effet « Mickey ».
+The measurement leaves little room for doubt. On the same sentence, taking
+`say` from 175 to 437 words per minute raises the fundamental frequency from
+**76 Hz to 151 Hz**: the voice doubles in pitch. That is the chipmunk effect.
 
-À Voix Haute synthétise une seule fois, à vitesse nominale, puis applique
-l'accélération **à la lecture** grâce à `AVPlayerItem.audioTimePitchAlgorithm`.
-La fondamentale reste à 76 Hz, quelle que soit la vitesse choisie — de 0,5× à 3×,
-ajustable en cours d'écoute.
+À Voix Haute synthesises once, at nominal speed, then applies the acceleration
+**at playback** through `AVPlayerItem.audioTimePitchAlgorithm`. The fundamental
+stays at 76 Hz whatever speed you choose — from 0.5× to 3×, adjustable while
+listening.
 
-## Ce que ça fait
+## What it does
 
-- **Lecteur flottant** qui reste au-dessus des autres fenêtres, y compris
-  par-dessus une application en plein écran, et suit l'utilisateur d'un bureau
-  à l'autre
-- **Vitesse ajustable en cours de lecture**, sans altérer la hauteur de la voix
-- **Markdown nettoyé** avant la synthèse : titres, emphase, liens, tableaux et
-  cases à cocher deviennent du texte qui s'écoute ; les blocs de code sont
-  annoncés sans être lus
-- **Plusieurs lectures simultanées**, avec des règles de coexistence
-  configurables
-- **Choix de la voix** parmi celles du système, triées par langue et par qualité
-- **Interface en six langues** — français, anglais, espagnol, allemand, italien,
-  portugais — qui suit la langue du système
+- **A floating player** that stays above other windows, including over a
+  full-screen application, and follows you from one desktop to another
+- **Speed adjustable during playback**, without altering the pitch of the voice
+- **Markdown stripped** before synthesis: headings, emphasis, links, tables and
+  checkboxes become text that listens well; code blocks are announced rather
+  than recited
+- **Several simultaneous readings**, with configurable coexistence rules
+- **Voice selection** among the system voices, sorted by language and quality
+- **An interface in six languages** — French, English, Spanish, German, Italian,
+  Portuguese — following the system language
 
-## Six façons de lancer une lecture
+## Six ways to start playback
 
-| Moyen | Usage |
+| Means | Usage |
 |---|---|
-| Clic droit | Sélection → Services → « Lire à voix haute » |
-| Raccourci global | `⌃⌥L` sur une sélection, depuis n'importe quelle application |
-| Barre de menus | L'icône en forme d'onde, pour lire le presse-papiers |
+| Right-click | Selection → Services → “Read aloud” |
+| Global shortcut | `⌃⌥L` on a selection, from any application |
+| Menu bar | The waveform icon, to read the clipboard |
 | Terminal | `pbpaste \| lire`, `lire document.md`, `lire --stop` |
-| Assistants IA | Douze assistants en ligne de commande, voir ci-dessous |
+| AI assistants | Twelve command-line assistants, see below |
 | URL | `open "lire://presse-papiers"` |
 
-## Assistants en ligne de commande
+## Command-line assistants
 
-La commande s'installe en un clic dans douze assistants — Claude Code, Codex,
+The command installs in one click into twelve assistants — Claude Code, Codex,
 Cursor, Gemini CLI, Grok, OpenCode, Goose, Crush, Amp, GitHub Copilot, Aider,
-Amazon Q — depuis les réglages, rubrique **Terminal**.
+Amazon Q — from the settings, under **Terminal**.
 
-Selon la convention de chacun :
+Depending on each one's convention:
 
-- ceux qui reconnaissent les commandes par barre oblique reçoivent un `/lire` ;
-- ceux qui gèrent des compétences repèrent d'eux-mêmes qu'il faut lire : il
-  suffit de le leur demander.
+- those that recognise slash commands receive a `/lire`;
+- those that handle skills work out on their own that reading is called for:
+  just ask them.
+
+The installed text follows the application's language, like the rest of the
+interface.
 
 ## Installation
 
-### Depuis le disque d'installation
+### From the installer disk
 
-Ouvrez `À Voix Haute.dmg` et glissez l'application dans le dossier Applications.
-L'application est signée et notarisée par Apple : elle s'ouvre sans avertissement.
+Open `À Voix Haute.dmg` and drag the application into the Applications folder.
+The application is signed and notarised by Apple: it opens without any warning.
 
-### Depuis les sources
+### From source
 
 ```bash
 git clone https://github.com/a-voix-haute/app.git "À Voix Haute"
@@ -83,54 +86,58 @@ cd "À Voix Haute"
 ./Scripts/installer.sh
 ```
 
-Le script compile, installe dans `/Applications`, lie la commande `lire` dans
-`~/.local/bin`, enregistre le service macOS et active le lancement à l'ouverture
-de session.
+The script builds, installs into `/Applications`, links the `lire` command into
+`~/.local/bin`, registers the macOS service and enables launch at login.
 
-Pour tout retirer :
+To remove everything:
 
 ```bash
 ./Scripts/installer.sh --desinstaller
 ```
 
-## Développement
+## Development
 
-### Prérequis
+### Requirements
 
-- macOS 14 ou supérieur — développé et testé sur macOS 26
+- macOS 14 or later — developed and tested on macOS 26
 - Xcode 26
-- Le gem `xcodeproj` (`gem install xcodeproj`)
+- The `xcodeproj` gem (`gem install xcodeproj`)
 
 ### Structure
 
-Le projet Xcode est **généré par script** : `Scripts/generer_projet.rb` en est la
-source de vérité. Les fichiers Swift ajoutés dans `Sources/` sont pris en compte
-sans intervention dans Xcode.
+The Xcode project is **generated by script**: `Scripts/generer_projet.rb` is the
+source of truth. Swift files added under `Sources/` are picked up without any
+intervention in Xcode.
+
+Note that the codebase is written in French — identifiers, comments and commit
+messages included.
 
 ```
 Sources/
-├── App/          point d'entrée, délégué, Info.plist
-├── Synthese/     moteurs de synthèse, catalogue des voix
-├── Lecture/      lecteur AVPlayer, gestionnaire multi-lecteur
-├── Interface/    fenêtre flottante, réglages, assistant de configuration
-├── Entree/       socket, service macOS, raccourci global, capture de sélection
-├── Texte/        nettoyage Markdown, détection de langue
-├── Integrations/ assistants en ligne de commande
-├── Reglages/     préférences
-└── Commun/       fichiers temporaires, journalisation
-SourcesCLI/lire/  helper transmis à l'application par socket
+├── App/           entry point, delegate, Info.plist
+├── Synthese/      synthesis engines, voice catalogue
+├── Lecture/       AVPlayer-based player, multi-player manager
+├── Interface/     floating window, settings, setup assistant
+├── Entree/        socket, macOS service, global shortcut, selection capture
+├── Texte/         Markdown stripping, language detection
+├── Integrations/  command-line assistants
+├── MiseAJour/     in-app updates
+├── Reglages/      preferences
+└── Commun/        temporary files, logging
+SourcesCLI/lire/   helper that talks to the app over a socket
+Ressources/*.lproj translations, six languages
 ```
 
 ### Scripts
 
-| Script | Rôle |
+| Script | Purpose |
 |---|---|
-| `generer_projet.rb` | Régénère le `.xcodeproj` |
-| `construire.sh` | Compilation Release, `--distribuer` pour la signature Developer ID |
-| `installer.sh` | Installation, démarrage automatique, `--desinstaller` |
-| `notariser.sh` | Soumission à Apple et disque d'installation |
-| `enregistrer_service.sh` | Rafraîchit le menu Services pendant le développement |
-| `generer_icone.sh` | Produit l'icône depuis un tracé vectoriel |
+| `generer_projet.rb` | Regenerates the `.xcodeproj` |
+| `construire.sh` | Release build, `--distribuer` for the Developer ID signature |
+| `installer.sh` | Installation, launch at login, `--desinstaller` |
+| `notariser.sh` | Submission to Apple and installer disk |
+| `enregistrer_service.sh` | Refreshes the Services menu during development |
+| `generer_icone.sh` | Produces the icon from a vector drawing |
 
 ### Tests
 
@@ -138,41 +145,42 @@ SourcesCLI/lire/  helper transmis à l'application par socket
 xcodebuild -project AVoixHaute.xcodeproj -scheme AVoixHauteTests test
 ```
 
-## Choix techniques
+## Technical choices
 
-**`AVPlayer` plutôt qu'`AVAudioPlayer`** — seul `AVPlayerItem` expose
-`audioTimePitchAlgorithm`, indispensable pour préserver la hauteur de voix.
-`AVAudioPlayer` a bien `enableRate`, mais pas le contrôle de l'algorithme.
+**`AVPlayer` rather than `AVAudioPlayer`** — only `AVPlayerItem` exposes
+`audioTimePitchAlgorithm`, which is what preserves the pitch of the voice.
+`AVAudioPlayer` does have `enableRate`, but no control over the algorithm.
 
-**Socket de domaine Unix pour le helper** — les alternatives ont été écartées :
-`NSDistributedNotificationCenter` abandonne silencieusement les grandes charges,
-une URL corrompt les longs textes, XPC impose une signature. Le socket transmet
-110 Ko sans altération, en 8 ms.
+**A Unix domain socket for the helper** — the alternatives were ruled out:
+`NSDistributedNotificationCenter` silently drops large payloads, a URL corrupts
+long texts, XPC requires a signature. The socket carries 110 KB unaltered, in
+8 ms.
 
-**`RegisterEventHotKey` (Carbon) pour le raccourci global** — c'est la seule
-interface qui capte une combinaison sans autorisation préalable et qui consomme
-l'événement, là où `NSEvent.addGlobalMonitorForEvents` le laisse aussi filer
-vers l'application active.
+**`RegisterEventHotKey` (Carbon) for the global shortcut** — it is the only
+interface that captures a key combination without prior permission and that
+consumes the event, where `NSEvent.addGlobalMonitorForEvents` also lets it
+through to the active application.
 
-**`say -f` avec un fichier temporaire** — le texte n'est jamais passé en
-argument, ce qui supprime d'un coup l'échappement shell et la limite `ARG_MAX`.
-`--data-format=aac` évite un AIFF intermédiaire de 140 Mo sur les longs textes.
+**`say -f` with a temporary file** — the text is never passed as an argument,
+which removes both shell escaping and the `ARG_MAX` limit at once.
+`--data-format=aac` avoids a 140 MB intermediate AIFF on long texts.
 
-**Bac à sable désactivé** — `Process`, le socket hors conteneur et `CGEventPost`
-y sont incompatibles. L'application n'est pas destinée au Mac App Store.
+**Sandbox disabled** — `Process`, the socket outside the container and
+`CGEventPost` are incompatible with it. The application is not intended for the
+Mac App Store.
 
-## Limites connues
+## Known limitations
 
-Les voix Siri (`com.apple.siri.*`) restent **inaccessibles** aux applications
-tierces : macOS les réserve à ses propres services, quelle que soit la signature.
-Les voix Premium et Améliorées, elles, sont utilisables une fois téléchargées
-dans Réglages Système → Accessibilité → Contenu énoncé.
+Siri voices (`com.apple.siri.*`) remain **inaccessible** to third-party
+applications: macOS reserves them for its own services, whatever the signature.
+Premium and Enhanced voices, however, are usable once downloaded from System
+Settings → Accessibility → Spoken Content.
 
 ## Licence
 
-[CC BY-NC-SA 4.0](LICENSE) — le code est lisible et vérifiable, modifiable pour
-votre usage, et partageable sous les mêmes conditions. L'usage commercial est
-exclu, et l'attribution obligatoire.
+[CC BY-NC-SA 4.0](LICENSE) — the code is readable and auditable, modifiable for
+your own use, and shareable under the same terms. Commercial use is excluded,
+and attribution is required.
 
-Les propositions d'amélioration sont bienvenues sous forme de pull request. Les
-attentes sont décrites dans le fichier [LICENSE](LICENSE).
+Improvements are welcome as pull requests. The expectations are set out in the
+[LICENSE](LICENSE) file.

@@ -199,6 +199,7 @@ langues.each do |langue|
     InfoPlist.strings
     commande-lire.md
     competence-lire.md
+    LICENSE.txt
   ].each do |fichier|
     chemin = RACINE + "Ressources/#{langue}.lproj/#{fichier}"
     next unless chemin.exist?

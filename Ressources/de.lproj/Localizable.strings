@@ -204,3 +204,9 @@
 "maj.erreur.signature" = "Das geladene Medium trägt nicht die erwartete Signatur. Installation abgebrochen.";
 "maj.erreur.montage" = "Das Medium konnte nicht eingebunden werden.";
 "maj.erreur.applicationIntrouvable" = "Keine App im geladenen Medium.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Lizenz";
+"texte.voirLicence" = "Lizenz ansehen…";
+"texte.codeSource" = "Quellcode";
+"texte.ouvrirDepot" = "Repository öffnen…";

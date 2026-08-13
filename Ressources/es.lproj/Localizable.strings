@@ -204,3 +204,9 @@
 "maj.erreur.signature" = "La firma del disco descargado no es la esperada. Instalación cancelada.";
 "maj.erreur.montage" = "No se pudo montar el disco.";
 "maj.erreur.applicationIntrouvable" = "No hay ninguna aplicación en el disco descargado.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Licencia";
+"texte.voirLicence" = "Ver la licencia…";
+"texte.codeSource" = "Código fuente";
+"texte.ouvrirDepot" = "Abrir el repositorio…";

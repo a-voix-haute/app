@@ -204,3 +204,9 @@
 "maj.erreur.signature" = "La firma del disco scaricato non è quella attesa. Installazione annullata.";
 "maj.erreur.montage" = "Impossibile montare il disco.";
 "maj.erreur.applicationIntrouvable" = "Nessuna app nel disco scaricato.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Licenza";
+"texte.voirLicence" = "Vedi la licenza…";
+"texte.codeSource" = "Codice sorgente";
+"texte.ouvrirDepot" = "Apri il repository…";

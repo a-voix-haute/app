@@ -206,3 +206,9 @@
 "maj.erreur.signature" = "La signature du disque téléchargé n’est pas celle attendue. L’installation est annulée.";
 "maj.erreur.montage" = "Le disque n’a pas pu être monté.";
 "maj.erreur.applicationIntrouvable" = "Aucune application dans le disque téléchargé.";
+
+/* MARK: - Licence et code source */
+"texte.licence" = "Licence";
+"texte.voirLicence" = "Voir la licence…";
+"texte.codeSource" = "Code source";
+"texte.ouvrirDepot" = "Ouvrir le dépôt…";
