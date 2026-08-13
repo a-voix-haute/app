@@ -42,7 +42,7 @@ echo "Rafraîchissement du menu Services…"
 "$PBS" -flush 2>/dev/null || true
 
 # L'application doit tourner pour que son fournisseur soit joignable.
-if ! pgrep -f "AVoixHaute.app/Contents/MacOS/AVoixHaute" >/dev/null; then
+if ! pgrep -x "AVoixHaute" >/dev/null; then
     echo "Lancement de l'application…"
     open "$APP"
     sleep 2

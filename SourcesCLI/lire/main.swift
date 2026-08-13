@@ -1,4 +1,4 @@
-// lire — helper en ligne de commande pour AVoixHaute.app
+// lire — helper en ligne de commande pour À Voix Haute
 //
 //     lire fichier.md          lit un fichier
 //     pbpaste | lire           lit l'entrée standard

@@ -12,6 +12,15 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     private var autorisationDejaProposee = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Deux instances se disputeraient le socket et le raccourci global. La
+        // seconde cède la place, après avoir mis la première au premier plan.
+        if let existante = autreInstance() {
+            existante.activate()
+            Journal.fichier("app", "instance déjà active — sortie")
+            NSApp.terminate(nil)
+            return
+        }
+
         Journal.reinitialiserFichier()
         Journal.app.info("Démarrage d’À Voix Haute")
 
@@ -23,6 +32,14 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         installerServeurSocket()
         FournisseurService.installer()
         installerRaccourciGlobal()
+    }
+
+    /// Cherche une autre instance de l'application déjà lancée.
+    private func autreInstance() -> NSRunningApplication? {
+        let miennes = NSRunningApplication.runningApplications(
+            withBundleIdentifier: Bundle.main.bundleIdentifier ?? "fr.dimitri.AVoixHaute"
+        )
+        return miennes.first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
     }
 
     /// Branche le raccourci clavier global sur la capture de sélection.

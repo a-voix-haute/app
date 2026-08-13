@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Droits requis par le runtime durci, lui-même exigé par la notarisation.
+
+	  Sans ces déclarations, l'application est signée et notarisée mais échoue
+	  à l'exécution : la synthèse ne démarre pas et le raccourci global reste
+	  sans effet, sans message d'erreur explicite.
+	-->
+
+	<!-- Lancement de `say`, qui est un exécutable distinct. -->
+	<key>com.apple.security.cs.allow-dyld-environment-variables</key>
+	<false/>
+
+	<!-- Autorise l'application à lancer des processus enfants non signés par
+	     la même équipe : /usr/bin/say appartient au système. -->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+
+	<!-- Envoi d'événements clavier synthétiques (⌘C) pour capturer la
+	     sélection. L'autorisation Accessibilité reste par ailleurs
+	     nécessaire ; ce droit ne fait que l'autoriser côté signature. -->
+	<key>com.apple.security.automation.apple-events</key>
+	<true/>
+
+	<!-- Lecture du fichier audio produit dans le dossier temporaire, et
+	     ouverture des fichiers que l'utilisateur passe au helper. -->
+	<key>com.apple.security.files.user-selected.read-only</key>
+	<true/>
+
+	<!-- Le bac à sable reste désactivé : le socket Unix hors conteneur,
+	     l'exécution de `say` et CGEventPost y sont incompatibles. -->
+	<key>com.apple.security.app-sandbox</key>
+	<false/>
+</dict>
+</plist>

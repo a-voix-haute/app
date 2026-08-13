@@ -34,6 +34,13 @@ final class ServeurSocket {
         }
 
         // Un socket laissé par un arrêt brutal empêcherait bind() de réussir.
+        // Mais avant de le supprimer, vérifier qu'aucune autre instance n'écoute
+        // dessus : sans cette précaution, une seconde instance déroberait le
+        // socket à la première, qui deviendrait injoignable.
+        if FileManager.default.fileExists(atPath: chemin), Self.instanceActive(sur: chemin) {
+            Journal.fichier("socket", "une autre instance écoute déjà — serveur non démarré")
+            return
+        }
         unlink(chemin)
 
         descripteurEcoute = socket(AF_UNIX, SOCK_STREAM, 0)
@@ -109,6 +116,40 @@ final class ServeurSocket {
             close(descripteurEcoute)
             descripteurEcoute = -1
         }
+    }
+
+    /// Teste si une instance écoute déjà sur ce socket.
+    ///
+    /// Une simple connexion suffit : elle réussit tant qu'un serveur accepte,
+    /// et échoue avec ECONNREFUSED sur un fichier de socket orphelin.
+    private static func instanceActive(sur chemin: String) -> Bool {
+        let descripteur = socket(AF_UNIX, SOCK_STREAM, 0)
+        guard descripteur >= 0 else { return false }
+        defer { close(descripteur) }
+
+        var adresse = sockaddr_un()
+        adresse.sun_family = sa_family_t(AF_UNIX)
+
+        let octets = Array(chemin.utf8)
+        let capacite = MemoryLayout.size(ofValue: adresse.sun_path) - 1
+        guard octets.count <= capacite else { return false }
+        withUnsafeMutablePointer(to: &adresse.sun_path) { pointeur in
+            pointeur.withMemoryRebound(to: CChar.self, capacity: capacite + 1) { destination in
+                for (index, octet) in octets.enumerated() {
+                    destination[index] = CChar(bitPattern: octet)
+                }
+                destination[octets.count] = 0
+            }
+        }
+
+        let taille = socklen_t(MemoryLayout<sockaddr_un>.size)
+        let connecte = withUnsafePointer(to: &adresse) { pointeur in
+            pointeur.withMemoryRebound(to: sockaddr.self, capacity: 1) { generique in
+                connect(descripteur, generique, taille)
+            }
+        }
+
+        return connecte == 0
     }
 
     // MARK: - Traitement
