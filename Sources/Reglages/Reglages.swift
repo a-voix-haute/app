@@ -47,7 +47,8 @@ final class Reglages {
         Cle.langueParDefaut: "fr-FR",
         Cle.nettoyageMarkdown: true,
         Cle.restaurerPressePapiers: true,
-        Cle.raccourciGlobalActif: false
+        Cle.raccourciGlobalActif: false,
+        Cle.miseAJourAutomatique: true
     ]
 
     private enum Cle {
@@ -68,6 +69,7 @@ final class Reglages {
         static let raccourciCodeTouche = "raccourciCodeTouche"
         static let raccourciModificateurs = "raccourciModificateurs"
         static let assistantVu = "assistantVu"
+        static let miseAJourAutomatique = "miseAJourAutomatique"
     }
 
     // MARK: - Lecture
@@ -166,6 +168,14 @@ final class Reglages {
     var assistantVu: Bool {
         get { stockage.bool(forKey: Cle.assistantVu) }
         set { stockage.set(newValue, forKey: Cle.assistantVu) }
+    }
+
+    // MARK: - Mise à jour
+
+    /// Rechercher les mises à jour au démarrage puis chaque jour.
+    var miseAJourAutomatique: Bool {
+        get { stockage.bool(forKey: Cle.miseAJourAutomatique) }
+        set { stockage.set(newValue, forKey: Cle.miseAJourAutomatique) }
     }
 
     /// Code de touche du raccourci global. 37 correspond à « L ».

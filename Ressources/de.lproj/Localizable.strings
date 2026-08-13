@@ -179,3 +179,28 @@
 "erreur.syntheseEchouee" = "Sprachsynthese fehlgeschlagen: %@";
 "erreur.syntheseEchoueeCode" = "Sprachsynthese fehlgeschlagen (Code %d).";
 "erreur.annulee" = "Sprachsynthese abgebrochen.";
+
+/* MARK: - Aktualisierung */
+"menu.rechercherMaj" = "Nach Updates suchen…";
+"maj.fenetre" = "Aktualisierung";
+"maj.disponibleTitre" = "Eine neue Version ist verfügbar";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Installierte Version: %@";
+"maj.aucuneNote" = "Keine Versionshinweise.";
+"maj.plusTard" = "Später";
+"maj.installer" = "Installieren und neu starten";
+"maj.telechargementEnCours" = "Wird geladen…";
+"maj.installationEnCours" = "Wird installiert…";
+"maj.aJourTitre" = "Kein Update verfügbar";
+"maj.aJourMessage" = "Sie verwenden bereits Version %@, die neueste.";
+"maj.echecTitre" = "Aktualisierung fehlgeschlagen";
+"maj.automatique" = "Automatisch nach Updates suchen";
+"maj.noteAutomatique" = "Eine Prüfung beim Start, danach eine täglich. Ohne Ihre Zustimmung wird nichts installiert.";
+"maj.rechercherMaintenant" = "Jetzt suchen";
+"maj.erreur.reponse" = "GitHub antwortete mit Code %d.";
+"maj.erreur.illisible" = "Unlesbare Antwort.";
+"maj.erreur.aucunDisque" = "Diese Version enthält kein Installationsmedium.";
+"maj.erreur.telechargement" = "Der Download ist fehlgeschlagen.";
+"maj.erreur.signature" = "Das geladene Medium trägt nicht die erwartete Signatur. Installation abgebrochen.";
+"maj.erreur.montage" = "Das Medium konnte nicht eingebunden werden.";
+"maj.erreur.applicationIntrouvable" = "Keine App im geladenen Medium.";

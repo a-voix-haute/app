@@ -181,3 +181,28 @@
 "erreur.syntheseEchouee" = "La synthèse a échoué : %@";
 "erreur.syntheseEchoueeCode" = "La synthèse a échoué (code %d).";
 "erreur.annulee" = "Synthèse annulée.";
+
+/* MARK: - Mise à jour */
+"menu.rechercherMaj" = "Rechercher les mises à jour…";
+"maj.fenetre" = "Mise à jour";
+"maj.disponibleTitre" = "Une nouvelle version est disponible";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Version installée : %@";
+"maj.aucuneNote" = "Aucune note de version.";
+"maj.plusTard" = "Plus tard";
+"maj.installer" = "Installer et redémarrer";
+"maj.telechargementEnCours" = "Téléchargement…";
+"maj.installationEnCours" = "Installation…";
+"maj.aJourTitre" = "Aucune mise à jour";
+"maj.aJourMessage" = "Vous utilisez déjà la version %@, la plus récente.";
+"maj.echecTitre" = "Mise à jour impossible";
+"maj.automatique" = "Rechercher les mises à jour automatiquement";
+"maj.noteAutomatique" = "Une vérification au démarrage, puis une par jour. Rien n’est installé sans votre accord.";
+"maj.rechercherMaintenant" = "Rechercher maintenant";
+"maj.erreur.reponse" = "GitHub a répondu par un code %d.";
+"maj.erreur.illisible" = "Réponse illisible.";
+"maj.erreur.aucunDisque" = "Aucun disque d’installation dans cette version.";
+"maj.erreur.telechargement" = "Le téléchargement a échoué.";
+"maj.erreur.signature" = "La signature du disque téléchargé n’est pas celle attendue. L’installation est annulée.";
+"maj.erreur.montage" = "Le disque n’a pas pu être monté.";
+"maj.erreur.applicationIntrouvable" = "Aucune application dans le disque téléchargé.";

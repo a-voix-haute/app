@@ -179,3 +179,28 @@
 "erreur.syntheseEchouee" = "Synthesis failed: %@";
 "erreur.syntheseEchoueeCode" = "Synthesis failed (code %d).";
 "erreur.annulee" = "Synthesis cancelled.";
+
+/* MARK: - Updates */
+"menu.rechercherMaj" = "Check for Updates…";
+"maj.fenetre" = "Update";
+"maj.disponibleTitre" = "A new version is available";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Installed version: %@";
+"maj.aucuneNote" = "No release notes.";
+"maj.plusTard" = "Later";
+"maj.installer" = "Install and restart";
+"maj.telechargementEnCours" = "Downloading…";
+"maj.installationEnCours" = "Installing…";
+"maj.aJourTitre" = "No update available";
+"maj.aJourMessage" = "You are already running version %@, the latest one.";
+"maj.echecTitre" = "Update failed";
+"maj.automatique" = "Check for updates automatically";
+"maj.noteAutomatique" = "One check at startup, then one a day. Nothing is installed without your consent.";
+"maj.rechercherMaintenant" = "Check now";
+"maj.erreur.reponse" = "GitHub replied with code %d.";
+"maj.erreur.illisible" = "Unreadable response.";
+"maj.erreur.aucunDisque" = "No installer disk in that release.";
+"maj.erreur.telechargement" = "The download failed.";
+"maj.erreur.signature" = "The downloaded disk is not signed as expected. Installation cancelled.";
+"maj.erreur.montage" = "The disk could not be mounted.";
+"maj.erreur.applicationIntrouvable" = "No application inside the downloaded disk.";

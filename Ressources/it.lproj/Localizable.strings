@@ -179,3 +179,28 @@
 "erreur.syntheseEchouee" = "Sintesi non riuscita: %@";
 "erreur.syntheseEchoueeCode" = "Sintesi non riuscita (codice %d).";
 "erreur.annulee" = "Sintesi annullata.";
+
+/* MARK: - Aggiornamento */
+"menu.rechercherMaj" = "Cerca aggiornamenti…";
+"maj.fenetre" = "Aggiornamento";
+"maj.disponibleTitre" = "È disponibile una nuova versione";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Versione installata: %@";
+"maj.aucuneNote" = "Nessuna nota di versione.";
+"maj.plusTard" = "Più tardi";
+"maj.installer" = "Installa e riavvia";
+"maj.telechargementEnCours" = "Download in corso…";
+"maj.installationEnCours" = "Installazione in corso…";
+"maj.aJourTitre" = "Nessun aggiornamento";
+"maj.aJourMessage" = "Stai già usando la versione %@, la più recente.";
+"maj.echecTitre" = "Aggiornamento non riuscito";
+"maj.automatique" = "Cerca aggiornamenti automaticamente";
+"maj.noteAutomatique" = "Un controllo all’avvio, poi uno al giorno. Nulla viene installato senza il tuo consenso.";
+"maj.rechercherMaintenant" = "Cerca ora";
+"maj.erreur.reponse" = "GitHub ha risposto con il codice %d.";
+"maj.erreur.illisible" = "Risposta illeggibile.";
+"maj.erreur.aucunDisque" = "Questa versione non contiene alcun disco di installazione.";
+"maj.erreur.telechargement" = "Il download non è riuscito.";
+"maj.erreur.signature" = "La firma del disco scaricato non è quella attesa. Installazione annullata.";
+"maj.erreur.montage" = "Impossibile montare il disco.";
+"maj.erreur.applicationIntrouvable" = "Nessuna app nel disco scaricato.";

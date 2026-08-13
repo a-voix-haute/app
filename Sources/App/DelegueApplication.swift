@@ -43,6 +43,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         // L'application n'ayant pas de fenêtre principale, rien n'indiquerait
         // au nouvel utilisateur ce qu'elle sait faire ni comment l'invoquer.
         FenetreBienvenue.partage.afficherSiPremierLancement()
+
+        // Une vérification maintenant, puis chaque jour : l'application reste
+        // lancée des semaines, une seule au démarrage laisserait passer les
+        // versions.
+        VerificateurMiseAJour.partage.demarrerSurveillance()
     }
 
     /// L'application est-elle hébergée par le harnais de tests ?
@@ -189,6 +194,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
+            withTitle: tr("menu.rechercherMaj"),
+            action: #selector(rechercherMiseAJour),
+            keyEquivalent: ""
+        ).target = self
+        menu.addItem(
             withTitle: tr("menu.guide"),
             action: #selector(ouvrirAssistant),
             keyEquivalent: ""
@@ -228,6 +238,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     @objc private func toutArreter() {
         GestionnaireLecteurs.partage.toutArreter()
+    }
+
+    @objc private func rechercherMiseAJour() {
+        Task { await VerificateurMiseAJour.partage.verifier(silencieux: false) }
     }
 
     @objc private func ouvrirAssistant() {

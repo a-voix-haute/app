@@ -426,6 +426,32 @@ private struct OngletTexte: View {
             }
 
             Section {
+                Toggle(tr("maj.automatique"), isOn: Binding(
+                    get: { reglages.miseAJourAutomatique },
+                    set: { actif in
+                        reglages.miseAJourAutomatique = actif
+                        if actif {
+                            VerificateurMiseAJour.partage.demarrerSurveillance()
+                        } else {
+                            VerificateurMiseAJour.partage.arreterSurveillance()
+                        }
+                    }
+                ))
+
+                Button {
+                    Task { await VerificateurMiseAJour.partage.verifier(silencieux: false) }
+                } label: {
+                    Label(tr("maj.rechercherMaintenant"), systemImage: "arrow.triangle.2.circlepath")
+                }
+            } header: {
+                Text(cle: "maj.fenetre")
+            } footer: {
+                Text(cle: "maj.noteAutomatique")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
                 LabeledContent(tr("texte.version")) {
                     Text(Self.versionComplete)
                         .monospacedDigit()

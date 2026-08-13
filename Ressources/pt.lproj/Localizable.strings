@@ -179,3 +179,28 @@
 "erreur.syntheseEchouee" = "A síntese falhou: %@";
 "erreur.syntheseEchoueeCode" = "A síntese falhou (código %d).";
 "erreur.annulee" = "Síntese cancelada.";
+
+/* MARK: - Atualização */
+"menu.rechercherMaj" = "Procurar atualizações…";
+"maj.fenetre" = "Atualização";
+"maj.disponibleTitre" = "Está disponível uma nova versão";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Versão instalada: %@";
+"maj.aucuneNote" = "Sem notas de versão.";
+"maj.plusTard" = "Mais tarde";
+"maj.installer" = "Instalar e reiniciar";
+"maj.telechargementEnCours" = "A transferir…";
+"maj.installationEnCours" = "A instalar…";
+"maj.aJourTitre" = "Nenhuma atualização";
+"maj.aJourMessage" = "Já está a usar a versão %@, a mais recente.";
+"maj.echecTitre" = "Não foi possível atualizar";
+"maj.automatique" = "Procurar atualizações automaticamente";
+"maj.noteAutomatique" = "Uma verificação ao iniciar e outra por dia. Nada é instalado sem o seu consentimento.";
+"maj.rechercherMaintenant" = "Procurar agora";
+"maj.erreur.reponse" = "O GitHub respondeu com o código %d.";
+"maj.erreur.illisible" = "Resposta ilegível.";
+"maj.erreur.aucunDisque" = "Esta versão não inclui nenhum disco de instalação.";
+"maj.erreur.telechargement" = "A transferência falhou.";
+"maj.erreur.signature" = "A assinatura do disco transferido não é a esperada. Instalação cancelada.";
+"maj.erreur.montage" = "Não foi possível montar o disco.";
+"maj.erreur.applicationIntrouvable" = "Nenhuma aplicação no disco transferido.";

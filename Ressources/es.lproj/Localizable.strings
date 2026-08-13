@@ -179,3 +179,28 @@
 "erreur.syntheseEchouee" = "La síntesis falló: %@";
 "erreur.syntheseEchoueeCode" = "La síntesis falló (código %d).";
 "erreur.annulee" = "Síntesis cancelada.";
+
+/* MARK: - Actualización */
+"menu.rechercherMaj" = "Buscar actualizaciones…";
+"maj.fenetre" = "Actualización";
+"maj.disponibleTitre" = "Hay una nueva versión disponible";
+"maj.versionEtTaille" = "À Voix Haute %1$@ · %2$@";
+"maj.versionInstallee" = "Versión instalada: %@";
+"maj.aucuneNote" = "Sin notas de versión.";
+"maj.plusTard" = "Más tarde";
+"maj.installer" = "Instalar y reiniciar";
+"maj.telechargementEnCours" = "Descargando…";
+"maj.installationEnCours" = "Instalando…";
+"maj.aJourTitre" = "No hay actualizaciones";
+"maj.aJourMessage" = "Ya usa la versión %@, la más reciente.";
+"maj.echecTitre" = "No se pudo actualizar";
+"maj.automatique" = "Buscar actualizaciones automáticamente";
+"maj.noteAutomatique" = "Una comprobación al iniciar y otra al día. No se instala nada sin su consentimiento.";
+"maj.rechercherMaintenant" = "Buscar ahora";
+"maj.erreur.reponse" = "GitHub respondió con el código %d.";
+"maj.erreur.illisible" = "Respuesta ilegible.";
+"maj.erreur.aucunDisque" = "Esta versión no incluye ningún disco de instalación.";
+"maj.erreur.telechargement" = "La descarga falló.";
+"maj.erreur.signature" = "La firma del disco descargado no es la esperada. Instalación cancelada.";
+"maj.erreur.montage" = "No se pudo montar el disco.";
+"maj.erreur.applicationIntrouvable" = "No hay ninguna aplicación en el disco descargado.";
