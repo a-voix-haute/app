@@ -186,7 +186,8 @@ l'année, et le commutateur de thème s'il n'est pas dans l'en-tête.
 
 ## Le logo
 
-Utilise ce SVG tel quel, sans le redessiner. C'est l'icône de l'application.
+Utilise ce SVG tel quel, sans le redessiner. C'est l'icône de l'application,
+au format web : fond transparent hors du carré arrondi, aucune marge perdue.
 Place-le dans `public/logo.svg`, sers-t'en dans l'en-tête, le pied de page et
 comme favicon.
 
@@ -203,18 +204,15 @@ comme favicon.
     </linearGradient>
   </defs>
 
-  <!-- Le rayon suit la courbure des icônes macOS : environ 22 % du côté. -->
-  <rect x="72" y="72" width="880" height="880" rx="196" ry="196" fill="url(#fond)"/>
-  <rect x="72" y="72" width="880" height="880" rx="196" ry="196" fill="url(#lueur)"/>
+  <rect width="1024" height="1024" rx="228" ry="228" fill="url(#fond)"/>
+  <rect width="1024" height="1024" rx="228" ry="228" fill="url(#lueur)"/>
 
-  <!-- Onde sonore : sept barres d'amplitudes croissantes puis décroissantes,
-       assez épaisses pour rester visibles à seize pixels. -->
   <g fill="#FFFFFF" stroke="none">
-    <rect x="252" y="452" width="56" height="120" rx="28"/>
-    <rect x="356" y="392" width="56" height="240" rx="28"/>
-    <rect x="460" y="312" width="56" height="400" rx="28"/>
-    <rect x="564" y="392" width="56" height="240" rx="28"/>
-    <rect x="668" y="452" width="56" height="120" rx="28"/>
+    <rect x="221" y="443" width="65" height="138" rx="33"/>
+    <rect x="342" y="373" width="65" height="278" rx="33"/>
+    <rect x="463" y="280" width="65" height="464" rx="33"/>
+    <rect x="584" y="373" width="65" height="278" rx="33"/>
+    <rect x="705" y="443" width="65" height="138" rx="33"/>
   </g>
 </svg>
 ```
