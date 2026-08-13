@@ -3,25 +3,71 @@
 import AppKit
 import SwiftUI
 
-struct VueReglages: View {
-    var body: some View {
-        TabView {
-            OngletVoix()
-                .tabItem { Label("Voix", systemImage: "waveform") }
+/// Sections des réglages.
+private enum SectionReglages: String, CaseIterable, Identifiable {
+    case voix, lecture, raccourci, texte
 
-            OngletLecture()
-                .tabItem { Label("Lecture", systemImage: "play.circle") }
+    var id: String { rawValue }
 
-            OngletRaccourci()
-                .tabItem { Label("Raccourci", systemImage: "command") }
-
-            OngletTexte()
-                .tabItem { Label("Texte", systemImage: "text.alignleft") }
+    var libelle: String {
+        switch self {
+        case .voix:      return "Voix"
+        case .lecture:   return "Lecture"
+        case .raccourci: return "Raccourci"
+        case .texte:     return "Texte"
         }
-        // Sans cette marge haute, la barre d'onglets vient toucher la barre de
-        // titre de la fenêtre.
-        .padding(.top, 12)
-        .frame(width: 500, height: 450)
+    }
+
+    var symbole: String {
+        switch self {
+        case .voix:      return "waveform"
+        case .lecture:   return "play.circle"
+        case .raccourci: return "command"
+        case .texte:     return "text.alignleft"
+        }
+    }
+}
+
+// Le TabView de SwiftUI se comporte mal dans une NSWindow hébergée : son fond
+// laisse apparaître des séparateurs parasites entre les onglets, et toute marge
+// appliquée pour l'écarter de la barre de titre décale ce fond au lieu de la
+// vue. Un sélecteur segmenté posé sur un VStack évite les deux écueils, et
+// donne le même résultat visuel.
+struct VueReglages: View {
+
+    @State private var section: SectionReglages = .voix
+
+    var body: some View {
+        VStack(spacing: 0) {
+            selecteur
+
+            Divider()
+
+            Group {
+                switch section {
+                case .voix:      OngletVoix()
+                case .lecture:   OngletLecture()
+                case .raccourci: OngletRaccourci()
+                case .texte:     OngletTexte()
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(width: 520, height: 470)
+    }
+
+    private var selecteur: some View {
+        Picker("", selection: $section) {
+            ForEach(SectionReglages.allCases) { section in
+                Label(section.libelle, systemImage: section.symbole)
+                    .tag(section)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .fixedSize()
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -390,14 +436,18 @@ final class FenetreReglages {
         }
 
         let hebergeur = NSHostingController(rootView: VueReglages())
+
+        // La marge sous la barre de titre est portée par la vue hôte : appliquée
+        // au TabView lui-même, elle décalerait son fond et ferait apparaître le
+        // bord de la vue sous forme de traits gris le long des onglets.
+        hebergeur.view.wantsLayer = true
+
         let nouvelle = NSWindow(contentViewController: hebergeur)
         nouvelle.title = "Réglages d’À Voix Haute"
         nouvelle.styleMask = [.titled, .closable, .miniaturizable]
         nouvelle.isReleasedWhenClosed = false
-        // La barre de titre reste opaque et séparée du contenu : sans cela, le
-        // TabView remonterait sous elle.
         nouvelle.titlebarAppearsTransparent = false
-        nouvelle.setContentSize(NSSize(width: 500, height: 450))
+        nouvelle.setContentSize(NSSize(width: 500, height: 460))
         nouvelle.center()
 
         fenetre = nouvelle
