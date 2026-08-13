@@ -16,9 +16,9 @@ LIEN="$DESTINATION/lire"
 
 # Emplacement de l'application : d'abord l'installation, puis la compilation.
 for CANDIDAT in \
-    "/Applications/Lecteur.app" \
-    "$RACINE/build/Build/Products/Release/Lecteur.app" \
-    "$RACINE/build/Build/Products/Debug/Lecteur.app"
+    "/Applications/AVoixHaute.app" \
+    "$RACINE/build/Build/Products/Release/AVoixHaute.app" \
+    "$RACINE/build/Build/Products/Debug/AVoixHaute.app"
 do
     if [ -x "$CANDIDAT/Contents/Resources/lire" ]; then
         SOURCE="$CANDIDAT/Contents/Resources/lire"

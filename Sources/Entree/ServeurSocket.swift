@@ -16,7 +16,7 @@ final class ServeurSocket {
 
     private var descripteurEcoute: Int32 = -1
     private var sourceEcoute: DispatchSourceRead?
-    private let file = DispatchQueue(label: "fr.dimitri.Lecteur.socket", qos: .userInitiated)
+    private let file = DispatchQueue(label: "fr.dimitri.AVoixHaute.socket", qos: .userInitiated)
 
     // MARK: - Démarrage
 

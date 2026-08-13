@@ -14,9 +14,9 @@ LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchS
 PBS="/System/Library/CoreServices/pbs"
 
 for CANDIDAT in \
-    "/Applications/Lecteur.app" \
-    "$RACINE/build/Build/Products/Release/Lecteur.app" \
-    "$RACINE/build/Build/Products/Debug/Lecteur.app"
+    "/Applications/AVoixHaute.app" \
+    "$RACINE/build/Build/Products/Release/AVoixHaute.app" \
+    "$RACINE/build/Build/Products/Debug/AVoixHaute.app"
 do
     if [ -d "$CANDIDAT" ]; then
         APP="$CANDIDAT"
@@ -25,7 +25,7 @@ do
 done
 
 if [ -z "${APP:-}" ]; then
-    echo "Erreur : Lecteur.app introuvable. Compilez d'abord le projet." >&2
+    echo "Erreur : AVoixHaute.app introuvable. Compilez d'abord le projet." >&2
     exit 1
 fi
 
@@ -42,7 +42,7 @@ echo "Rafraîchissement du menu Services…"
 "$PBS" -flush 2>/dev/null || true
 
 # L'application doit tourner pour que son fournisseur soit joignable.
-if ! pgrep -f "Lecteur.app/Contents/MacOS/Lecteur" >/dev/null; then
+if ! pgrep -f "AVoixHaute.app/Contents/MacOS/AVoixHaute" >/dev/null; then
     echo "Lancement de l'application…"
     open "$APP"
     sleep 2

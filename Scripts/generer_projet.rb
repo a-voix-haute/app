@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Génère Lecteur.xcodeproj à partir de l'arborescence Sources/.
+# Génère AVoixHaute.xcodeproj à partir de l'arborescence Sources/.
 #
 # Ce script est la source de vérité de la structure du projet : le .xcodeproj
 # est versionné pour rester ouvrable dans Xcode, mais il peut être régénéré à
@@ -16,9 +16,9 @@ require 'xcodeproj'
 require 'pathname'
 
 RACINE = Pathname.new(__dir__).parent.expand_path
-CHEMIN_PROJET = RACINE + 'Lecteur.xcodeproj'
+CHEMIN_PROJET = RACINE + 'AVoixHaute.xcodeproj'
 
-IDENTIFIANT_APP = 'fr.dimitri.Lecteur'
+IDENTIFIANT_APP = 'fr.dimitri.AVoixHaute'
 VERSION_MIN_MACOS = '14.0'
 VERSION_SWIFT = '5.0'
 
@@ -95,7 +95,7 @@ end
 
 # --- Cible application ------------------------------------------------------
 
-cible_app = projet.new_target(:application, 'Lecteur', :osx, VERSION_MIN_MACOS)
+cible_app = projet.new_target(:application, 'AVoixHaute', :osx, VERSION_MIN_MACOS)
 
 groupe_sources = projet.new_group('Sources', 'Sources')
 fichiers_app = []
@@ -104,7 +104,7 @@ cible_app.add_file_references(fichiers_app)
 
 cible_app.build_configurations.each do |config|
   config.build_settings.merge!(
-    'PRODUCT_NAME' => 'Lecteur',
+    'PRODUCT_NAME' => 'AVoixHaute',
     'PRODUCT_BUNDLE_IDENTIFIER' => IDENTIFIANT_APP,
     'INFOPLIST_FILE' => 'Sources/App/Info.plist',
     'CURRENT_PROJECT_VERSION' => '1',
@@ -142,7 +142,7 @@ phase_copie.add_file_reference(cible_cli.product_reference)
 # --- Cible de tests ---------------------------------------------------------
 
 if (RACINE + 'Tests').children.any? { |f| f.extname == '.swift' }
-  cible_tests = projet.new_target(:unit_test_bundle, 'LecteurTests', :osx, VERSION_MIN_MACOS)
+  cible_tests = projet.new_target(:unit_test_bundle, 'AVoixHauteTests', :osx, VERSION_MIN_MACOS)
 
   groupe_tests = projet.new_group('Tests', 'Tests')
   fichiers_tests = []
@@ -151,9 +151,9 @@ if (RACINE + 'Tests').children.any? { |f| f.extname == '.swift' }
 
   cible_tests.build_configurations.each do |config|
     config.build_settings.merge!(
-      'PRODUCT_NAME' => 'LecteurTests',
+      'PRODUCT_NAME' => 'AVoixHauteTests',
       'PRODUCT_BUNDLE_IDENTIFIER' => "#{IDENTIFIANT_APP}.tests",
-      'TEST_HOST' => '$(BUILT_PRODUCTS_DIR)/Lecteur.app/Contents/MacOS/Lecteur',
+      'TEST_HOST' => '$(BUILT_PRODUCTS_DIR)/AVoixHaute.app/Contents/MacOS/AVoixHaute',
       'BUNDLE_LOADER' => '$(TEST_HOST)',
       # Sans Info.plist explicite, la signature du bundle de tests échoue.
       'GENERATE_INFOPLIST_FILE' => 'YES'
@@ -161,16 +161,25 @@ if (RACINE + 'Tests').children.any? { |f| f.extname == '.swift' }
   end
 
   cible_tests.add_dependency(cible_app)
-  puts "  cible LecteurTests : #{fichiers_tests.count} fichier(s)"
+  puts "  cible AVoixHauteTests : #{fichiers_tests.count} fichier(s)"
 end
 
 # --- Ressources hors code ---------------------------------------------------
 
+# Le chemin du groupe étant déjà « Ressources », les références qu'il contient
+# sont relatives à ce dossier.
 groupe_ressources = projet.new_group('Ressources', 'Ressources')
-groupe_ressources.new_reference('Sources/App/Info.plist')
+
+# L'icône est copiée dans le bundle ; CFBundleIconFile la désigne par son nom.
+icone = RACINE + 'Ressources/AVoixHaute.icns'
+if icone.exist?
+  reference_icone = groupe_ressources.new_reference('AVoixHaute.icns')
+  cible_app.resources_build_phase.add_file_reference(reference_icone)
+  puts '  icône incluse'
+end
 
 projet.save
 
-puts "  cible Lecteur : #{fichiers_app.count} fichier(s) Swift"
+puts "  cible AVoixHaute : #{fichiers_app.count} fichier(s) Swift"
 puts "  cible lire    : #{fichiers_cli.count} fichier(s) Swift"
 puts "Terminé : #{CHEMIN_PROJET}"

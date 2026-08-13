@@ -1,5 +1,5 @@
 import XCTest
-@testable import Lecteur
+@testable import AVoixHaute
 
 final class NettoyeurMarkdownTests: XCTestCase {
 

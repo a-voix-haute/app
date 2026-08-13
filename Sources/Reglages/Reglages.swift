@@ -1,7 +1,7 @@
 // Réglages de l'application, adossés à UserDefaults.
 //
 // Le volume est minuscule et les types sont simples : un fichier de
-// configuration n'apporterait rien, tandis que `defaults read fr.dimitri.Lecteur`
+// configuration n'apporterait rien, tandis que `defaults read fr.dimitri.AVoixHaute`
 // permet de tout inspecter depuis le terminal.
 
 import Foundation

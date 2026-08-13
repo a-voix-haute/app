@@ -11,7 +11,7 @@ enum GestionnaireFichiersTemp {
     /// Dossier de travail, sous le dossier temporaire de l'utilisateur.
     static let dossier: URL = {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("fr.dimitri.Lecteur", isDirectory: true)
+            .appendingPathComponent("fr.dimitri.AVoixHaute", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()

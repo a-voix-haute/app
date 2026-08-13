@@ -13,7 +13,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         Journal.reinitialiserFichier()
-        Journal.app.info("Démarrage de Lecteur")
+        Journal.app.info("Démarrage d’À Voix Haute")
 
         // À ce stade aucune lecture n'est en cours : tout fichier restant
         // provient d'une exécution précédente interrompue.
@@ -74,7 +74,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         let alerte = NSAlert()
         alerte.messageText = "Autorisation requise"
         alerte.informativeText = """
-            Pour lire le texte sélectionné dans une autre application, Lecteur \
+            Pour lire le texte sélectionné dans une autre application, À Voix Haute \
             doit être autorisé dans Confidentialité et sécurité, rubrique \
             Accessibilité.
 
@@ -131,7 +131,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        Journal.app.info("Arrêt de Lecteur")
+        Journal.app.info("Arrêt d’À Voix Haute")
         serveurSocket.arreter()
         GestionnaireFichiersTemp.nettoyerOrphelins()
     }
@@ -142,7 +142,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         let element = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         element.button?.image = NSImage(
             systemSymbolName: "waveform",
-            accessibilityDescription: "Lecteur"
+            accessibilityDescription: "À Voix Haute"
         )
 
         let menu = NSMenu()
@@ -164,7 +164,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "Quitter Lecteur",
+            withTitle: "Quitter À Voix Haute",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )

@@ -1,5 +1,5 @@
 import XCTest
-@testable import Lecteur
+@testable import AVoixHaute
 
 /// Les réglages sont testés sur un domaine dédié, pour ne pas écraser ceux de
 /// l'utilisateur pendant l'exécution de la suite.
@@ -10,7 +10,7 @@ final class ReglagesTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        domaine = "fr.dimitri.Lecteur.tests.\(UUID().uuidString)"
+        domaine = "fr.dimitri.AVoixHaute.tests.\(UUID().uuidString)"
         defaults = UserDefaults(suiteName: domaine)
     }
 

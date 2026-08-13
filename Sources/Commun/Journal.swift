@@ -3,13 +3,13 @@
 // Les messages sont visibles dans Console.app en filtrant sur le sous-système,
 // ou en ligne de commande :
 //
-//     log stream --predicate 'subsystem == "fr.dimitri.Lecteur"' --level debug
+//     log stream --predicate 'subsystem == "fr.dimitri.AVoixHaute"' --level debug
 
 import Foundation
 import os
 
 enum Journal {
-    private static let sousSysteme = "fr.dimitri.Lecteur"
+    private static let sousSysteme = "fr.dimitri.AVoixHaute"
 
     static let app = Logger(subsystem: sousSysteme, category: "app")
     static let synthese = Logger(subsystem: sousSysteme, category: "synthese")
@@ -24,17 +24,17 @@ enum Journal {
     // sont souvent absents à la relecture. Ce doublon dans un fichier garantit
     // qu'une trace reste consultable pendant le développement.
     //
-    //     tail -f ~/Library/Logs/Lecteur.log
+    //     tail -f ~/Library/Logs/AVoixHaute.log
 
     /// Emplacement du journal de fichier.
     static let cheminFichier: String = {
         let dossier = URL(fileURLWithPath: NSHomeDirectory())
             .appendingPathComponent("Library/Logs", isDirectory: true)
         try? FileManager.default.createDirectory(at: dossier, withIntermediateDirectories: true)
-        return dossier.appendingPathComponent("Lecteur.log").path
+        return dossier.appendingPathComponent("AVoixHaute.log").path
     }()
 
-    private static let fileEcriture = DispatchQueue(label: "fr.dimitri.Lecteur.journal")
+    private static let fileEcriture = DispatchQueue(label: "fr.dimitri.AVoixHaute.journal")
 
     private static let horodateur: DateFormatter = {
         let formateur = DateFormatter()

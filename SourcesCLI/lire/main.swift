@@ -1,4 +1,4 @@
-// lire — helper en ligne de commande pour Lecteur.app
+// lire — helper en ligne de commande pour AVoixHaute.app
 //
 //     lire fichier.md          lit un fichier
 //     pbpaste | lire           lit l'entrée standard
@@ -22,8 +22,8 @@ enum Protocole {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
         return base
-            .appendingPathComponent("Lecteur", isDirectory: true)
-            .appendingPathComponent("lecteur.sock")
+            .appendingPathComponent("AVoixHaute", isDirectory: true)
+            .appendingPathComponent("avoixhaute.sock")
             .path
     }
 
@@ -133,7 +133,7 @@ enum Client {
     static func lancerApplication() -> Bool {
         let processus = Process()
         processus.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        processus.arguments = ["-b", "fr.dimitri.Lecteur"]
+        processus.arguments = ["-b", "fr.dimitri.AVoixHaute"]
         processus.standardOutput = Pipe()
         processus.standardError = Pipe()
 
@@ -165,7 +165,7 @@ enum Client {
 
         if descripteur == nil {
             guard lancerApplication() else {
-                erreur("impossible de lancer Lecteur.app")
+                erreur("impossible de lancer À Voix Haute")
                 return nil
             }
             descripteur = connecter()
@@ -196,7 +196,7 @@ func erreur(_ message: String) {
 
 func afficherAide() {
     print("""
-    lire — lecture audio de texte par Lecteur.app
+    lire — lecture audio de texte par À Voix Haute
 
     Usage :
       lire <fichier>       lit le contenu d'un fichier

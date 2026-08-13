@@ -351,7 +351,7 @@ private struct OngletTexte: View {
                     Text("lire").monospaced().foregroundStyle(.secondary)
                 }
                 LabeledContent("Journal") {
-                    Text("~/Library/Logs/Lecteur.log")
+                    Text("~/Library/Logs/AVoixHaute.log")
                         .font(.caption)
                         .monospaced()
                         .foregroundStyle(.secondary)
@@ -391,7 +391,7 @@ final class FenetreReglages {
 
         let hebergeur = NSHostingController(rootView: VueReglages())
         let nouvelle = NSWindow(contentViewController: hebergeur)
-        nouvelle.title = "Réglages de Lecteur"
+        nouvelle.title = "Réglages d’À Voix Haute"
         nouvelle.styleMask = [.titled, .closable, .miniaturizable]
         nouvelle.isReleasedWhenClosed = false
         // La barre de titre reste opaque et séparée du contenu : sans cela, le

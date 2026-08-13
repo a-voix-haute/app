@@ -5,21 +5,23 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>fr_FR</string>
 	<key>CFBundleExecutable</key>
-	<string>Lecteur</string>
+	<string>AVoixHaute</string>
 	<key>CFBundleIdentifier</key>
-	<string>fr.dimitri.Lecteur</string>
+	<string>fr.dimitri.AVoixHaute</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Lecteur</string>
+	<string>À Voix Haute</string>
 	<key>CFBundleDisplayName</key>
-	<string>Lecteur</string>
+	<string>À Voix Haute</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>CFBundleIconFile</key>
+	<string>AVoixHaute</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 
@@ -38,8 +40,9 @@
 			</dict>
 			<key>NSMessage</key>
 			<string>lireSelection</string>
+			<!-- Doit correspondre au nom de l'exécutable, sans accent ni espace. -->
 			<key>NSPortName</key>
-			<string>Lecteur</string>
+			<string>AVoixHaute</string>
 			<!-- Les deux formes sont déclarées : NSStringPboardType reste la
 			     mieux reconnue par les applications anciennes, public.utf8-plain-text
 			     par les récentes. -->
@@ -63,7 +66,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.Lecteur.url</string>
+			<string>fr.dimitri.AVoixHaute.url</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>lire</string>
