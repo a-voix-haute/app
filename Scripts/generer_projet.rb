@@ -22,6 +22,20 @@ IDENTIFIANT_APP = 'fr.dimitri.Lecteur'
 VERSION_MIN_MACOS = '14.0'
 VERSION_SWIFT = '5.0'
 
+# Signature : une identité de développement stable évite de réaccorder
+# l'autorisation Accessibilité après chaque compilation. Ces valeurs peuvent
+# être remplacées par les variables d'environnement du même nom, et retomber
+# sur une signature ad-hoc ('-') sur une machine sans certificat.
+#
+# L'identité est désignée par son empreinte SHA-1 : les noms génériques comme
+# « Apple Development » sont résolus par Xcode en « Mac Development », qui ne
+# correspond à aucun certificat installé ici.
+IDENTITE_SIGNATURE = ENV.fetch(
+  'LECTEUR_IDENTITE',
+  '3D909274B7703CD03F2B29D33E6A9757817B3143'
+)
+EQUIPE_DEVELOPPEMENT = ENV.fetch('LECTEUR_EQUIPE', '')
+
 # Réglages communs à toutes les cibles.
 REGLAGES_COMMUNS = {
   'MACOSX_DEPLOYMENT_TARGET' => VERSION_MIN_MACOS,
@@ -29,9 +43,13 @@ REGLAGES_COMMUNS = {
   'ALWAYS_SEARCH_USER_PATHS' => 'NO',
   'CLANG_ENABLE_OBJC_ARC' => 'YES',
   'ENABLE_STRICT_OBJC_MSGSEND' => 'YES',
-  # Signature ad-hoc : l'autorisation Accessibilité est liée à la signature,
-  # une identité stable évite de la redemander à chaque compilation.
-  'CODE_SIGN_IDENTITY' => '-',
+  # L'autorisation Accessibilité est liée à la signature : avec une signature
+  # ad-hoc, chaque compilation produit une identité différente et macOS révoque
+  # l'autorisation. Une identité de développement stable évite d'avoir à la
+  # redonner. Sans certificat disponible, régler IDENTITE_SIGNATURE sur '-'.
+  'CODE_SIGN_IDENTITY' => IDENTITE_SIGNATURE,
+  'CODE_SIGN_STYLE' => 'Manual',
+  'DEVELOPMENT_TEAM' => EQUIPE_DEVELOPPEMENT,
   'CODE_SIGNING_REQUIRED' => 'YES',
   'CODE_SIGNING_ALLOWED' => 'YES',
   # Le bac à sable est volontairement désactivé : Process (say), le socket Unix

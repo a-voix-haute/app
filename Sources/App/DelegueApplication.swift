@@ -8,6 +8,9 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     private var elementBarreMenus: NSStatusItem?
     private let serveurSocket = ServeurSocket()
 
+    /// Évite de redemander l'autorisation à chaque raccourci.
+    private var autorisationDejaProposee = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         Journal.reinitialiserFichier()
         Journal.app.info("Démarrage de Lecteur")
@@ -19,6 +22,76 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         installerElementBarreMenus()
         installerServeurSocket()
         FournisseurService.installer()
+        installerRaccourciGlobal()
+    }
+
+    /// Branche le raccourci clavier global sur la capture de sélection.
+    private func installerRaccourciGlobal() {
+        RaccourciGlobal.partage.surDeclenchement = { [weak self] in
+            self?.lireSelectionCourante()
+        }
+        RaccourciGlobal.partage.activer()
+    }
+
+    /// Lit ce qui est sélectionné dans l'application au premier plan.
+    private func lireSelectionCourante() {
+        let resultat = CaptureSelection.capturer(
+            restaurer: Reglages.partage.restaurerPressePapiers
+        )
+
+        switch resultat {
+        case .selection(let texte):
+            Journal.fichier("raccourci", "sélection capturée : \(texte.count) caractères")
+            lire(texte: texte, source: .raccourci)
+
+        case .pressePapiers(let texte):
+            // Sans autorisation, ou sélection vide : le presse-papiers reste
+            // une source utilisable.
+            Journal.fichier("raccourci", "repli sur le presse-papiers : \(texte.count) caractères")
+
+            // Le repli passe souvent inaperçu — l'utilisateur entend un texte
+            // sans comprendre pourquoi ce n'est pas sa sélection. On explique
+            // la première fois, puis on se tait.
+            if !CaptureSelection.estAutorisee && !autorisationDejaProposee {
+                autorisationDejaProposee = true
+                proposerAutorisationAccessibilite()
+                return
+            }
+
+            lire(texte: texte, source: .pressePapiers)
+
+        case .nonAutorisee:
+            proposerAutorisationAccessibilite()
+
+        case .rien:
+            Journal.fichier("raccourci", "aucun texte à lire")
+            NSSound.beep()
+        }
+    }
+
+    /// Explique pourquoi l'autorisation est nécessaire et conduit au réglage.
+    private func proposerAutorisationAccessibilite() {
+        let alerte = NSAlert()
+        alerte.messageText = "Autorisation requise"
+        alerte.informativeText = """
+            Pour lire le texte sélectionné dans une autre application, Lecteur \
+            doit être autorisé dans Confidentialité et sécurité, rubrique \
+            Accessibilité.
+
+            Sans cette autorisation, le raccourci lit le contenu du \
+            presse-papiers.
+            """
+        alerte.alertStyle = .informational
+        alerte.addButton(withTitle: "Ouvrir les réglages")
+        alerte.addButton(withTitle: "Plus tard")
+
+        NSApp.activate(ignoringOtherApps: true)
+        if alerte.runModal() == .alertFirstButtonReturn {
+            // Cet appel inscrit l'application dans la liste des Réglages, où
+            // elle n'apparaît pas tant qu'elle n'a rien demandé.
+            CaptureSelection.demanderAutorisation()
+            CaptureSelection.ouvrirReglagesAccessibilite()
+        }
     }
 
     /// Ouvre le canal d'entrée principal, celui du helper `lire`.

@@ -12,6 +12,9 @@ struct VueReglages: View {
             OngletLecture()
                 .tabItem { Label("Lecture", systemImage: "play.circle") }
 
+            OngletRaccourci()
+                .tabItem { Label("Raccourci", systemImage: "command") }
+
             OngletTexte()
                 .tabItem { Label("Texte", systemImage: "text.alignleft") }
         }
@@ -211,6 +214,112 @@ private struct OngletLecture: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+// MARK: - Onglet Raccourci
+
+private struct OngletRaccourci: View {
+
+    @State private var reglages = Reglages.partage
+    @State private var autorise = CaptureSelection.estAutorisee
+    @State private var conflit = false
+
+    /// Combinaison retenue, identifiée par son libellé.
+    private var combinaisonCourante: String {
+        RaccourciGlobal.description(
+            codeTouche: reglages.raccourciCodeTouche,
+            modificateurs: reglages.raccourciModificateurs
+        )
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Activer le raccourci global", isOn: Binding(
+                    get: { reglages.raccourciGlobalActif },
+                    set: { actif in
+                        reglages.raccourciGlobalActif = actif
+                        conflit = actif && !RaccourciGlobal.partage.activer()
+                        if !actif { RaccourciGlobal.partage.desactiver() }
+                    }
+                ))
+
+                Picker("Combinaison", selection: Binding(
+                    get: { combinaisonCourante },
+                    set: { libelle in
+                        guard let choix = RaccourciGlobal.combinaisonsProposees
+                            .first(where: { $0.libelle == libelle }) else { return }
+                        reglages.raccourciCodeTouche = choix.code
+                        reglages.raccourciModificateurs = choix.modificateurs
+                        conflit = reglages.raccourciGlobalActif
+                            && !RaccourciGlobal.partage.activer()
+                    }
+                )) {
+                    ForEach(RaccourciGlobal.combinaisonsProposees, id: \.libelle) { proposition in
+                        Text(proposition.libelle).tag(proposition.libelle)
+                    }
+                }
+                .disabled(!reglages.raccourciGlobalActif)
+
+                if conflit {
+                    Label(
+                        "Cette combinaison est déjà utilisée par une autre application.",
+                        systemImage: "exclamationmark.triangle"
+                    )
+                    .foregroundStyle(.orange)
+                    .font(.callout)
+                }
+            } header: {
+                Text("Raccourci clavier")
+            } footer: {
+                Text("Lit le texte sélectionné dans l'application au premier "
+                   + "plan, quelle qu'elle soit.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                LabeledContent("Accessibilité") {
+                    Label(
+                        autorise ? "Autorisé" : "Non autorisé",
+                        systemImage: autorise ? "checkmark.circle.fill" : "xmark.circle"
+                    )
+                    .foregroundStyle(autorise ? .green : .orange)
+                }
+
+                if !autorise {
+                    Button {
+                        CaptureSelection.demanderAutorisation()
+                        CaptureSelection.ouvrirReglagesAccessibilite()
+                    } label: {
+                        Label("Ouvrir les réglages d'Accessibilité…", systemImage: "lock.open")
+                    }
+                }
+
+                Button("Vérifier à nouveau") {
+                    autorise = CaptureSelection.estAutorisee
+                }
+
+                Toggle("Restaurer le presse-papiers après lecture", isOn: Binding(
+                    get: { reglages.restaurerPressePapiers },
+                    set: { reglages.restaurerPressePapiers = $0 }
+                ))
+            } header: {
+                Text("Autorisation")
+            } footer: {
+                Text("La capture de la sélection passe par une copie simulée, "
+                   + "ce que macOS n'autorise qu'aux applications inscrites en "
+                   + "Accessibilité. Sans cette autorisation, le raccourci lit "
+                   + "le presse-papiers.\n\nL'autorisation est liée à la "
+                   + "signature de l'application : elle est à redonner après "
+                   + "chaque recompilation.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .onAppear { autorise = CaptureSelection.estAutorisee }
     }
 }
 
