@@ -170,4 +170,9 @@ dans Réglages Système → Accessibilité → Contenu énoncé.
 
 ## Licence
 
-Usage personnel.
+[CC BY-NC-SA 4.0](LICENSE) — le code est lisible et vérifiable, modifiable pour
+votre usage, et partageable sous les mêmes conditions. L'usage commercial est
+exclu, et l'attribution obligatoire.
+
+Les propositions d'amélioration sont bienvenues sous forme de pull request. Les
+attentes sont décrites dans le fichier [LICENSE](LICENSE).
