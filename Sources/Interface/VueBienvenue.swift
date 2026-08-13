@@ -459,8 +459,15 @@ private struct EtapeTerminal: View {
                             Spacer()
 
                             if assistant.commandeInstallee {
-                                Text(assistant.invocation)
-                                    .font(.system(size: 11, design: .monospaced))
+                                // Les compétences n'ont pas de commande à
+                                // taper : l'assistant s'en saisit de lui-même.
+                                Text(assistant.invocation.isEmpty
+                                     ? "automatique"
+                                     : assistant.invocation)
+                                    .font(.system(
+                                        size: 11,
+                                        design: assistant.invocation.isEmpty ? .default : .monospaced
+                                    ))
                                     .foregroundStyle(.secondary)
                             }
                         }

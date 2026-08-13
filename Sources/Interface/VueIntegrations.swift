@@ -28,9 +28,11 @@ struct VueIntegrations: View {
             } header: {
                 Text("Assistants détectés")
             } footer: {
-                Text("La commande permet de faire lire à voix haute la réponse "
-                   + "d'un assistant, un fichier ou le presse-papiers, sans "
-                   + "quitter le terminal.")
+                Text("Faites lire à voix haute la réponse d'un assistant, un "
+                   + "fichier ou le presse-papiers, sans quitter le terminal."
+                   + "\n\nCertains assistants s'invoquent par une commande, "
+                   + "d'autres — Codex, Cursor — repèrent d'eux-mêmes qu'il "
+                   + "faut lire : il suffit de le leur demander.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -109,7 +111,7 @@ private struct LigneAssistant: View {
                     .font(.system(size: 13))
 
                 Text(assistant.commandeInstallee
-                     ? "Installée — tapez \(assistant.invocation)"
+                     ? "Installée — \(assistant.modeEmploi)"
                      : "Non installée")
                     .font(.caption)
                     .foregroundStyle(.secondary)

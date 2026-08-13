@@ -1,12 +1,16 @@
 // Intégration de la commande de lecture aux assistants en ligne de commande.
 //
-// Claude Code, Codex et Cursor partagent le même format : un dossier par
-// compétence, contenant un fichier SKILL.md dont l'en-tête déclare un nom et
-// une description. Une seule définition suffit donc pour les trois.
+// Deux conventions coexistent, et elles ne s'utilisent pas de la même façon :
 //
-// Claude Code accepte en outre les commandes simples — un fichier Markdown dans
-// ~/.claude/commands — invocables par /lire. Les deux formes coexistent sans se
-// gêner ; la commande est conservée car elle est plus directe à l'usage.
+//  - une commande est un fichier Markdown que l'utilisateur appelle lui-même,
+//    en tapant /lire ;
+//  - une compétence est un dossier contenant un SKILL.md, que l'assistant
+//    charge de sa propre initiative lorsque la demande s'y prête. Codex et
+//    Cursor n'ont pas de /lire : on leur demande de lire à voix haute, et ils
+//    trouvent la compétence.
+//
+// Le corps du fichier diffère en conséquence : la commande décrit une marche à
+// suivre, la compétence décrit surtout les situations qui la justifient.
 
 import Foundation
 
@@ -27,8 +31,23 @@ struct AssistantIA: Identifiable, Hashable {
     /// Dossier où déposer la commande, relatif au dossier personnel.
     let dossierCible: String
     let format: Format
-    /// Ce que l'utilisateur tapera une fois l'installation faite.
+    /// Ce que l'utilisateur tapera une fois l'installation faite, pour une
+    /// commande. Vide pour une compétence, qui se déclenche d'elle-même.
     let invocation: String
+
+    /// Comment se sert-on de la commande, une fois installée ?
+    ///
+    /// Une commande s'appelle explicitement ; une compétence est proposée par
+    /// l'assistant lorsqu'il juge qu'elle répond à la demande. La distinction
+    /// mérite d'être affichée : chercher un `/lire` inexistant est déroutant.
+    var modeEmploi: String {
+        switch format {
+        case .commande:
+            return "tapez \(invocation)"
+        case .skill:
+            return "demandez-lui de lire à voix haute"
+        }
+    }
 
     var cheminConfiguration: URL {
         URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent(dossierConfiguration)
@@ -84,7 +103,7 @@ enum IntegrationIA {
             dossierConfiguration: ".codex",
             dossierCible: ".codex/skills",
             format: .skill,
-            invocation: "« lis ceci à voix haute »"
+            invocation: ""
         ),
         AssistantIA(
             id: "cursor",
@@ -92,7 +111,7 @@ enum IntegrationIA {
             dossierConfiguration: ".cursor",
             dossierCible: ".cursor/skills",
             format: .skill,
-            invocation: "« lis ceci à voix haute »"
+            invocation: ""
         ),
         AssistantIA(
             id: "gemini",
@@ -124,7 +143,7 @@ enum IntegrationIA {
             dossierConfiguration: ".config/goose",
             dossierCible: ".config/goose/skills",
             format: .skill,
-            invocation: "« lis ceci à voix haute »"
+            invocation: ""
         ),
         AssistantIA(
             id: "crush",
@@ -140,7 +159,7 @@ enum IntegrationIA {
             dossierConfiguration: ".config/amp",
             dossierCible: ".config/amp/skills",
             format: .skill,
-            invocation: "« lis ceci à voix haute »"
+            invocation: ""
         ),
         AssistantIA(
             id: "copilot",
