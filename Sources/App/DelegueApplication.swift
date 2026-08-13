@@ -18,6 +18,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
         installerElementBarreMenus()
         installerServeurSocket()
+        FournisseurService.installer()
     }
 
     /// Ouvre le canal d'entrée principal, celui du helper `lire`.

@@ -40,12 +40,21 @@
 			<string>lireSelection</string>
 			<key>NSPortName</key>
 			<string>Lecteur</string>
+			<!-- Les deux formes sont déclarées : NSStringPboardType reste la
+			     mieux reconnue par les applications anciennes, public.utf8-plain-text
+			     par les récentes. -->
 			<key>NSSendTypes</key>
 			<array>
 				<string>NSStringPboardType</string>
+				<string>public.utf8-plain-text</string>
 			</array>
 			<key>NSRequiredContext</key>
-			<dict/>
+			<dict>
+				<key>NSTextContent</key>
+				<string>Any</string>
+			</dict>
+			<key>NSServiceDescription</key>
+			<string>Lit la sélection à voix haute dans un lecteur flottant</string>
 		</dict>
 	</array>
 
