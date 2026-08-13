@@ -1,0 +1,121 @@
+// Protocole d'échange entre le helper `lire` et l'application.
+//
+// Un socket de domaine Unix a été retenu parce qu'il accepte des textes de
+// taille arbitraire : NSDistributedNotificationCenter abandonne silencieusement
+// les charges utiles volumineuses, et une URL corrompt ou tronque les longs
+// textes. Mesuré ici : 110 Ko d'UTF-8 transmis sans altération.
+//
+// Trame : quatre octets de longueur en grand-boutiste, puis la charge JSON.
+// Le préfixe de longueur est indispensable — un flux TCP ne préserve pas les
+// frontières de messages, une lecture pouvant en livrer un fragment ou deux
+// messages accolés.
+
+import Foundation
+
+enum ProtocoleSocket {
+
+    /// Emplacement du socket.
+    ///
+    /// Sous « Application Support » plutôt que dans le dossier temporaire : le
+    /// chemin doit rester stable entre les redémarrages pour que le helper le
+    /// retrouve, et il doit être court, `sun_path` étant limité à 104 octets.
+    static var cheminSocket: String {
+        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support")
+        return base
+            .appendingPathComponent("Lecteur", isDirectory: true)
+            .appendingPathComponent("lecteur.sock")
+            .path
+    }
+
+    /// Taille maximale acceptée pour un message, garde-fou contre un client
+    /// défaillant qui annoncerait une longueur aberrante.
+    static let tailleMaximale = 16 * 1024 * 1024
+
+    // MARK: - Messages
+
+    enum TypeCommande: String, Codable {
+        case lire
+        case arreter
+        case ping
+    }
+
+    struct Requete: Codable {
+        let commande: TypeCommande
+        var texte: String?
+        var titre: String?
+        var source: String?
+    }
+
+    struct Reponse: Codable {
+        let succes: Bool
+        var message: String?
+    }
+
+    // MARK: - Encodage de trame
+
+    /// Préfixe les données de leur longueur sur quatre octets grand-boutistes.
+    static func encadrer(_ charge: Data) -> Data {
+        var trame = Data(capacity: charge.count + 4)
+        let longueur = UInt32(charge.count).bigEndian
+        withUnsafeBytes(of: longueur) { trame.append(contentsOf: $0) }
+        trame.append(charge)
+        return trame
+    }
+
+    /// Lit exactement `nombre` octets, en bouclant tant que le compte n'y est
+    /// pas : `read` peut en livrer moins que demandé.
+    static func lireExactement(_ descripteur: Int32, nombre: Int) -> Data? {
+        guard nombre > 0, nombre <= tailleMaximale else { return nil }
+        var tampon = [UInt8](repeating: 0, count: nombre)
+        var recu = 0
+
+        while recu < nombre {
+            let lus = tampon.withUnsafeMutableBytes { pointeur -> Int in
+                guard let base = pointeur.baseAddress else { return -1 }
+                return read(descripteur, base.advanced(by: recu), nombre - recu)
+            }
+            if lus > 0 {
+                recu += lus
+            } else if lus == 0 {
+                return nil // connexion fermée par le pair
+            } else if errno == EINTR {
+                continue   // interruption par un signal : on réessaie
+            } else {
+                return nil
+            }
+        }
+
+        return Data(tampon)
+    }
+
+    /// Lit une trame complète : longueur puis charge utile.
+    static func lireTrame(_ descripteur: Int32) -> Data? {
+        guard let entete = lireExactement(descripteur, nombre: 4) else { return nil }
+        let longueur = entete.withUnsafeBytes { $0.load(as: UInt32.self).bigEndian }
+        guard longueur > 0, Int(longueur) <= tailleMaximale else { return nil }
+        return lireExactement(descripteur, nombre: Int(longueur))
+    }
+
+    /// Écrit l'intégralité des données, en bouclant sur les écritures partielles.
+    @discardableResult
+    static func ecrireTout(_ descripteur: Int32, _ donnees: Data) -> Bool {
+        var envoye = 0
+        let total = donnees.count
+
+        return donnees.withUnsafeBytes { pointeur -> Bool in
+            guard let base = pointeur.baseAddress else { return false }
+            while envoye < total {
+                let ecrits = write(descripteur, base.advanced(by: envoye), total - envoye)
+                if ecrits > 0 {
+                    envoye += ecrits
+                } else if ecrits < 0 && errno == EINTR {
+                    continue
+                } else {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+}

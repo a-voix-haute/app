@@ -41,6 +41,13 @@ final class GestionnaireLecteurs {
     /// Nombre de synthèses en cours, pour l'affichage d'une progression.
     private(set) var syntheseEnCours = 0
 
+    /// Synthèses en cours, conservées pour pouvoir les annuler.
+    ///
+    /// Sans cela, un arrêt demandé pendant une synthèse laisserait `say`
+    /// terminer son travail et déposer un fichier audio que plus personne
+    /// n'ouvrirait.
+    private var tachesSynthese: [UUID: Task<Void, Never>] = [:]
+
     private var moteurSay = MoteurSay()
 
     private init() {}
@@ -75,15 +82,28 @@ final class GestionnaireLecteurs {
             """)
 
         syntheseEnCours += 1
+        let identifiant = UUID()
 
-        Task { [weak self] in
-            defer { Task { @MainActor in self?.syntheseEnCours -= 1 } }
+        let tache = Task { [weak self] in
+            defer {
+                Task { @MainActor in
+                    self?.syntheseEnCours -= 1
+                    self?.tachesSynthese[identifiant] = nil
+                }
+            }
             do {
                 let audio = try await moteur.synthetiser(
                     texte: prepare,
                     voix: voix,
                     vitesseBase: reglages.vitesseSyntheseBase
                 ) { _ in }
+
+                // Un arrêt a pu être demandé pendant la synthèse : le fichier
+                // produit n'a alors plus de destinataire.
+                guard !Task.isCancelled else {
+                    GestionnaireFichiersTemp.supprimer(audio)
+                    return
+                }
 
                 await MainActor.run {
                     self?.ouvrirLecteur(
@@ -93,20 +113,36 @@ final class GestionnaireLecteurs {
                 }
             } catch is CancellationError {
                 Journal.synthese.info("Synthèse annulée")
+            } catch ErreurSynthese.annulee {
+                Journal.synthese.info("Synthèse interrompue")
             } catch {
                 Journal.synthese.error("Synthèse échouée : \(error.localizedDescription, privacy: .public)")
                 await MainActor.run { self?.signalerEchec(error) }
             }
         }
+
+        tachesSynthese[identifiant] = tache
     }
 
-    /// Arrête et ferme tous les lecteurs.
+    /// Arrête les lectures en cours et annule les synthèses en attente.
     func toutArreter() {
+        Journal.fichier("lecture", "toutArreter : \(tachesSynthese.count) synthèse(s), \(sessions.count) lecteur(s)")
+
+        for tache in tachesSynthese.values {
+            tache.cancel()
+        }
+        tachesSynthese.removeAll()
+
+        // L'annulation coopérative ne traverse pas toujours jusqu'au processus ;
+        // le moteur le tue directement.
+        moteurSay.interrompreTout()
+
         for session in sessions {
             session.controleur.fermerSansNotifier()
         }
         sessions.removeAll()
-        Journal.lecture.info("Toutes les lectures ont été arrêtées")
+
+        Journal.lecture.info("Lectures arrêtées et synthèses annulées")
     }
 
     // MARK: - Ouverture

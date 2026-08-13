@@ -6,8 +6,10 @@ import AppKit
 final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     private var elementBarreMenus: NSStatusItem?
+    private let serveurSocket = ServeurSocket()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        Journal.reinitialiserFichier()
         Journal.app.info("Démarrage de Lecteur")
 
         // À ce stade aucune lecture n'est en cours : tout fichier restant
@@ -15,6 +17,23 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         GestionnaireFichiersTemp.nettoyerOrphelins()
 
         installerElementBarreMenus()
+        installerServeurSocket()
+    }
+
+    /// Ouvre le canal d'entrée principal, celui du helper `lire`.
+    private func installerServeurSocket() {
+        serveurSocket.surDemandeLecture = { texte, titre, source in
+            let origine = source.flatMap(SourceLecture.init(rawValue:)) ?? .cli
+            GestionnaireLecteurs.partage.demanderLecture(
+                texte: texte,
+                source: origine,
+                titre: titre
+            )
+        }
+        serveurSocket.surDemandeArret = {
+            GestionnaireLecteurs.partage.toutArreter()
+        }
+        serveurSocket.demarrer()
     }
 
     /// Canal d'entrée URL : `lire://presse-papiers` ou `lire://texte?t=…`
@@ -39,6 +58,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         Journal.app.info("Arrêt de Lecteur")
+        serveurSocket.arreter()
         GestionnaireFichiersTemp.nettoyerOrphelins()
     }
 

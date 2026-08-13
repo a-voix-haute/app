@@ -18,6 +18,58 @@ final class MoteurSay: MoteurSynthese {
 
     private static let cheminSay = "/usr/bin/say"
 
+    /// Processus `say` en cours, protégé par un verrou.
+    ///
+    /// L'annulation coopérative de Swift ne suffit pas ici : le lien
+    /// d'annulation ne traverse pas la frontière d'acteur entre le gestionnaire
+    /// et ce moteur, et `onCancel` n'est alors jamais exécuté. Garder une prise
+    /// directe sur le processus permet de le tuer sans dépendre de ce
+    /// mécanisme.
+    private let verrou = NSLock()
+    private var processusEnCours: [Int32: Process] = [:]
+
+    /// Tue tous les processus de synthèse en cours.
+    ///
+    /// - Returns: le nombre de processus effectivement arrêtés.
+    @discardableResult
+    func interrompreTout() -> Int {
+        verrou.lock()
+        let processus = Array(processusEnCours.values)
+        processusEnCours.removeAll()
+        verrou.unlock()
+
+        var arretes = 0
+        for unProcessus in processus where unProcessus.isRunning {
+            let pid = unProcessus.processIdentifier
+            unProcessus.terminate()
+
+            // `say` en train d'encoder son fichier de sortie ne traite pas le
+            // SIGTERM avant d'avoir fini : sans SIGKILL, il produirait un
+            // fichier audio complet dont plus personne ne veut.
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+                if kill(pid, 0) == 0 { kill(pid, SIGKILL) }
+            }
+            arretes += 1
+        }
+
+        if arretes > 0 {
+            Journal.fichier("synthese", "\(arretes) processus say interrompu(s)")
+        }
+        return arretes
+    }
+
+    private func enregistrer(_ processus: Process) {
+        verrou.lock()
+        processusEnCours[processus.processIdentifier] = processus
+        verrou.unlock()
+    }
+
+    private func oublier(_ processus: Process) {
+        verrou.lock()
+        processusEnCours[processus.processIdentifier] = nil
+        verrou.unlock()
+    }
+
     // MARK: - Catalogue
 
     /// Interroge `say -v '?'` pour connaître les voix installées.
@@ -102,8 +154,15 @@ final class MoteurSay: MoteurSynthese {
         do {
             try await executerProcessus(arguments: arguments)
         } catch {
+            // Interrompu, `say` laisse un fichier tronqué : il part avec lui.
             GestionnaireFichiersTemp.supprimer(fichierAudio)
             throw error
+        }
+
+        // L'annulation peut survenir entre la fin du processus et le retour.
+        if Task.isCancelled {
+            GestionnaireFichiersTemp.supprimer(fichierAudio)
+            throw ErreurSynthese.annulee
         }
 
         guard FileManager.default.fileExists(atPath: fichierAudio.path) else {
@@ -126,14 +185,16 @@ final class MoteurSay: MoteurSynthese {
         processus.standardError = sortieErreur
         processus.standardOutput = Pipe()
 
-        // withTaskCancellationHandler permet de tuer le processus si la tâche
-        // appelante est annulée — fermeture du lecteur, nouvelle lecture…
         try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { (suite: CheckedContinuation<Void, Error>) in
-                processus.terminationHandler = { processusTermine in
+                processus.terminationHandler = { [weak self] processusTermine in
+                    self?.oublier(processusTermine)
+
                     if processusTermine.terminationStatus == 0 {
                         suite.resume()
                     } else if processusTermine.terminationReason == .uncaughtSignal {
+                        // Terminé par un signal : c'est une interruption
+                        // volontaire, pas une erreur de synthèse.
                         suite.resume(throwing: ErreurSynthese.annulee)
                     } else {
                         let donnees = sortieErreur.fileHandleForReading.readDataToEndOfFile()
@@ -148,6 +209,7 @@ final class MoteurSay: MoteurSynthese {
 
                 do {
                     try processus.run()
+                    enregistrer(processus)
                 } catch {
                     suite.resume(throwing: ErreurSynthese.processusEchoue(
                         code: -1,
@@ -156,7 +218,14 @@ final class MoteurSay: MoteurSynthese {
                 }
             }
         } onCancel: {
-            if processus.isRunning { processus.terminate() }
+            // Chemin secondaire : n'agit que si l'annulation traverse
+            // effectivement jusqu'ici. `interrompreTout()` reste le moyen sûr.
+            guard processus.isRunning else { return }
+            let pid = processus.processIdentifier
+            processus.terminate()
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.2) {
+                if kill(pid, 0) == 0 { kill(pid, SIGKILL) }
+            }
         }
     }
 
