@@ -8,6 +8,8 @@
 
 Application macOS native — Swift, AppKit et SwiftUI
 
+[**Télécharger la dernière version**](https://github.com/dimer47/a-voix-haute/releases/latest)
+
 </div>
 
 ---
