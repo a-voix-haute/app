@@ -42,7 +42,7 @@ Puis encoder le fichier :
 
 ```bash
 base64 -i ~/Desktop/certificat.p12 -o /tmp/cert.b64
-gh secret set CERTIFICAT_P12_BASE64 --repo dimer47/a-voix-haute < /tmp/cert.b64
+gh secret set CERTIFICAT_P12_BASE64 --repo a-voix-haute/app < /tmp/cert.b64
 rm /tmp/cert.b64
 ```
 
@@ -62,9 +62,9 @@ forme `abcd-efgh-ijkl-mnop` — devient le secret `NOTARISATION_MOT_DE_PASSE`.
 ### 3. Enregistrer les secrets
 
 ```bash
-gh secret set CERTIFICAT_P12_BASE64 --repo dimer47/a-voix-haute
-gh secret set CERTIFICAT_MOT_DE_PASSE --repo dimer47/a-voix-haute
-gh secret set NOTARISATION_MOT_DE_PASSE --repo dimer47/a-voix-haute
+gh secret set CERTIFICAT_P12_BASE64 --repo a-voix-haute/app
+gh secret set CERTIFICAT_MOT_DE_PASSE --repo a-voix-haute/app
+gh secret set NOTARISATION_MOT_DE_PASSE --repo a-voix-haute/app
 ```
 
 Chaque commande demande la valeur, sans l'afficher. Pour le premier secret,
@@ -73,7 +73,7 @@ collez le contenu produit à l'étape 1.
 Vérification :
 
 ```bash
-gh secret list --repo dimer47/a-voix-haute
+gh secret list --repo a-voix-haute/app
 ```
 
 ## Ce que fait le workflow

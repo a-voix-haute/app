@@ -8,7 +8,7 @@
 
 Application macOS native — Swift, AppKit et SwiftUI
 
-[**Télécharger la dernière version**](https://github.com/dimer47/a-voix-haute/releases/latest)
+[**Télécharger la dernière version**](https://github.com/a-voix-haute/app/releases/latest)
 
 </div>
 
@@ -42,8 +42,10 @@ ajustable en cours d'écoute.
 - **Plusieurs lectures simultanées**, avec des règles de coexistence
   configurables
 - **Choix de la voix** parmi celles du système, triées par langue et par qualité
+- **Interface en six langues** — français, anglais, espagnol, allemand, italien,
+  portugais — qui suit la langue du système
 
-## Cinq façons de lancer une lecture
+## Six façons de lancer une lecture
 
 | Moyen | Usage |
 |---|---|
@@ -51,6 +53,7 @@ ajustable en cours d'écoute.
 | Raccourci global | `⌃⌥L` sur une sélection, depuis n'importe quelle application |
 | Barre de menus | L'icône en forme d'onde, pour lire le presse-papiers |
 | Terminal | `pbpaste \| lire`, `lire document.md`, `lire --stop` |
+| Assistants IA | Douze assistants en ligne de commande, voir ci-dessous |
 | URL | `open "lire://presse-papiers"` |
 
 ## Assistants en ligne de commande
@@ -75,7 +78,7 @@ L'application est signée et notarisée par Apple : elle s'ouvre sans avertissem
 ### Depuis les sources
 
 ```bash
-git clone <url-du-dépôt>
+git clone https://github.com/a-voix-haute/app.git "À Voix Haute"
 cd "À Voix Haute"
 ./Scripts/installer.sh
 ```
