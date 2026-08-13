@@ -1,0 +1,14 @@
+# Produits de compilation
+build/
+DerivedData/
+*.o
+*.dSYM/
+
+# Réglages utilisateur Xcode (le .xcodeproj lui-même est versionné)
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# macOS
+.DS_Store
