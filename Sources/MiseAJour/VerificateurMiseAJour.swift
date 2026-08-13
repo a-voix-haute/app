@@ -34,6 +34,13 @@ final class VerificateurMiseAJour {
         string: "https://api.github.com/repos/\(depot)/releases/latest"
     )!
 
+    /// Identifiant d'équipe attendu dans la signature du disque téléchargé.
+    ///
+    /// Un disque accepté par Gatekeeper mais signé par quelqu'un d'autre serait
+    /// refusé : la notarisation prouve l'absence de logiciel malveillant, pas
+    /// l'origine.
+    private static let equipeAttendue = "5D6QHL72QC"
+
     enum Etat: Equatable {
         case inactif
         case verification
@@ -229,8 +236,11 @@ final class VerificateurMiseAJour {
     private func verifierSignature(_ disque: URL) throws {
         let processus = Process()
         processus.executableURL = URL(fileURLWithPath: "/usr/sbin/spctl")
+        // -vvv est indispensable : sans lui, spctl ne dit rien du tout et se
+        // contente d'un code de retour. Or nous voulons l'origine exacte, pas
+        // seulement un verdict.
         processus.arguments = [
-            "-a", "-t", "open",
+            "-a", "-vvv", "-t", "open",
             "--context", "context:primary-signature",
             disque.path
         ]
@@ -244,10 +254,14 @@ final class VerificateurMiseAJour {
 
         let message = String(data: donnees, encoding: .utf8) ?? ""
 
+        // Le verdict tient au code de retour ; les mentions attendues
+        // confirment que l'acceptation vient bien de notre identité, et non
+        // d'une règle locale plus permissive.
         guard processus.terminationStatus == 0,
               message.contains("accepted"),
-              message.contains("Notarized Developer ID") else {
-            Journal.fichier("maj", "signature refusée : \(message)")
+              message.contains("Notarized Developer ID"),
+              message.contains(Self.equipeAttendue) else {
+            Journal.fichier("maj", "signature refusée (code \(processus.terminationStatus)) : \(message.trimmingCharacters(in: .whitespacesAndNewlines))")
             throw ErreurMiseAJour.signatureInvalide
         }
 

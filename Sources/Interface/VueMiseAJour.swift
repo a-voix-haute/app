@@ -28,7 +28,8 @@ struct VueMiseAJour: View {
             Divider()
             piedDePage
         }
-        .frame(width: 480, height: 420)
+        .frame(width: 460)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     // MARK: - En-tête
@@ -61,15 +62,20 @@ struct VueMiseAJour: View {
 
     // MARK: - Notes de version
 
+    /// Les notes prennent la place qu'il leur faut, sans excéder une hauteur
+    /// au-delà de laquelle la fenêtre deviendrait envahissante : une release
+    /// d'une ligne ne doit pas produire une fenêtre à moitié vide.
     private var notes: some View {
         ScrollView {
             Text(notesNettoyees)
                 .font(.system(size: 12))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textSelection(.enabled)
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
         }
-        .frame(maxHeight: .infinity)
+        .frame(maxHeight: 260)
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     /// Notes débarrassées de leur balisage : le lecteur en profite déjà, la
