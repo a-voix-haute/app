@@ -14,7 +14,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Deux instances se disputeraient le socket et le raccourci global. La
         // seconde cède la place, après avoir mis la première au premier plan.
-        if let existante = autreInstance() {
+        //
+        // Exception sous test : le harnais XCTest héberge ses tests dans une
+        // instance de l'application, qui doit vivre même si une autre tourne.
+        if !Self.sousTest, let existante = autreInstance() {
             existante.activate()
             Journal.fichier("app", "instance déjà active — sortie")
             NSApp.terminate(nil)
@@ -30,8 +33,18 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
         installerElementBarreMenus()
         installerServeurSocket()
+
+        // Ni service ni raccourci sous test : ils sont enregistrés à l'échelle
+        // du système et entreraient en conflit avec l'instance installée.
+        guard !Self.sousTest else { return }
         FournisseurService.installer()
         installerRaccourciGlobal()
+    }
+
+    /// L'application est-elle hébergée par le harnais de tests ?
+    private static var sousTest: Bool {
+        NSClassFromString("XCTestCase") != nil
+            || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
     }
 
     /// Cherche une autre instance de l'application déjà lancée.
@@ -112,7 +125,11 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     }
 
     /// Ouvre le canal d'entrée principal, celui du helper `lire`.
+    ///
+    /// Rien n'est ouvert sous test : le socket est unique par utilisateur, et
+    /// l'instance de test le déroberait à celle qui tourne réellement.
     private func installerServeurSocket() {
+        guard !Self.sousTest else { return }
         serveurSocket.surDemandeLecture = { texte, titre, source in
             let origine = source.flatMap(SourceLecture.init(rawValue:)) ?? .cli
             GestionnaireLecteurs.partage.demanderLecture(
