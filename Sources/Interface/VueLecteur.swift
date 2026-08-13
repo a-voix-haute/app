@@ -1,4 +1,8 @@
 // Contenu de la fenêtre du lecteur.
+//
+// La vue ne dessine aucun fond ni arrondi : c'est NSGlassEffectView qui porte
+// le matériau Liquid Glass et le rayon des coins. Superposer un second arrondi
+// ici produirait un liseré visible aux angles.
 
 import SwiftUI
 
@@ -19,39 +23,28 @@ struct VueLecteur: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 9) {
             enTete
             barreProgression
             transport
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 10)
-        .padding(.bottom, 12)
-        .background(fond)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-
-    // MARK: - Fond
-
-    private var fond: some View {
-        ZStack {
-            VisualEffectView(material: .hudWindow, blendingMode: .behindWindow)
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
-        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 13)
     }
 
     // MARK: - En-tête
 
     private var enTete: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 7) {
             Image(systemName: "waveform")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(.tertiary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(.secondary)
+                .symbolEffect(.variableColor.iterative, isActive: lecteur.etat == .enLecture)
 
             Text(titre)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.primary)
                 .lineLimit(1)
                 .truncationMode(.tail)
 
@@ -59,10 +52,13 @@ struct VueLecteur: View {
 
             Button(action: surFermeture) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(survolFermeture ? .primary : .tertiary)
-                    .frame(width: 16, height: 16)
-                    .contentShape(Rectangle())
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(survolFermeture ? .primary : .secondary)
+                    .frame(width: 18, height: 18)
+                    .background(
+                        Circle().fill(.primary.opacity(survolFermeture ? 0.1 : 0))
+                    )
+                    .contentShape(Circle())
             }
             .buttonStyle(.plain)
             .onHover { survolFermeture = $0 }
@@ -73,27 +69,28 @@ struct VueLecteur: View {
     // MARK: - Progression
 
     private var barreProgression: some View {
-        VStack(spacing: 3) {
+        VStack(spacing: 4) {
             GeometryReader { geometrie in
                 let largeur = geometrie.size.width
                 let fraction = lecteur.duree > 0 ? positionAffichee / lecteur.duree : 0
+                let position = max(0, min(largeur, largeur * fraction))
 
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color.primary.opacity(0.15))
-                        .frame(height: 4)
+                        .fill(.primary.opacity(0.12))
+                        .frame(height: 5)
 
                     Capsule()
-                        .fill(Color.accentColor)
-                        .frame(width: max(0, min(largeur, largeur * fraction)), height: 4)
+                        .fill(.tint)
+                        .frame(width: position, height: 5)
 
                     Circle()
-                        .fill(Color.accentColor)
-                        .frame(width: 9, height: 9)
-                        .offset(x: max(0, min(largeur - 9, largeur * fraction - 4.5)))
-                        .shadow(radius: 1)
+                        .fill(.white)
+                        .shadow(color: .black.opacity(0.25), radius: 1.5, y: 0.5)
+                        .frame(width: 11, height: 11)
+                        .offset(x: max(0, min(largeur - 11, position - 5.5)))
                 }
-                .frame(height: 12)
+                .frame(height: 14)
                 .contentShape(Rectangle())
                 .gesture(
                     DragGesture(minimumDistance: 0)
@@ -110,15 +107,16 @@ struct VueLecteur: View {
                         }
                 )
             }
-            .frame(height: 12)
+            .frame(height: 14)
 
             HStack {
                 Text(Lecteur.formaterDuree(positionAffichee))
                 Spacer()
                 Text(Lecteur.formaterDuree(lecteur.duree))
             }
-            .font(.system(size: 9, weight: .regular, design: .monospaced))
-            .foregroundStyle(.tertiary)
+            .font(.system(size: 10, weight: .medium, design: .rounded))
+            .foregroundStyle(.secondary)
+            .monospacedDigit()
         }
     }
 
@@ -132,12 +130,13 @@ struct VueLecteur: View {
 
             boutonIcone(
                 lecteur.etat == .enLecture ? "pause.fill" : "play.fill",
-                taille: 17,
+                taille: 18,
                 aide: lecteur.etat == .enLecture ? "Pause (Espace)" : "Lecture (Espace)"
             ) {
                 lecteur.basculerLecture()
             }
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 12)
+            .contentTransition(.symbolEffect(.replace))
 
             boutonIcone("goforward.15", aide: "Avancer de 15 secondes (→)") {
                 lecteur.decaler(de: 15)
@@ -145,18 +144,39 @@ struct VueLecteur: View {
 
             Spacer()
 
+            boutonVitesse
+        }
+    }
+
+    /// Le bouton de vitesse adopte le style Glass d'Apple, qui rend visible
+    /// l'écart avec la vitesse normale sans recourir à une couleur d'accent.
+    @ViewBuilder
+    private var boutonVitesse: some View {
+        let etiquette = Text(Lecteur.formaterVitesse(lecteur.vitesse))
+            .font(.system(size: 12, weight: .semibold, design: .rounded))
+            .monospacedDigit()
+
+        if #available(macOS 26.0, *) {
             Button {
                 lecteur.vitesseSuivante()
             } label: {
-                Text(Lecteur.formaterVitesse(lecteur.vitesse))
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                etiquette.frame(minWidth: 30)
+            }
+            .buttonStyle(.glass)
+            .controlSize(.small)
+            .tint(lecteur.vitesse == 1.0 ? .secondary : .accentColor)
+            .help("Vitesse de lecture (↑ ↓)")
+        } else {
+            Button {
+                lecteur.vitesseSuivante()
+            } label: {
+                etiquette
                     .foregroundStyle(lecteur.vitesse == 1.0 ? Color.secondary : Color.accentColor)
-                    .frame(minWidth: 36, minHeight: 20)
+                    .frame(minWidth: 34, minHeight: 22)
                     .background(
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.primary.opacity(lecteur.vitesse == 1.0 ? 0.06 : 0.12))
+                        Capsule().fill(.primary.opacity(lecteur.vitesse == 1.0 ? 0.08 : 0.14))
                     )
-                    .contentShape(Rectangle())
+                    .contentShape(Capsule())
             }
             .buttonStyle(.plain)
             .help("Vitesse de lecture (↑ ↓)")
@@ -165,7 +185,7 @@ struct VueLecteur: View {
 
     private func boutonIcone(
         _ symbole: String,
-        taille: CGFloat = 13,
+        taille: CGFloat = 14,
         aide: String,
         action: @escaping () -> Void
     ) -> some View {
@@ -173,29 +193,10 @@ struct VueLecteur: View {
             Image(systemName: symbole)
                 .font(.system(size: taille, weight: .medium))
                 .foregroundStyle(.primary)
-                .frame(width: taille + 10, height: taille + 8)
+                .frame(width: taille + 12, height: taille + 10)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .help(aide)
-    }
-}
-
-/// Pont vers NSVisualEffectView, absent de SwiftUI sur macOS.
-struct VisualEffectView: NSViewRepresentable {
-    let material: NSVisualEffectView.Material
-    let blendingMode: NSVisualEffectView.BlendingMode
-
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let vue = NSVisualEffectView()
-        vue.material = material
-        vue.blendingMode = blendingMode
-        vue.state = .active
-        return vue
-    }
-
-    func updateNSView(_ vue: NSVisualEffectView, context: Context) {
-        vue.material = material
-        vue.blendingMode = blendingMode
     }
 }

@@ -24,11 +24,53 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
 
         let hebergeur = NSHostingView(rootView: vue)
         hebergeur.frame = NSRect(origin: .zero, size: FenetreFlottante.taille)
-        fenetre.contentView = hebergeur
+        // La vue SwiftUI ne peint aucun fond : le matériau vient de la couche
+        // Glass en dessous, qui doit rester visible au travers.
+        hebergeur.wantsLayer = true
+        hebergeur.layer?.backgroundColor = .clear
+
+        fenetre.contentView = Self.envelopperDansGlass(hebergeur)
         fenetre.delegate = self
         fenetre.positionner(rang: rang)
 
         installerRaccourcisClavier()
+    }
+
+    // MARK: - Habillage
+
+    /// Enveloppe la vue dans le matériau Liquid Glass.
+    ///
+    /// C'est la couche de fond qui porte le rayon des coins : le lui confier
+    /// évite le liseré que produit un second arrondi appliqué par-dessus, et
+    /// laisse le système gérer le rendu du matériau, les reflets et l'adaptation
+    /// au contenu situé derrière la fenêtre.
+    private static func envelopperDansGlass(_ contenu: NSView) -> NSView {
+        let cadre = NSRect(origin: .zero, size: FenetreFlottante.taille)
+        contenu.autoresizingMask = [.width, .height]
+
+        if #available(macOS 26.0, *) {
+            let verre = NSGlassEffectView()
+            verre.frame = cadre
+            verre.cornerRadius = FenetreFlottante.rayonCoins
+            verre.style = .regular
+            verre.autoresizingMask = [.width, .height]
+            verre.contentView = contenu
+            return verre
+        }
+
+        // Repli avant macOS 26 : matériau HUD et arrondi porté par la couche,
+        // ce qui reste un seul arrondi.
+        let flou = NSVisualEffectView(frame: cadre)
+        flou.material = .hudWindow
+        flou.blendingMode = .behindWindow
+        flou.state = .active
+        flou.wantsLayer = true
+        flou.layer?.cornerRadius = FenetreFlottante.rayonCoins
+        flou.layer?.masksToBounds = true
+        flou.autoresizingMask = [.width, .height]
+        contenu.frame = cadre
+        flou.addSubview(contenu)
+        return flou
     }
 
     // MARK: - Affichage

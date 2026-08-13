@@ -14,7 +14,12 @@ import AppKit
 
 final class FenetreFlottante: NSPanel {
 
-    static let taille = NSSize(width: 320, height: 96)
+    static let taille = NSSize(width: 320, height: 104)
+
+    /// Rayon des coins, appliqué par la couche Liquid Glass et par elle seule.
+    ///
+    /// 22 points suivent la courbure des fenêtres système de macOS 26.
+    static let rayonCoins: CGFloat = 22
 
     /// Décalage appliqué entre deux fenêtres pour éviter le recouvrement.
     static let decalageCascade: CGFloat = 24
