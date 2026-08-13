@@ -1,0 +1,71 @@
+name: Tests
+
+# Vérifie que le projet compile et que les tests passent, à chaque poussée et
+# à chaque proposition de fusion. Aucun secret n'est nécessaire ici : la
+# compilation se fait sans signature de distribution.
+
+on:
+  push:
+    branches: [main]
+    # Les poussées de tag déclenchent le workflow de publication, qui compile
+    # et teste lui aussi : inutile de le faire deux fois.
+    tags-ignore: ['**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: Compilation et tests
+    runs-on: macos-26
+
+    steps:
+      - name: Récupérer les sources
+        uses: actions/checkout@v4
+
+
+      - name: Installer le gem xcodeproj
+        run: gem install xcodeproj --no-document
+
+      - name: Générer le projet
+        # Le .xcodeproj est versionné mais régénéré ici : cela vérifie au
+        # passage que le script de génération reste fonctionnel.
+        run: ruby Scripts/generer_projet.rb
+        env:
+          # Sur le runner, aucun certificat de développement n'est installé :
+          # la signature ad-hoc suffit pour compiler et tester.
+          LECTEUR_IDENTITE: '-'
+          LECTEUR_EQUIPE: ''
+
+      - name: Compiler
+        run: |
+          xcodebuild -project AVoixHaute.xcodeproj \
+            -scheme AVoixHaute \
+            -configuration Debug \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Lancer les tests
+        run: |
+          xcodebuild -project AVoixHaute.xcodeproj \
+            -scheme AVoixHauteTests \
+            -configuration Debug \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Vérifier que la version Release compile
+        run: |
+          xcodebuild -project AVoixHaute.xcodeproj \
+            -scheme AVoixHaute \
+            -configuration Release \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY=- \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
