@@ -186,12 +186,42 @@ l'année, et le commutateur de thème s'il n'est pas dans l'en-tête.
 
 ## Le logo
 
-Reproduis-le en SVG : un carré aux coins très arrondis (rayon d'environ 22 % du
-côté), rempli d'un dégradé vertical de `#5E5CE6` vers `#3634A3`, avec cinq
-barres blanches verticales centrées, à coins arrondis, formant une onde sonore.
-Les hauteurs vont de la plus courte à la plus haute puis redescendent
-symétriquement — 120, 240, 400, 240, 120 sur une hauteur totale de 1024, barres
-de 56 de large espacées de 104.
+Utilise ce SVG tel quel, sans le redessiner. C'est l'icône de l'application.
+Place-le dans `public/logo.svg`, sers-t'en dans l'en-tête, le pied de page et
+comme favicon.
+
+```svg
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="fond" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5E5CE6"/>
+      <stop offset="100%" stop-color="#3634A3"/>
+    </linearGradient>
+    <linearGradient id="lueur" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.28"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Le rayon suit la courbure des icônes macOS : environ 22 % du côté. -->
+  <rect x="72" y="72" width="880" height="880" rx="196" ry="196" fill="url(#fond)"/>
+  <rect x="72" y="72" width="880" height="880" rx="196" ry="196" fill="url(#lueur)"/>
+
+  <!-- Onde sonore : sept barres d'amplitudes croissantes puis décroissantes,
+       assez épaisses pour rester visibles à seize pixels. -->
+  <g fill="#FFFFFF" stroke="none">
+    <rect x="252" y="452" width="56" height="120" rx="28"/>
+    <rect x="356" y="392" width="56" height="240" rx="28"/>
+    <rect x="460" y="312" width="56" height="400" rx="28"/>
+    <rect x="564" y="392" width="56" height="240" rx="28"/>
+    <rect x="668" y="452" width="56" height="120" rx="28"/>
+  </g>
+</svg>
+```
+
+Pour le favicon, décline-le aussi en PNG 32 et 180 pixels. Dans l'en-tête, une
+taille de 28 à 32 px suffit ; dans la section de téléchargement, tu peux le
+montrer en 96 px.
 
 ## Ce qu'il ne faut pas faire
 
