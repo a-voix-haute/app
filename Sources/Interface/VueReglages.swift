@@ -414,6 +414,17 @@ private struct OngletTexte: View {
 
     @State private var reglages = Reglages.partage
 
+    /// Version publiée, suivie du numéro de compilation.
+    ///
+    /// Les deux viennent de l'Info.plist, alimenté par le tag Git au moment de
+    /// la publication.
+    static var versionComplete: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let compilation = info?["CFBundleVersion"] as? String ?? "?"
+        return compilation == "1" ? version : "\(version) (\(compilation))"
+    }
+
     var body: some View {
         Form {
             Section {
@@ -432,6 +443,13 @@ private struct OngletTexte: View {
             }
 
             Section {
+                LabeledContent("Version") {
+                    Text(Self.versionComplete)
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+
                 LabeledContent("Helper en ligne de commande") {
                     Text("lire").monospaced().foregroundStyle(.secondary)
                 }

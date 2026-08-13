@@ -112,11 +112,21 @@ jobs:
             --team-id "$EQUIPE_APPLE" \
             --password "$NOTARISATION_MOT_DE_PASSE"
 
+      - name: Déterminer la version
+        run: |
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          # Le tag porte un « v » que le numéro de version ne doit pas garder.
+          echo "VERSION_TAG=$VERSION" >> "$GITHUB_ENV"
+          echo "VERSION_APP=${VERSION#v}" >> "$GITHUB_ENV"
+          echo "Version publiée : ${VERSION#v}"
+
       - name: Générer le projet
         run: ruby Scripts/generer_projet.rb
         env:
           LECTEUR_IDENTITE: ${{ env.EMPREINTE_SIGNATURE }}
           LECTEUR_EQUIPE: ''
+          LECTEUR_VERSION: ${{ env.VERSION_APP }}
+          LECTEUR_COMPILATION: ${{ github.run_number }}
 
       - name: Lancer les tests
         run: |
@@ -157,6 +167,19 @@ jobs:
               "$CIBLE"
           done
           codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Vérifier la version embarquée
+        run: |
+          APP="build/Build/Products/Release/AVoixHaute.app"
+          EMBARQUEE="$(plutil -extract CFBundleShortVersionString raw "$APP/Contents/Info.plist")"
+
+          echo "Version dans l'application : $EMBARQUEE"
+          echo "Version attendue           : $VERSION_APP"
+
+          if [ "$EMBARQUEE" != "$VERSION_APP" ]; then
+            echo "::error::L'application se déclare en $EMBARQUEE alors que le tag annonce $VERSION_APP."
+            exit 1
+          fi
 
       - name: Faire notariser l'application
         run: |
@@ -206,14 +229,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION="${{ github.event.inputs.version || github.ref_name }}"
-
-          gh release create "$VERSION" \
-            "build/distribution/AVoixHaute.dmg#À Voix Haute $VERSION (macOS)" \
-            --title "À Voix Haute ${VERSION#v}" \
+          gh release create "$VERSION_TAG" \
+            "build/distribution/AVoixHaute.dmg#À Voix Haute $VERSION_APP (macOS)" \
+            --title "À Voix Haute $VERSION_APP" \
             --generate-notes \
-            || gh release upload "$VERSION" \
-                 "build/distribution/AVoixHaute.dmg#À Voix Haute $VERSION (macOS)" \
+            || gh release upload "$VERSION_TAG" \
+                 "build/distribution/AVoixHaute.dmg#À Voix Haute $VERSION_APP (macOS)" \
                  --clobber
 
       - name: Nettoyer le trousseau

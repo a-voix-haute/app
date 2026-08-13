@@ -22,6 +22,14 @@ IDENTIFIANT_APP = 'fr.dimitri.AVoixHaute'
 VERSION_MIN_MACOS = '14.0'
 VERSION_SWIFT = '5.0'
 
+# Version affichée par l'application. Le workflow de publication la dérive du
+# tag Git, de sorte qu'un tag v1.2.0 produise une application se déclarant en
+# 1.2.0 — sans quoi le numéro figé dans ce script mentirait à l'utilisateur.
+VERSION_APP = ENV.fetch('LECTEUR_VERSION', '1.0.0')
+
+# Numéro de compilation : le numéro d'exécution du workflow, ou 1 en local.
+VERSION_COMPILATION = ENV.fetch('LECTEUR_COMPILATION', '1')
+
 # Signature : une identité de développement stable évite de réaccorder
 # l'autorisation Accessibilité après chaque compilation. Ces valeurs peuvent
 # être remplacées par les variables d'environnement du même nom, et retomber
@@ -107,8 +115,8 @@ cible_app.build_configurations.each do |config|
     'PRODUCT_NAME' => 'AVoixHaute',
     'PRODUCT_BUNDLE_IDENTIFIER' => IDENTIFIANT_APP,
     'INFOPLIST_FILE' => 'Sources/App/Info.plist',
-    'CURRENT_PROJECT_VERSION' => '1',
-    'MARKETING_VERSION' => '0.1.0',
+    'CURRENT_PROJECT_VERSION' => VERSION_COMPILATION,
+    'MARKETING_VERSION' => VERSION_APP,
     # main.swift impose le mode script : pas d'attribut @main.
     'SWIFT_MAIN_FILE_IS_TOP_LEVEL_CODE' => 'YES',
     'COMBINE_HIDPI_IMAGES' => 'YES'
