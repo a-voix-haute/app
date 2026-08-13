@@ -16,6 +16,7 @@ struct VueBienvenue: View {
         case voix
         case autorisation
         case raccourcis
+        case terminal
         case fin
 
         var titre: String {
@@ -24,6 +25,7 @@ struct VueBienvenue: View {
             case .voix:         return "Votre voix"
             case .autorisation: return "Autorisation"
             case .raccourcis:   return "Raccourcis"
+            case .terminal:     return "Terminal"
             case .fin:          return "Tout est prêt"
             }
         }
@@ -52,6 +54,7 @@ struct VueBienvenue: View {
         case .voix:         EtapeVoix()
         case .autorisation: EtapeAutorisation()
         case .raccourcis:   EtapeRaccourcis()
+        case .terminal:     EtapeTerminal()
         case .fin:          EtapeFin()
         }
     }
@@ -412,6 +415,87 @@ private struct Moyen: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+// MARK: - Terminal
+
+private struct EtapeTerminal: View {
+
+    @State private var revision = 0
+    @State private var installes = 0
+
+    private var detectes: [AssistantIA] {
+        _ = revision
+        return IntegrationIA.assistantsPresents
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            EnTeteEtape(
+                symbole: "terminal",
+                titre: "Assistants en ligne de commande",
+                detail: "Faites lire la réponse d'un assistant sans quitter le "
+                      + "terminal."
+            )
+
+            if detectes.isEmpty {
+                Text("Aucun assistant détecté sur cette machine.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(alignment: .leading, spacing: 9) {
+                    ForEach(detectes) { assistant in
+                        HStack(spacing: 9) {
+                            Image(systemName: assistant.commandeInstallee
+                                  ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(assistant.commandeInstallee
+                                                 ? AnyShapeStyle(.green)
+                                                 : AnyShapeStyle(.tertiary))
+
+                            Text(assistant.nom)
+                                .font(.system(size: 13))
+
+                            Spacer()
+
+                            if assistant.commandeInstallee {
+                                Text(assistant.invocation)
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.secondary.opacity(0.08))
+                )
+
+                Button {
+                    installes = IntegrationIA.installerPartout()
+                    revision += 1
+                } label: {
+                    Label("Installer la commande partout", systemImage: "square.and.arrow.down.on.square")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!detectes.contains { !$0.commandeInstallee })
+
+                if installes > 0 {
+                    Text("Installée pour \(installes) assistant\(installes > 1 ? "s" : "").")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+            }
+
+            Text("Modifiable à tout moment dans les réglages, rubrique Terminal.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+        }
+        .onAppear { revision += 1 }
     }
 }
 

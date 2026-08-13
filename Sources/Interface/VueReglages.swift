@@ -5,7 +5,7 @@ import SwiftUI
 
 /// Sections des réglages.
 private enum SectionReglages: String, CaseIterable, Identifiable {
-    case voix, lecture, raccourci, texte
+    case voix, lecture, raccourci, integrations, texte
 
     var id: String { rawValue }
 
@@ -14,6 +14,7 @@ private enum SectionReglages: String, CaseIterable, Identifiable {
         case .voix:      return "Voix"
         case .lecture:   return "Lecture"
         case .raccourci: return "Raccourci"
+        case .integrations: return "Terminal"
         case .texte:     return "Texte"
         }
     }
@@ -23,6 +24,7 @@ private enum SectionReglages: String, CaseIterable, Identifiable {
         case .voix:      return "waveform"
         case .lecture:   return "play.circle"
         case .raccourci: return "command"
+        case .integrations: return "terminal"
         case .texte:     return "text.alignleft"
         }
     }
@@ -46,12 +48,13 @@ struct VueReglages: View {
                 case .voix:      OngletVoix()
                 case .lecture:   OngletLecture()
                 case .raccourci: OngletRaccourci()
+                case .integrations: VueIntegrations()
                 case .texte:     OngletTexte()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 540, height: 480)
+        .frame(width: 560, height: 490)
     }
 
     private var barreSections: some View {
@@ -89,7 +92,7 @@ private struct BoutonSection: View {
                     .font(.system(size: 11, weight: .medium))
             }
             .foregroundStyle(actif ? Color.accentColor : Color.primary.opacity(0.75))
-            .frame(width: 78, height: 50)
+            .frame(width: 74, height: 50)
             .background(
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .fill(fondCourant)
