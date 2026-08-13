@@ -15,7 +15,10 @@ struct VueReglages: View {
             OngletTexte()
                 .tabItem { Label("Texte", systemImage: "text.alignleft") }
         }
-        .frame(width: 480, height: 430)
+        // Sans cette marge haute, la barre d'onglets vient toucher la barre de
+        // titre de la fenêtre.
+        .padding(.top, 12)
+        .frame(width: 500, height: 450)
     }
 }
 
@@ -282,6 +285,10 @@ final class FenetreReglages {
         nouvelle.title = "Réglages de Lecteur"
         nouvelle.styleMask = [.titled, .closable, .miniaturizable]
         nouvelle.isReleasedWhenClosed = false
+        // La barre de titre reste opaque et séparée du contenu : sans cela, le
+        // TabView remonterait sous elle.
+        nouvelle.titlebarAppearsTransparent = false
+        nouvelle.setContentSize(NSSize(width: 500, height: 450))
         nouvelle.center()
 
         fenetre = nouvelle
