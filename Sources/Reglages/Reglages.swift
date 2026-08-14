@@ -1,7 +1,7 @@
 // Réglages de l'application, adossés à UserDefaults.
 //
 // Le volume est minuscule et les types sont simples : un fichier de
-// configuration n'apporterait rien, tandis que `defaults read fr.dimitri.AVoixHaute`
+// configuration n'apporterait rien, tandis que `defaults read app.avoixhaute.player`
 // permet de tout inspecter depuis le terminal.
 
 import Foundation
@@ -31,8 +31,58 @@ final class Reglages {
 
     private init(stockage: UserDefaults = .standard) {
         self.stockage = stockage
+        // La reprise précède l'enregistrement des valeurs par défaut : après
+        // `register(defaults:)`, `object(forKey:)` répond pour toute clé
+        // pourvue d'un défaut, et l'on ne saurait plus distinguer un réglage
+        // choisi par l'utilisateur d'une valeur d'usine.
+        reprendreAncienDomaine()
         stockage.register(defaults: Self.valeursParDefaut)
     }
+
+    /// Identifiant employé jusqu'à la version 1.1.2.
+    private static let domaineHerite = "fr.dimitri.AVoixHaute"
+
+    /// Reprend les réglages de l'identifiant précédent, une seule fois.
+    ///
+    /// `UserDefaults` est indexé sur l'identifiant du bundle : en changer rend
+    /// l'ancien domaine invisible sans pour autant le supprimer. Il reste donc
+    /// lisible nommément, le temps de cette reprise — sans quoi l'utilisateur
+    /// retrouverait une application aux réglages d'usine.
+    ///
+    /// L'ancien domaine n'est pas effacé ensuite : un retour à une version
+    /// antérieure doit y retrouver ses réglages. La désinstallation, elle,
+    /// purge les deux.
+    private func reprendreAncienDomaine() {
+        guard !stockage.bool(forKey: Cle.repriseAncienDomaine) else { return }
+        defer { stockage.set(true, forKey: Cle.repriseAncienDomaine) }
+
+        guard let ancien = UserDefaults(suiteName: Self.domaineHerite) else { return }
+
+        // `object(forKey:)` et non les accesseurs typés : seules les clés
+        // réellement écrites par l'utilisateur sont reprises. Les valeurs par
+        // défaut, elles, viennent d'être enregistrées et ne doivent pas être
+        // confondues avec un choix.
+        for (cle, valeur) in ancien.dictionaryRepresentation() where Self.clesConnues.contains(cle) {
+            guard stockage.object(forKey: cle) == nil else { continue }
+            stockage.set(valeur, forKey: cle)
+        }
+    }
+
+    /// Clés susceptibles d'être reprises de l'ancien domaine.
+    ///
+    /// `dictionaryRepresentation()` renvoie aussi les réglages globaux de
+    /// macOS — langues, formats, accessibilité. Les recopier polluerait le
+    /// domaine de l'application ; la liste blanche l'évite.
+    private static let clesConnues: Set<String> = [
+        Cle.demarrageAutomatique, Cle.comportementNouvelleLecture,
+        Cle.limiteLecteurs, Cle.vitesseParDefaut, Cle.pasDecalage,
+        Cle.fermetureAutomatique, Cle.delaiFermetureAutomatique,
+        Cle.moteurActif, Cle.voixSay, Cle.voixAVSpeech,
+        Cle.vitesseSyntheseBase, Cle.detectionLangueAuto, Cle.langueParDefaut,
+        Cle.nettoyageMarkdown, Cle.restaurerPressePapiers,
+        Cle.raccourciGlobalActif, Cle.raccourciCodeTouche,
+        Cle.raccourciModificateurs, Cle.assistantVu, Cle.miseAJourAutomatique
+    ]
 
     /// Valeurs appliquées tant que l'utilisateur n'a rien choisi.
     private static let valeursParDefaut: [String: Any] = [
@@ -74,6 +124,7 @@ final class Reglages {
         static let raccourciModificateurs = "raccourciModificateurs"
         static let assistantVu = "assistantVu"
         static let miseAJourAutomatique = "miseAJourAutomatique"
+        static let repriseAncienDomaine = "repriseAncienDomaineFaite"
     }
 
     // MARK: - Lecture

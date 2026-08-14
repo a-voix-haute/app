@@ -138,7 +138,7 @@ enum Client {
     static func lancerApplication() -> Bool {
         let processus = Process()
         processus.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        processus.arguments = ["-b", "fr.dimitri.AVoixHaute"]
+        processus.arguments = ["-b", "app.avoixhaute.player"]
         processus.standardOutput = Pipe()
         processus.standardError = Pipe()
 

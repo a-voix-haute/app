@@ -11,7 +11,7 @@ enum GestionnaireFichiersTemp {
     /// Dossier de travail, sous le dossier temporaire de l'utilisateur.
     static let dossier: URL = {
         let url = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("fr.dimitri.AVoixHaute", isDirectory: true)
+            .appendingPathComponent("app.avoixhaute.player", isDirectory: true)
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url
     }()
@@ -55,7 +55,22 @@ enum GestionnaireFichiersTemp {
     ///
     /// Appelé au démarrage : à cet instant, aucune lecture n'est en cours, donc
     /// tout fichier présent est nécessairement orphelin.
+    /// Supprime le dossier de travail de l'identifiant précédent.
+    ///
+    /// Les fichiers audio y sont éphémères : rien n'est à reprendre, seulement
+    /// à balayer. Sans cela, le renommage laisserait un dossier que plus rien
+    /// ne viendrait vider — c'est ce qu'avait fait le passage de « Lecteur » à
+    /// « À Voix Haute ».
+    private static func retirerAncienDossier() {
+        let ancien = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("fr.dimitri.AVoixHaute", isDirectory: true)
+        guard FileManager.default.fileExists(atPath: ancien.path) else { return }
+        try? FileManager.default.removeItem(at: ancien)
+    }
+
     static func nettoyerOrphelins() {
+        retirerAncienDossier()
+
         let gestionnaire = FileManager.default
         guard let contenu = try? gestionnaire.contentsOfDirectory(
             at: dossier,

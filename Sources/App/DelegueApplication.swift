@@ -80,7 +80,7 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     /// Cherche une autre instance de l'application déjà lancée.
     private func autreInstance() -> NSRunningApplication? {
         let miennes = NSRunningApplication.runningApplications(
-            withBundleIdentifier: Bundle.main.bundleIdentifier ?? "fr.dimitri.AVoixHaute"
+            withBundleIdentifier: Bundle.main.bundleIdentifier ?? "app.avoixhaute.player"
         )
         return miennes.first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }
     }

@@ -3,13 +3,13 @@
 // Les messages sont visibles dans Console.app en filtrant sur le sous-système,
 // ou en ligne de commande :
 //
-//     log stream --predicate 'subsystem == "fr.dimitri.AVoixHaute"' --level debug
+//     log stream --predicate 'subsystem == "app.avoixhaute.player"' --level debug
 
 import Foundation
 import os
 
 enum Journal {
-    private static let sousSysteme = "fr.dimitri.AVoixHaute"
+    private static let sousSysteme = "app.avoixhaute.player"
 
     static let app = Logger(subsystem: sousSysteme, category: "app")
     static let synthese = Logger(subsystem: sousSysteme, category: "synthese")
@@ -34,7 +34,7 @@ enum Journal {
         return dossier.appendingPathComponent("AVoixHaute.log").path
     }()
 
-    private static let fileEcriture = DispatchQueue(label: "fr.dimitri.AVoixHaute.journal")
+    private static let fileEcriture = DispatchQueue(label: "app.avoixhaute.player.journal")
 
     private static let horodateur: DateFormatter = {
         let formateur = DateFormatter()

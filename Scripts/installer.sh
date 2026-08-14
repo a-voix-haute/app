@@ -32,7 +32,7 @@ DOSSIER_HELPERS="$HOME/.local/bin"
 # silencieusement sans effet, pire qu'absent. « leggi » et « ler » ne se
 # heurtent à rien, « leer » et « vorlesen » non plus.
 NOMS_HELPER=(lire read-aloud leer vorlesen leggi ler)
-AGENT="$HOME/Library/LaunchAgents/fr.dimitri.AVoixHaute.plist"
+AGENT="$HOME/Library/LaunchAgents/app.avoixhaute.player.plist"
 
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 PBS="/System/Library/CoreServices/pbs"
@@ -81,7 +81,24 @@ if $DESINSTALLER; then
 
     rm -rf "$HOME/Library/Application Support/AVoixHaute"
     rm -f "$HOME/Library/Logs/AVoixHaute.log"
-    defaults delete fr.dimitri.AVoixHaute 2>/dev/null || true
+    rm -rf "$HOME/Library/Caches/app.avoixhaute.player"
+    rm -rf "$HOME/Library/Caches/fr.dimitri.AVoixHaute"
+
+    # Les deux identifiants sont purgés : celui d'aujourd'hui et celui d'avant
+    # la 2.0.0. Le renommage précédent — « Lecteur » vers « À Voix Haute » —
+    # avait laissé ses préférences derrière lui, faute de cette ligne.
+    #
+    # La suite de tests crée un domaine par exécution, « …tests.<UUID> » : sans
+    # le motif, ils s'accumulent indéfiniment.
+    for domaine in app.avoixhaute.player fr.dimitri.AVoixHaute fr.dimitri.Lecteur; do
+        defaults delete "$domaine" 2>/dev/null || true
+        rm -f "$HOME/Library/Preferences/$domaine.plist"
+        rm -f "$HOME/Library/Preferences/$domaine".tests.*.plist
+    done
+    # `cfprefsd` garde les préférences en mémoire et réécrirait les fichiers
+    # que l'on vient de supprimer.
+    killall cfprefsd 2>/dev/null || true
+
     "$PBS" -flush 2>/dev/null || true
 
     echo
@@ -151,6 +168,18 @@ echo "  service « Lire à voix haute » enregistré"
 
 # --- Lancement à l'ouverture de session ------------------------------------
 
+# L'agent de la 1.x porte l'ancien identifiant : sans ce retrait, launchd
+# continuerait de charger une définition pointant sur un bundle qui ne se
+# déclare plus sous ce nom.
+AGENT_HERITE="$HOME/Library/LaunchAgents/fr.dimitri.AVoixHaute.plist"
+VENAIT_DE_LA_1X=false
+if [ -f "$AGENT_HERITE" ]; then
+    launchctl unload "$AGENT_HERITE" 2>/dev/null || true
+    rm -f "$AGENT_HERITE"
+    VENAIT_DE_LA_1X=true
+    echo "  ancien agent de démarrage retiré"
+fi
+
 if $AVEC_DEMARRAGE; then
     mkdir -p "$(dirname "$AGENT")"
     cat > "$AGENT" <<PLIST
@@ -159,7 +188,7 @@ if $AVEC_DEMARRAGE; then
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>fr.dimitri.AVoixHaute</string>
+	<string>app.avoixhaute.player</string>
 	<!-- `open -b` plutôt que le binaire directement : LaunchServices refuse
 	     une seconde instance et se contente d'activer celle qui tourne, là où
 	     un lancement direct en démarrerait une deuxième, qui se disputerait le
@@ -168,7 +197,7 @@ if $AVEC_DEMARRAGE; then
 	<array>
 		<string>/usr/bin/open</string>
 		<string>-b</string>
-		<string>fr.dimitri.AVoixHaute</string>
+		<string>app.avoixhaute.player</string>
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
@@ -201,6 +230,15 @@ for _ in $(seq 1 10); do
 done
 
 echo
+if $VENAIT_DE_LA_1X; then
+    echo "Mise à jour depuis la 1.x : l'identifiant de l'application a changé."
+    echo "Vos réglages ont été repris, mais macOS voit une application nouvelle :"
+    echo "l'autorisation Accessibilité est à réaccorder dans"
+    echo "Réglages Système → Confidentialité et sécurité → Accessibilité."
+    echo "Sans elle, le raccourci ⌃⌥L lit le presse-papiers au lieu de la sélection."
+    echo
+fi
+
 if $DEMARREE; then
     echo "Installation terminée, application lancée."
 else

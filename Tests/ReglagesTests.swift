@@ -10,7 +10,7 @@ final class ReglagesTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        domaine = "fr.dimitri.AVoixHaute.tests.\(UUID().uuidString)"
+        domaine = "app.avoixhaute.player.tests.\(UUID().uuidString)"
         defaults = UserDefaults(suiteName: domaine)
     }
 

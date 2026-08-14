@@ -18,7 +18,10 @@ require 'pathname'
 RACINE = Pathname.new(__dir__).parent.expand_path
 CHEMIN_PROJET = RACINE + 'AVoixHaute.xcodeproj'
 
-IDENTIFIANT_APP = 'fr.dimitri.AVoixHaute'
+# Identifiant du projet et non de son auteur, depuis la version 2.0.0.
+# L'ancien — fr.dimitri.AVoixHaute — reste lu une fois par `Reglages` pour
+# reprendre les préférences, et purgé par la désinstallation.
+IDENTIFIANT_APP = 'app.avoixhaute.player'
 VERSION_MIN_MACOS = '14.0'
 VERSION_SWIFT = '5.0'
 

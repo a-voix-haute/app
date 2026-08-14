@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>AVoixHaute</string>
 	<key>CFBundleIdentifier</key>
-	<string>fr.dimitri.AVoixHaute</string>
+	<string>app.avoixhaute.player</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -78,7 +78,7 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.lire</string>
+			<string>app.avoixhaute.player.url.lire</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>lire</string>
@@ -86,7 +86,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.read-aloud</string>
+			<string>app.avoixhaute.player.url.read-aloud</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>read-aloud</string>
@@ -94,7 +94,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.leer</string>
+			<string>app.avoixhaute.player.url.leer</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>leer</string>
@@ -102,7 +102,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.vorlesen</string>
+			<string>app.avoixhaute.player.url.vorlesen</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>vorlesen</string>
@@ -110,7 +110,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.leggi</string>
+			<string>app.avoixhaute.player.url.leggi</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>leggi</string>
@@ -118,7 +118,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url.ler</string>
+			<string>app.avoixhaute.player.url.ler</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>ler</string>
