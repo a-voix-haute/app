@@ -343,7 +343,13 @@ private struct EtapeAutorisation: View {
 
 private struct EtapeRaccourcis: View {
 
-    @State private var reglages = Reglages.partage
+    // `@Bindable` et non `@State` : le singleton n'appartient pas à cette vue,
+    // que le `switch` d'étape recrée à chaque passage. `@State` en capturerait
+    // une copie de référence figée, et la case ne suivrait pas le réglage.
+    @Bindable private var reglages = Reglages.partage
+
+    /// La combinaison est-elle déjà prise par une autre application ?
+    @State private var conflit = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -381,13 +387,26 @@ private struct EtapeRaccourcis: View {
                 set: { actif in
                     reglages.raccourciGlobalActif = actif
                     if actif {
-                        RaccourciGlobal.partage.activer()
+                        // `activer()` lit `raccourciGlobalActif`, qui vient
+                        // d'être écrit : l'ordre compte. Un échec — la
+                        // combinaison est prise par une autre application —
+                        // remet le réglage à false, sans quoi la case
+                        // resterait cochée sur un raccourci inopérant.
+                        conflit = !RaccourciGlobal.partage.activer()
+                        if conflit { reglages.raccourciGlobalActif = false }
                     } else {
+                        conflit = false
                         RaccourciGlobal.partage.desactiver()
                     }
                 }
             ))
             .padding(.top, 2)
+
+            if conflit {
+                Text(cle: "raccourci.conflit")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
 
             Spacer()
         }
@@ -433,8 +452,7 @@ private struct EtapeTerminal: View {
             EnTeteEtape(
                 symbole: "terminal",
                 titre: tr("bienvenue.terminal.titre"),
-                detail: "Faites lire la réponse d'un assistant sans quitter le "
-                      + "terminal."
+                detail: tr("bienvenue.terminal.detail")
             )
 
             if detectes.isEmpty {
