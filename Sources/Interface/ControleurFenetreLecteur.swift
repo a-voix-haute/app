@@ -10,6 +10,16 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
     private let fenetre: FenetreFlottante
     private var surveillantClavier: Any?
 
+    /// Minuteur de fermeture automatique, armé quand la lecture se termine.
+    private var minuteurFermeture: Timer?
+
+    /// Le curseur survole-t-il la fenêtre ?
+    ///
+    /// Le décompte est suspendu tant que c'est le cas, et reprend au départ
+    /// quand le curseur ressort : quelqu'un dont la main passe sur le lecteur
+    /// s'apprête peut-être à cliquer « rejouer ».
+    private var curseurSurLaFenetre = false
+
     /// Appelé quand la fenêtre se ferme, quelle qu'en soit la cause.
     var surFermeture: ((ControleurFenetreLecteur) -> Void)?
 
@@ -29,11 +39,21 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
         hebergeur.wantsLayer = true
         hebergeur.layer?.backgroundColor = .clear
 
+        let survol = VueSurvol(frame: NSRect(origin: .zero, size: FenetreFlottante.taille))
+        survol.autoresizingMask = [.width, .height]
+        survol.surEntree = { [weak self] in self?.curseurEstEntre() }
+        survol.surSortie = { [weak self] in self?.curseurEstSorti() }
+        hebergeur.addSubview(survol)
+
         fenetre.contentView = Self.envelopperDansGlass(hebergeur)
         fenetre.delegate = self
         fenetre.positionner(rang: rang)
 
         installerRaccourcisClavier()
+
+        lecteur.surChangementEtat = { [weak self] etat in
+            self?.reagirAuChangementEtat(etat)
+        }
     }
 
     // MARK: - Habillage
@@ -82,6 +102,7 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
     }
 
     func fermer() {
+        annulerMinuteurFermeture()
         retirerRaccourcisClavier()
         lecteur.fermer()
         fenetre.delegate = nil
@@ -95,10 +116,68 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
     /// liste : le rappel modifierait la collection pendant son parcours.
     func fermerSansNotifier() {
         surFermeture = nil
+        annulerMinuteurFermeture()
         retirerRaccourcisClavier()
         lecteur.fermer()
         fenetre.delegate = nil
         fenetre.orderOut(nil)
+    }
+
+    // MARK: - Fermeture automatique
+
+    /// Arme ou désarme le minuteur selon le nouvel état de la lecture.
+    ///
+    /// Toute reprise annule un décompte en cours : relancer la lecture d'un
+    /// texte terminé est précisément le geste que l'option ne doit pas
+    /// contrarier.
+    private func reagirAuChangementEtat(_ etat: Lecteur.Etat) {
+        if etat == .termine {
+            armerMinuteurFermeture()
+        } else {
+            annulerMinuteurFermeture()
+        }
+    }
+
+    private func armerMinuteurFermeture() {
+        annulerMinuteurFermeture()
+
+        let reglages = Reglages.partage
+        guard reglages.fermetureAutomatique else { return }
+        // Le curseur sur la fenêtre suspend le décompte ; `curseurEstSorti`
+        // le relancera depuis le début.
+        guard !curseurSurLaFenetre else { return }
+
+        let delai = TimeInterval(reglages.delaiFermetureAutomatique)
+        minuteurFermeture = Timer.scheduledTimer(withTimeInterval: delai, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                // L'état est revérifié : une lecture relancée juste avant le
+                // tir aurait déjà annulé le minuteur, mais la garde ne coûte
+                // rien et couvre un changement d'état sans passage par le
+                // rappel.
+                guard self.lecteur.etat == .termine, !self.curseurSurLaFenetre else { return }
+                self.fermer()
+            }
+        }
+    }
+
+    private func annulerMinuteurFermeture() {
+        minuteurFermeture?.invalidate()
+        minuteurFermeture = nil
+    }
+
+    private func curseurEstEntre() {
+        curseurSurLaFenetre = true
+        annulerMinuteurFermeture()
+    }
+
+    private func curseurEstSorti() {
+        curseurSurLaFenetre = false
+        // Le décompte repart entier : la fenêtre ne disparaît pas dans la
+        // seconde qui suit le retrait de la souris.
+        if lecteur.etat == .termine {
+            armerMinuteurFermeture()
+        }
     }
 
     // MARK: - Clavier
@@ -148,8 +227,46 @@ final class ControleurFenetreLecteur: NSObject, NSWindowDelegate {
     // MARK: - NSWindowDelegate
 
     func windowWillClose(_ notification: Notification) {
+        annulerMinuteurFermeture()
         retirerRaccourcisClavier()
         lecteur.fermer()
         surFermeture?(self)
     }
+}
+
+// MARK: - Détection du survol
+
+/// Vue invisible qui signale l'entrée et la sortie du curseur.
+///
+/// Une `NSTrackingArea` plutôt qu'un moniteur d'événements `.mouseMoved` :
+/// ce dernier ne reçoit rien tant que l'application n'est pas active, or le
+/// lecteur est justement conçu pour vivre au-dessus d'une autre application.
+/// `.activeAlways` couvre ce cas.
+private final class VueSurvol: NSView {
+
+    var surEntree: (() -> Void)?
+    var surSortie: (() -> Void)?
+
+    /// La vue ne sert qu'à observer : elle laisse passer tous les clics vers
+    /// les commandes SwiftUI situées en dessous.
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+    /// Les zones de suivi ne suivent pas le redimensionnement de la vue :
+    /// AppKit appelle cette méthode pour qu'on les reconstruise.
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+
+        for zone in trackingAreas {
+            removeTrackingArea(zone)
+        }
+
+        addTrackingArea(NSTrackingArea(
+            rect: bounds,
+            options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+            owner: self
+        ))
+    }
+
+    override func mouseEntered(with event: NSEvent) { surEntree?() }
+    override func mouseExited(with event: NSEvent) { surSortie?() }
 }

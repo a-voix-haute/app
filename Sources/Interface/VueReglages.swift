@@ -288,8 +288,38 @@ private struct OngletLecture: View {
             } header: {
                 Text(cle: "lecture.controlesTitre")
             }
+
+            Section {
+                Toggle(tr("lecture.fermetureAuto"), isOn: Binding(
+                    get: { reglages.fermetureAutomatique },
+                    set: { reglages.fermetureAutomatique = $0 }
+                ))
+
+                Picker(tr("lecture.delaiFermeture"), selection: Binding(
+                    get: { reglages.delaiFermetureAutomatique },
+                    set: { reglages.delaiFermetureAutomatique = $0 }
+                )) {
+                    ForEach(Reglages.delaisFermetureDisponibles, id: \.self) { secondes in
+                        Text(libelleDelai(secondes)).tag(secondes)
+                    }
+                }
+                .disabled(!reglages.fermetureAutomatique)
+            } header: {
+                Text(cle: "lecture.fermetureTitre")
+            } footer: {
+                Text(cle: "lecture.noteFermeture")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
+    }
+
+    /// Délai exprimé en secondes ou en minutes selon son ampleur.
+    private func libelleDelai(_ secondes: Int) -> String {
+        secondes < 60
+            ? tr("lecture.secondes", secondes)
+            : tr("lecture.minutes", secondes / 60)
     }
 }
 

@@ -16,3 +16,6 @@ xcuserdata/
 # Couverture de code produite par xcodebuild test
 *.profraw
 *.profdata
+
+# Notes locales : identifiants, accès, rien qui doive être publié
+PRIVE/

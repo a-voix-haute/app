@@ -66,6 +66,11 @@
 "lecture.vitesseParDefaut" = "Vitesse par défaut";
 "lecture.pasDecalage" = "Avance et recul";
 "lecture.secondes" = "%d secondes";
+"lecture.minutes" = "%d minutes";
+"lecture.fermetureTitre" = "Fermeture";
+"lecture.fermetureAuto" = "Fermer le lecteur à la fin de la lecture";
+"lecture.delaiFermeture" = "Après un délai de";
+"lecture.noteFermeture" = "Le décompte démarre à la fin de la lecture. Toute reprise l’annule, et le survol du lecteur le suspend : la fenêtre ne disparaît pas sous le curseur.";
 
 /* MARK: - Réglages, raccourci */
 "raccourci.titre" = "Raccourci clavier";

@@ -64,6 +64,11 @@
 "lecture.vitesseParDefaut" = "Default speed";
 "lecture.pasDecalage" = "Skip forward and back";
 "lecture.secondes" = "%d seconds";
+"lecture.minutes" = "%d minutes";
+"lecture.fermetureTitre" = "Closing";
+"lecture.fermetureAuto" = "Close the player when playback ends";
+"lecture.delaiFermeture" = "After a delay of";
+"lecture.noteFermeture" = "The countdown starts when playback ends. Resuming cancels it, and hovering over the player pauses it: the window never disappears under the pointer.";
 
 /* MARK: - Settings, shortcut */
 "raccourci.titre" = "Keyboard shortcut";

@@ -119,3 +119,77 @@ enum ProtocoleSocket {
         }
     }
 }
+
+/// Client minimal, employé quand une seconde instance doit passer la main.
+///
+/// Le helper en ligne de commande a son propre client, dans `SourcesCLI` : les
+/// deux cibles ne partagent pas de module. Celui-ci reste volontairement
+/// réduit — il envoie et n'attend rien, l'instance destinataire se charge de
+/// la suite.
+enum ClientSocket {
+
+    /// Demande une lecture à l'instance déjà lancée.
+    ///
+    /// L'écriture est synchrone et brève : quelques centaines d'octets sur un
+    /// socket local, juste avant que le processus ne se termine. La déléguer à
+    /// une tâche risquerait de voir le processus disparaître avant l'envoi.
+    @discardableResult
+    static func envoyerLecture(_ texte: String, titre: String? = nil, source: String) -> Bool {
+        let chemin = ProtocoleSocket.cheminSocket
+        guard FileManager.default.fileExists(atPath: chemin) else { return false }
+
+        let descripteur = socket(AF_UNIX, SOCK_STREAM, 0)
+        guard descripteur >= 0 else { return false }
+        defer { close(descripteur) }
+
+        var adresse = sockaddr_un()
+        adresse.sun_family = sa_family_t(AF_UNIX)
+
+        let octets = Array(chemin.utf8)
+        let capacite = MemoryLayout.size(ofValue: adresse.sun_path) - 1
+        guard octets.count <= capacite else { return false }
+        withUnsafeMutablePointer(to: &adresse.sun_path) { pointeur in
+            pointeur.withMemoryRebound(to: CChar.self, capacity: capacite + 1) { destination in
+                for (index, octet) in octets.enumerated() {
+                    destination[index] = CChar(bitPattern: octet)
+                }
+                destination[octets.count] = 0
+            }
+        }
+
+        let taille = socklen_t(MemoryLayout<sockaddr_un>.size)
+        let connecte = withUnsafePointer(to: &adresse) { pointeur in
+            pointeur.withMemoryRebound(to: sockaddr.self, capacity: 1) { generique in
+                connect(descripteur, generique, taille)
+            }
+        }
+        guard connecte == 0 else { return false }
+
+        let requete = ProtocoleSocket.Requete(
+            commande: .lire,
+            texte: texte,
+            titre: titre,
+            source: source
+        )
+        guard let charge = try? JSONEncoder().encode(requete) else { return false }
+        guard ProtocoleSocket.ecrireTout(descripteur, ProtocoleSocket.encadrer(charge)) else {
+            return false
+        }
+
+        // La réponse est attendue, et pas seulement l'écriture : `ecrireTout`
+        // rend la main dès que les octets sont dans le tampon du noyau, bien
+        // avant que le serveur ne les ait lus. L'appelant terminant le
+        // processus juste après, sans cette attente la requête partirait avec
+        // lui.
+        //
+        // L'attente n'est pas une condition de succès : le serveur répond
+        // avant de lancer la lecture, et une réponse perdue ne signifie donc
+        // pas que la requête l'a été. L'écriture ayant abouti, on rend `true`
+        // quoi qu'il advienne ensuite — le seul rôle de cette lecture est de
+        // retenir le processus le temps que le serveur consomme la trame.
+        var delai = timeval(tv_sec: 5, tv_usec: 0)
+        setsockopt(descripteur, SOL_SOCKET, SO_RCVTIMEO, &delai, socklen_t(MemoryLayout<timeval>.size))
+        _ = ProtocoleSocket.lireTrame(descripteur)
+        return true
+    }
+}

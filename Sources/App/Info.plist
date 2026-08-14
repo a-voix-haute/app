@@ -63,15 +63,65 @@
 		</dict>
 	</array>
 
-	<!-- Canal d'entrée : URL scheme lire:// -->
+	<!-- Canal d'entrée : URL scheme lire://, décliné dans les six langues de
+	     l'application. Les formes sont toutes actives en permanence et non
+	     choisies d'après la langue du système : une URL notée dans un script
+	     doit fonctionner sur toutes les machines.
+
+	     Doit rester en accord avec `DelegueApplication.schemas`.
+
+	     Une entrée par schéma, et non six schémas dans une même entrée :
+	     LaunchServices n'enregistre alors que le premier de la liste et
+	     ignore les suivants sans rien signaler. Chaque entrée porte donc son
+	     propre CFBundleURLName. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>fr.dimitri.AVoixHaute.url</string>
+			<string>fr.dimitri.AVoixHaute.url.lire</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>lire</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>fr.dimitri.AVoixHaute.url.read-aloud</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>read-aloud</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>fr.dimitri.AVoixHaute.url.leer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>leer</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>fr.dimitri.AVoixHaute.url.vorlesen</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>vorlesen</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>fr.dimitri.AVoixHaute.url.leggi</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>leggi</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>fr.dimitri.AVoixHaute.url.ler</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ler</string>
 			</array>
 		</dict>
 	</array>

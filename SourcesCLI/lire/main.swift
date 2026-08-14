@@ -7,6 +7,11 @@
 //
 // Le texte transite par un socket de domaine Unix, sans limite de taille.
 // L'application est lancée automatiquement si elle ne tourne pas encore.
+//
+// La commande est installée sous six noms — lire, read-aloud, leer, vorlesen,
+// leggi, ler — qui pointent tous sur ce binaire, et ses messages suivent la
+// langue du système. Les noms et les options, eux, restent identiques partout :
+// ce sont des identifiants à taper, pas du texte à lire.
 
 import Foundation
 
@@ -165,21 +170,21 @@ enum Client {
 
         if descripteur == nil {
             guard lancerApplication() else {
-                erreur("impossible de lancer À Voix Haute")
+                erreur(Messages.lancementImpossible)
                 return nil
             }
             descripteur = connecter()
         }
 
         guard let actif = descripteur else {
-            erreur("connexion au socket impossible")
+            erreur(Messages.connexionImpossible)
             return nil
         }
         defer { close(actif) }
 
         guard let charge = try? JSONEncoder().encode(requete) else { return nil }
         guard Protocole.ecrireTout(actif, Protocole.encadrer(charge)) else {
-            erreur("envoi interrompu")
+            erreur(Messages.envoiInterrompu)
             return nil
         }
 
@@ -190,26 +195,219 @@ enum Client {
 
 // MARK: - Sortie
 
+/// Nom sous lequel la commande a été appelée.
+///
+/// La commande est installée sous six noms — `lire`, `read-aloud`, `leer`,
+/// `vorlesen`, `leggi`, `ler` — qui pointent tous sur ce binaire. Reprendre
+/// celui qu'a tapé l'utilisateur évite une aide qui parlerait d'une autre
+/// commande que la sienne.
+let nomCommande = (CommandLine.arguments.first as NSString?)?.lastPathComponent ?? "lire"
+
+/// Langue retenue pour les messages, parmi les six que couvre l'application.
+///
+/// Le helper est une cible distincte du bundle : il n'a accès ni à
+/// `Localizable.strings` ni à `tr()`, d'où ces textes intégrés. Le repli est le
+/// français, langue de développement du projet.
+let langue: String = {
+    let preferee = Locale.preferredLanguages.first ?? "fr"
+    let code = String(preferee.prefix(2))
+    return ["fr", "en", "es", "de", "it", "pt"].contains(code) ? code : "fr"
+}()
+
 func erreur(_ message: String) {
-    FileHandle.standardError.write("lire : \(message)\n".data(using: .utf8)!)
+    FileHandle.standardError.write("\(nomCommande) : \(message)\n".data(using: .utf8)!)
+}
+
+/// Messages d'erreur, dans la langue du système.
+enum Messages {
+    static var fichierIllisible: String {
+        switch langue {
+        case "en": return "unreadable file"
+        case "es": return "archivo ilegible"
+        case "de": return "Datei nicht lesbar"
+        case "it": return "file illeggibile"
+        case "pt": return "ficheiro ilegível"
+        default:   return "fichier illisible"
+        }
+    }
+
+    static var lecturesArretees: String {
+        switch langue {
+        case "en": return "playback stopped"
+        case "es": return "lecturas detenidas"
+        case "de": return "Wiedergabe gestoppt"
+        case "it": return "letture interrotte"
+        case "pt": return "leituras paradas"
+        default:   return "lectures arrêtées"
+        }
+    }
+
+    static var aucuneLecture: String {
+        switch langue {
+        case "en": return "no playback in progress"
+        case "es": return "ninguna lectura en curso"
+        case "de": return "keine Wiedergabe aktiv"
+        case "it": return "nessuna lettura in corso"
+        case "pt": return "nenhuma leitura em curso"
+        default:   return "aucune lecture en cours"
+        }
+    }
+
+    static var lancementImpossible: String {
+        switch langue {
+        case "en": return "could not launch À Voix Haute"
+        case "es": return "imposible iniciar À Voix Haute"
+        case "de": return "À Voix Haute konnte nicht gestartet werden"
+        case "it": return "impossibile avviare À Voix Haute"
+        case "pt": return "impossível iniciar À Voix Haute"
+        default:   return "impossible de lancer À Voix Haute"
+        }
+    }
+
+    static var connexionImpossible: String {
+        switch langue {
+        case "en": return "could not connect to the socket"
+        case "es": return "conexión al socket imposible"
+        case "de": return "Verbindung zum Socket nicht möglich"
+        case "it": return "connessione al socket impossibile"
+        case "pt": return "ligação ao socket impossível"
+        default:   return "connexion au socket impossible"
+        }
+    }
+
+    static var envoiInterrompu: String {
+        switch langue {
+        case "en": return "transfer interrupted"
+        case "es": return "envío interrumpido"
+        case "de": return "Übertragung abgebrochen"
+        case "it": return "invio interrotto"
+        case "pt": return "envio interrompido"
+        default:   return "envoi interrompu"
+        }
+    }
+
+    static var echec: String {
+        switch langue {
+        case "en": return "failed"
+        case "es": return "fallo"
+        case "de": return "fehlgeschlagen"
+        case "it": return "errore"
+        case "pt": return "falha"
+        default:   return "échec"
+        }
+    }
 }
 
 func afficherAide() {
+    let n = nomCommande
+
+    let corps: String
+    switch langue {
+    case "en":
+        corps = """
+        \(n) — read text aloud with À Voix Haute
+
+        Usage:
+          \(n) <file>          read a file's contents
+          \(n) --stop          stop all playback in progress
+          \(n) --help          show this help
+
+          … | \(n)             read standard input
+
+        Examples:
+          pbpaste | \(n)
+          \(n) ~/notes.md
+          echo "Hello" | \(n)
+        """
+    case "es":
+        corps = """
+        \(n) — lectura en voz alta con À Voix Haute
+
+        Uso:
+          \(n) <archivo>       lee el contenido de un archivo
+          \(n) --stop          detiene todas las lecturas en curso
+          \(n) --help          muestra esta ayuda
+
+          … | \(n)             lee la entrada estándar
+
+        Ejemplos:
+          pbpaste | \(n)
+          \(n) ~/notas.md
+          echo "Hola" | \(n)
+        """
+    case "de":
+        corps = """
+        \(n) — Text vorlesen mit À Voix Haute
+
+        Verwendung:
+          \(n) <Datei>         liest den Inhalt einer Datei
+          \(n) --stop          bricht alle laufenden Wiedergaben ab
+          \(n) --help          zeigt diese Hilfe
+
+          … | \(n)             liest die Standardeingabe
+
+        Beispiele:
+          pbpaste | \(n)
+          \(n) ~/notizen.md
+          echo "Hallo" | \(n)
+        """
+    case "it":
+        corps = """
+        \(n) — lettura ad alta voce con À Voix Haute
+
+        Uso:
+          \(n) <file>          legge il contenuto di un file
+          \(n) --stop          interrompe tutte le letture in corso
+          \(n) --help          mostra questo aiuto
+
+          … | \(n)             legge lo standard input
+
+        Esempi:
+          pbpaste | \(n)
+          \(n) ~/note.md
+          echo "Ciao" | \(n)
+        """
+    case "pt":
+        corps = """
+        \(n) — leitura em voz alta com À Voix Haute
+
+        Utilização:
+          \(n) <ficheiro>      lê o conteúdo de um ficheiro
+          \(n) --stop          para todas as leituras em curso
+          \(n) --help          mostra esta ajuda
+
+          … | \(n)             lê a entrada padrão
+
+        Exemplos:
+          pbpaste | \(n)
+          \(n) ~/notas.md
+          echo "Olá" | \(n)
+        """
+    default:
+        corps = """
+        \(n) — lecture audio de texte par À Voix Haute
+
+        Usage :
+          \(n) <fichier>       lit le contenu d'un fichier
+          \(n) --stop          arrête toutes les lectures en cours
+          \(n) --help          affiche cette aide
+
+          … | \(n)             lit l'entrée standard
+
+        Exemples :
+          pbpaste | \(n)
+          \(n) ~/notes.md
+          echo "Bonjour" | \(n)
+        """
+    }
+
+    // Les alias sont listés tels quels : ce sont des identifiants à taper,
+    // identiques sur toutes les machines.
     print("""
-    lire — lecture audio de texte par À Voix Haute
+    \(corps)
 
-    Usage :
-      lire <fichier>       lit le contenu d'un fichier
-      lire --stop          arrête toutes les lectures en cours
-      lire --help          affiche cette aide
-
-      … | lire             lit l'entrée standard
-
-    Exemples :
-      pbpaste | lire
-      lire ~/notes.md
-      echo "Bonjour" | lire
-      curl -s https://exemple.fr/article.md | lire
+      lire · read-aloud · leer · vorlesen · leggi · ler
+      --stop · --arreter · --parar · --stopp · --ferma
     """)
 }
 
@@ -218,10 +416,10 @@ func afficherAide() {
 let arguments = Array(CommandLine.arguments.dropFirst())
 
 switch arguments.first {
-case "--help", "-h":
+case "--help", "-h", "--aide", "--ayuda", "--hilfe", "--aiuto", "--ajuda":
     afficherAide()
 
-case "--stop", "-s":
+case "--stop", "-s", "--arreter", "--arrêter", "--parar", "--stopp", "--ferma":
     // Inutile de lancer l'application pour lui demander de se taire.
     if let descripteur = Client.connecter() {
         defer { close(descripteur) }
@@ -230,9 +428,9 @@ case "--stop", "-s":
             Protocole.ecrireTout(descripteur, Protocole.encadrer(charge))
             _ = Protocole.lireTrame(descripteur)
         }
-        print("lectures arrêtées")
+        print(Messages.lecturesArretees)
     } else {
-        print("aucune lecture en cours")
+        print(Messages.aucuneLecture)
     }
 
 default:
@@ -242,7 +440,7 @@ default:
     if let chemin = arguments.first, !chemin.hasPrefix("-") {
         let url = URL(fileURLWithPath: (chemin as NSString).expandingTildeInPath)
         guard let contenu = try? String(contentsOf: url, encoding: .utf8) else {
-            erreur("fichier illisible — \(chemin)")
+            erreur("\(Messages.fichierIllisible) — \(chemin)")
             exit(1)
         }
         texte = contenu
@@ -267,7 +465,7 @@ default:
 
     guard let reponse = Client.envoyer(requete) else { exit(1) }
     if !reponse.succes {
-        erreur(reponse.message ?? "échec")
+        erreur(reponse.message ?? Messages.echec)
         exit(1)
     }
 }

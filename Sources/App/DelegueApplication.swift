@@ -11,6 +11,17 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
     /// Évite de redemander l'autorisation à chaque raccourci.
     private var autorisationDejaProposee = false
 
+    /// URL reçues avant que l'application ne soit prête.
+    ///
+    /// `application(_:open:)` précède `applicationDidFinishLaunching` : une URL
+    /// arrive donc avant que l'on sache si cette instance vivra ou cédera la
+    /// place à une autre. Les URL sont mises de côté ici, puis traitées — ou
+    /// relayées — une fois cette question tranchée.
+    private var urlsEnAttente: [URL] = []
+
+    /// L'application est-elle prête à traiter une URL sans la différer ?
+    private var demarrageTermine = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Deux instances se disputeraient le socket et le raccourci global. La
         // seconde cède la place, après avoir mis la première au premier plan.
@@ -19,6 +30,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         // instance de l'application, qui doit vivre même si une autre tourne.
         if !Self.sousTest, let existante = autreInstance() {
             existante.activate()
+            // Sans ce relais, une URL ouverte alors que l'application tourne
+            // déjà serait perdue : cette instance-ci s'arrête, et celle qui
+            // vit n'a jamais rien reçu.
+            relayerUrlsEnAttente()
             Journal.fichier("app", "instance déjà active — sortie")
             NSApp.terminate(nil)
             return
@@ -33,6 +48,12 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
 
         installerElementBarreMenus()
         installerServeurSocket()
+
+        // Les canaux d'entrée sont en place : une URL peut désormais être
+        // traitée directement. Avant ce point, `application(_:open:)` se
+        // contente de mettre de côté.
+        demarrageTermine = true
+        traiterUrlsEnAttente()
 
         // Ni service ni raccourci sous test : ils sont enregistrés à l'échelle
         // du système et entreraient en conflit avec l'instance installée.
@@ -146,16 +167,90 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         serveurSocket.demarrer()
     }
 
+    /// Schémas d'URL enregistrés, un par langue de l'application.
+    ///
+    /// Doit rester en accord avec `CFBundleURLSchemes` dans l'Info.plist :
+    /// LaunchServices n'achemine vers l'application que les schémas qui y sont
+    /// déclarés, ce test n'en est que la contrepartie côté code.
+    private static let schemas: Set<String> = [
+        "lire", "read-aloud", "leer", "vorlesen", "leggi", "ler"
+    ]
+
+    /// Hôtes désignant le presse-papiers, un par langue de l'application.
+    ///
+    /// Les six formes sont acceptées en permanence, sans regard pour la langue
+    /// du système : une URL notée dans un script ou une documentation doit
+    /// fonctionner sur toutes les machines, ce qu'un identifiant suivant la
+    /// langue du poste ne permettrait pas.
+    private static let hotesPressePapiers: Set<String> = [
+        "presse-papiers", "clipboard", "portapapeles",
+        "zwischenablage", "appunti", "area-de-transferencia"
+    ]
+
+    /// Hôtes désignant un texte passé en paramètre.
+    private static let hotesTexte: Set<String> = [
+        "texte", "text", "texto", "testo"
+    ]
+
     /// Canal d'entrée URL : `lire://presse-papiers` ou `lire://texte?t=…`
     ///
     /// Ce canal convient aux textes courts ; au-delà, les limites de longueur
     /// d'URL s'appliquent, d'où le socket Unix comme canal principal.
     func application(_ application: NSApplication, open urls: [URL]) {
-        for url in urls where url.scheme == "lire" {
-            switch url.host {
-            case "presse-papiers", "clipboard", nil:
+        // Ce message précède `applicationDidFinishLaunching` : au premier
+        // lancement, ni le socket ni le gestionnaire de lecteurs n'existent
+        // encore. Les URL attendent que le démarrage ait tranché.
+        guard demarrageTermine else {
+            urlsEnAttente.append(contentsOf: urls)
+            return
+        }
+        traiter(urls)
+    }
+
+    /// Traite les URL mises de côté pendant le démarrage.
+    private func traiterUrlsEnAttente() {
+        let differees = urlsEnAttente
+        urlsEnAttente.removeAll()
+        guard !differees.isEmpty else { return }
+        traiter(differees)
+    }
+
+    /// Transmet les URL à l'instance déjà lancée, par le socket.
+    ///
+    /// Le presse-papiers est lu ici plutôt que là-bas : l'instance active n'a
+    /// pas besoin de connaître l'URL, seulement le texte à lire.
+    private func relayerUrlsEnAttente() {
+        for url in urlsEnAttente where Self.schemas.contains(url.scheme?.lowercased() ?? "") {
+            let hote = url.host?.lowercased()
+
+            var texte: String?
+            if hote == nil || Self.hotesPressePapiers.contains(hote ?? "") {
+                texte = NSPasteboard.general.string(forType: .string)
+            } else if Self.hotesTexte.contains(hote ?? "") {
+                let composants = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                texte = composants?.queryItems?.first(where: { $0.name == "t" })?.value
+            }
+
+            guard let contenu = texte,
+                  !contenu.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
+
+            ClientSocket.envoyerLecture(contenu, source: "url")
+        }
+        urlsEnAttente.removeAll()
+    }
+
+    private func traiter(_ urls: [URL]) {
+        for url in urls where Self.schemas.contains(url.scheme?.lowercased() ?? "") {
+            // L'hôte d'une URL est normalisé en minuscules par le système,
+            // mais une saisie manuelle peut porter des majuscules.
+            let hote = url.host?.lowercased()
+
+            switch hote {
+            case let hote? where Self.hotesPressePapiers.contains(hote):
                 lirePressePapiers()
-            case "texte":
+            case nil:
+                lirePressePapiers()
+            case let hote? where Self.hotesTexte.contains(hote):
                 let composants = URLComponents(url: url, resolvingAgainstBaseURL: false)
                 if let texte = composants?.queryItems?.first(where: { $0.name == "t" })?.value {
                     lire(texte: texte, source: .url)

@@ -64,6 +64,11 @@
 "lecture.vitesseParDefaut" = "Standardgeschwindigkeit";
 "lecture.pasDecalage" = "Vor- und Zurückspringen";
 "lecture.secondes" = "%d Sekunden";
+"lecture.minutes" = "%d Minuten";
+"lecture.fermetureTitre" = "Schließen";
+"lecture.fermetureAuto" = "Player nach dem Ende der Wiedergabe schließen";
+"lecture.delaiFermeture" = "Nach einer Verzögerung von";
+"lecture.noteFermeture" = "Der Countdown beginnt am Ende der Wiedergabe. Ein Fortsetzen bricht ihn ab, und das Überfahren des Players hält ihn an: Das Fenster verschwindet nicht unter dem Zeiger.";
 
 /* MARK: - Einstellungen, Kurzbefehl */
 "raccourci.titre" = "Tastaturkurzbefehl";

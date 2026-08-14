@@ -58,6 +58,13 @@ ajustable en cours d'écoute.
 | Assistants IA | Douze assistants en ligne de commande, voir ci-dessous |
 | URL | `open "lire://presse-papiers"` |
 
+La commande et le schéma d'URL répondent à un nom par langue de l'interface —
+`lire`, `read-aloud`, `leer`, `vorlesen`, `leggi`, `ler` —, et `--stop` accepte
+`--arreter`, `--parar`, `--stopp`, `--ferma`. Toutes les formes sont actives en
+permanence, indépendamment de la langue du système : une commande notée dans un
+script doit fonctionner sur n'importe quelle machine, ce qu'un identifiant
+suivant la langue du poste ne permettrait pas.
+
 ## Assistants en ligne de commande
 
 La commande s'installe en un clic dans douze assistants — Claude Code, Codex,

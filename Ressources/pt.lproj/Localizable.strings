@@ -64,6 +64,11 @@
 "lecture.vitesseParDefaut" = "Velocidade predefinida";
 "lecture.pasDecalage" = "Avanço e recuo";
 "lecture.secondes" = "%d segundos";
+"lecture.minutes" = "%d minutos";
+"lecture.fermetureTitre" = "Fecho";
+"lecture.fermetureAuto" = "Fechar o leitor no fim da leitura";
+"lecture.delaiFermeture" = "Após um atraso de";
+"lecture.noteFermeture" = "A contagem começa no fim da leitura. Retomá-la cancela-a, e passar o cursor sobre o leitor suspende-a: a janela não desaparece sob o ponteiro.";
 
 /* MARK: - Definições, atalho */
 "raccourci.titre" = "Atalho de teclado";

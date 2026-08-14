@@ -64,6 +64,11 @@
 "lecture.vitesseParDefaut" = "Velocità predefinita";
 "lecture.pasDecalage" = "Avanti e indietro";
 "lecture.secondes" = "%d secondi";
+"lecture.minutes" = "%d minuti";
+"lecture.fermetureTitre" = "Chiusura";
+"lecture.fermetureAuto" = "Chiudere il lettore al termine della lettura";
+"lecture.delaiFermeture" = "Dopo un ritardo di";
+"lecture.noteFermeture" = "Il conto alla rovescia parte al termine della lettura. Riprenderla lo annulla, e passare il cursore sul lettore lo sospende: la finestra non scompare sotto il puntatore.";
 
 /* MARK: - Impostazioni, scorciatoia */
 "raccourci.titre" = "Scorciatoia da tastiera";

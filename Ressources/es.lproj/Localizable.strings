@@ -64,6 +64,11 @@
 "lecture.vitesseParDefaut" = "Velocidad predeterminada";
 "lecture.pasDecalage" = "Avance y retroceso";
 "lecture.secondes" = "%d segundos";
+"lecture.minutes" = "%d minutos";
+"lecture.fermetureTitre" = "Cierre";
+"lecture.fermetureAuto" = "Cerrar el reproductor al terminar la lectura";
+"lecture.delaiFermeture" = "Tras un retardo de";
+"lecture.noteFermeture" = "La cuenta atrás empieza al terminar la lectura. Reanudarla la cancela, y pasar el cursor por el reproductor la suspende: la ventana no desaparece bajo el puntero.";
 
 /* MARK: - Ajustes, atajo */
 "raccourci.titre" = "Atajo de teclado";

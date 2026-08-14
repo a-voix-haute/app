@@ -49,6 +49,11 @@ if $DISTRIBUER; then
         ENABLE_DEBUG_DYLIB=NO \
         build 2>&1 | grep -E "error:|BUILD" || true
 
+    # Le filtre `grep` ci-dessus masque le code de retour de xcodebuild : sans
+    # ce test, une compilation en échec passerait pour une réussite et
+    # l'installation copierait le build précédent, périmé.
+    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "Échec de la compilation." >&2; exit 1; }
+
     # get-task-allow autorise l'attachement d'un débogueur : Apple rejette
     # systématiquement une soumission qui le déclare. Xcode l'ajoute d'office
     # en Release, il faut donc resigner sans lui.
@@ -70,6 +75,11 @@ else
         -configuration Release \
         -derivedDataPath "$SORTIE" \
         build 2>&1 | grep -E "error:|BUILD" || true
+
+    # Le filtre `grep` ci-dessus masque le code de retour de xcodebuild : sans
+    # ce test, une compilation en échec passerait pour une réussite et
+    # l'installation copierait le build précédent, périmé.
+    [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "Échec de la compilation." >&2; exit 1; }
 fi
 
 APP="$SORTIE/Build/Products/Release/AVoixHaute.app"

@@ -25,9 +25,22 @@ final class Lecteur {
 
     // MARK: - État observable
 
-    private(set) var etat: Etat = .enPause
+    private(set) var etat: Etat = .enPause {
+        didSet {
+            guard etat != oldValue else { return }
+            surChangementEtat?(etat)
+        }
+    }
     private(set) var position: TimeInterval = 0
     private(set) var duree: TimeInterval = 0
+
+    /// Appelé à chaque changement d'état.
+    ///
+    /// Un rappel explicite plutôt qu'un `withObservationTracking` côté
+    /// contrôleur : ce dernier ne notifie qu'une fois et demanderait d'être
+    /// réarmé à chaque passage, ce qui se prête mal à un état qui va et vient
+    /// entre lecture, pause et fin.
+    var surChangementEtat: ((Etat) -> Void)?
 
     /// Vitesse voulue par l'utilisateur.
     ///

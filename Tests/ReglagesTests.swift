@@ -32,6 +32,23 @@ final class ReglagesTests: XCTestCase {
         XCTAssertEqual(min(max(defaults.integer(forKey: "limiteLecteurs"), 1), 10), 5)
     }
 
+    func testDelaiFermetureNeDescendPasSousUneSeconde() {
+        defaults.set(0, forKey: "delaiFermetureAutomatique")
+        XCTAssertEqual(max(defaults.integer(forKey: "delaiFermetureAutomatique"), 1), 1)
+
+        defaults.set(30, forKey: "delaiFermetureAutomatique")
+        XCTAssertEqual(max(defaults.integer(forKey: "delaiFermetureAutomatique"), 1), 30)
+    }
+
+    func testDelaisDeFermetureSontCroissants() {
+        let delais = Reglages.delaisFermetureDisponibles
+        XCTAssertEqual(delais, delais.sorted())
+        XCTAssertFalse(delais.isEmpty)
+        // Le libellé bascule des secondes aux minutes à 60 : la liste doit
+        // rester du bon côté de cette frontière.
+        XCTAssertTrue(delais.allSatisfy { $0 < 60 || $0 % 60 == 0 })
+    }
+
     // MARK: - Comportement
 
     func testComportementInvalideRetombeSurContinuer() {

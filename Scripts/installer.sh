@@ -5,6 +5,15 @@
 #     Scripts/installer.sh --sans-demarrage  sans lancement à l'ouverture de session
 #     Scripts/installer.sh --desinstaller    retire tout
 #
+# Chaque option accepte aussi sa forme anglaise — `--uninstall`,
+# `--no-startup` —, et la commande installée répond dans les six langues de
+# l'application : `lire`, `read-aloud`, `leer`, `vorlesen`, `leggi`, `ler`.
+#
+# Ces alias sont permanents et non liés à la langue du système. C'est
+# délibéré : une commande notée dans un script ou une documentation doit
+# fonctionner sur toutes les machines, or un identifiant qui suivrait la langue
+# du poste casserait dès qu'il en change.
+#
 # L'application est installée sous son nom accentué — « À Voix Haute.app » —
 # tandis que son exécutable reste « AVoixHaute », sans accent : macOS distingue
 # le nom du bundle de celui du binaire, et seul le premier est visible.
@@ -14,7 +23,15 @@ set -euo pipefail
 RACINE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NOM_INSTALLE="À Voix Haute.app"
 DESTINATION="/Applications/$NOM_INSTALLE"
-LIEN_HELPER="$HOME/.local/bin/lire"
+DOSSIER_HELPERS="$HOME/.local/bin"
+
+# Noms sous lesquels la commande répond, un par langue de l'application.
+#
+# « read-aloud » et non « read » : `read` est une primitive de bash et de zsh,
+# et une primitive l'emporte toujours sur un fichier du PATH — le lien serait
+# silencieusement sans effet, pire qu'absent. « leggi » et « ler » ne se
+# heurtent à rien, « leer » et « vorlesen » non plus.
+NOMS_HELPER=(lire read-aloud leer vorlesen leggi ler)
 AGENT="$HOME/Library/LaunchAgents/fr.dimitri.AVoixHaute.plist"
 
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
@@ -25,8 +42,8 @@ DESINSTALLER=false
 
 for argument in "$@"; do
     case "$argument" in
-        --sans-demarrage) AVEC_DEMARRAGE=false ;;
-        --desinstaller)   DESINSTALLER=true ;;
+        --sans-demarrage|--no-startup) AVEC_DEMARRAGE=false ;;
+        --desinstaller|--uninstall)    DESINSTALLER=true ;;
         *) echo "Option inconnue : $argument" >&2; exit 1 ;;
     esac
 done
@@ -45,7 +62,16 @@ if $DESINSTALLER; then
         echo "  agent de démarrage retiré"
     fi
 
-    [ -L "$LIEN_HELPER" ] && rm -f "$LIEN_HELPER" && echo "  helper retiré"
+    # Seuls les liens symboliques sont retirés : un fichier ordinaire portant
+    # l'un de ces noms n'est pas le nôtre et ne nous appartient pas.
+    retires=0
+    for nom in "${NOMS_HELPER[@]}"; do
+        if [ -L "$DOSSIER_HELPERS/$nom" ]; then
+            rm -f "$DOSSIER_HELPERS/$nom"
+            retires=$((retires + 1))
+        fi
+    done
+    [ "$retires" -gt 0 ] && echo "  helpers retirés ($retires)"
 
     if [ -d "$DESTINATION" ]; then
         "$LSREGISTER" -u "$DESTINATION" 2>/dev/null || true
@@ -69,10 +95,18 @@ fi
 
 APP_SOURCE="$RACINE/build/Build/Products/Release/AVoixHaute.app"
 
-if [ ! -d "$APP_SOURCE" ]; then
-    echo "Application Release introuvable. Compilation…"
-    "$RACINE/Scripts/construire.sh"
-fi
+# La compilation est systématique, et non conditionnée à l'absence de
+# `build/`. Un dossier présent mais antérieur aux sources ferait installer une
+# version périmée, que l'on testerait alors sans le savoir — le cas s'est
+# produit avec les catalogues de traduction et le helper. `xcodebuild` sait de
+# lui-même ne rien refaire quand rien n'a changé, le coût est donc nul.
+#
+# Corollaire : `xcodebuild … test` compile en Debug dans le même `build/` et
+# laisse la cible Release dans un état intermédiaire. Lancer les tests puis
+# installer sans repasser par ici copierait ce résultat partiel. Réinstaller
+# après les tests, et non l'inverse.
+echo "Compilation…"
+"$RACINE/Scripts/construire.sh"
 
 if [ ! -d "$APP_SOURCE" ]; then
     echo "Erreur : compilation impossible." >&2
@@ -90,7 +124,9 @@ if pgrep -x "AVoixHaute" >/dev/null; then
     sleep 1
 fi
 
-[ -d "$DESTINATION" ] && rm -rf "$DESTINATION"
+# `rm -rf` sans test préalable : sous `set -e`, un `[ -d … ] && rm` s'évaluant
+# à faux vaut un échec et interromprait le script juste avant la copie.
+rm -rf "$DESTINATION"
 cp -R "$APP_SOURCE" "$DESTINATION"
 echo "  installée dans /Applications"
 
@@ -101,9 +137,11 @@ xattr -dr com.apple.quarantine "$DESTINATION" 2>/dev/null || true
 
 # --- Helper en ligne de commande -------------------------------------------
 
-mkdir -p "$(dirname "$LIEN_HELPER")"
-ln -sf "$DESTINATION/Contents/Resources/lire" "$LIEN_HELPER"
-echo "  helper lié : $LIEN_HELPER"
+mkdir -p "$DOSSIER_HELPERS"
+for nom in "${NOMS_HELPER[@]}"; do
+    ln -sf "$DESTINATION/Contents/Resources/lire" "$DOSSIER_HELPERS/$nom"
+done
+echo "  helper lié : $DOSSIER_HELPERS/{$(IFS=,; echo "${NOMS_HELPER[*]}")}"
 
 # --- Enregistrement système -------------------------------------------------
 

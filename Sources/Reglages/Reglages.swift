@@ -41,6 +41,8 @@ final class Reglages {
         Cle.limiteLecteurs: 5,
         Cle.vitesseParDefaut: 1.0,
         Cle.pasDecalage: 15,
+        Cle.fermetureAutomatique: false,
+        Cle.delaiFermetureAutomatique: 30,
         Cle.moteurActif: TypeMoteur.say.rawValue,
         Cle.vitesseSyntheseBase: 1.0,
         Cle.detectionLangueAuto: true,
@@ -57,6 +59,8 @@ final class Reglages {
         static let limiteLecteurs = "limiteLecteurs"
         static let vitesseParDefaut = "vitesseParDefaut"
         static let pasDecalage = "pasDecalage"
+        static let fermetureAutomatique = "fermetureAutomatique"
+        static let delaiFermetureAutomatique = "delaiFermetureAutomatique"
         static let moteurActif = "moteurActif"
         static let voixSay = "voixSay"
         static let voixAVSpeech = "voixAVSpeech"
@@ -103,6 +107,25 @@ final class Reglages {
     var pasDecalage: Int {
         get { max(stockage.integer(forKey: Cle.pasDecalage), 1) }
         set { stockage.set(max(newValue, 1), forKey: Cle.pasDecalage) }
+    }
+
+    /// Fermer le lecteur seul, une fois sa lecture terminée.
+    ///
+    /// Désactivé par défaut : une fenêtre qui disparaît sans qu'on l'ait
+    /// demandé se remarque, et les installations déjà en place ne doivent pas
+    /// changer de comportement à la mise à jour.
+    var fermetureAutomatique: Bool {
+        get { stockage.bool(forKey: Cle.fermetureAutomatique) }
+        set { stockage.set(newValue, forKey: Cle.fermetureAutomatique) }
+    }
+
+    /// Délais proposés par l'interface, en secondes.
+    static let delaisFermetureDisponibles = [10, 30, 60, 120, 300]
+
+    /// Attente entre la fin de la lecture et la fermeture, en secondes.
+    var delaiFermetureAutomatique: Int {
+        get { max(stockage.integer(forKey: Cle.delaiFermetureAutomatique), 1) }
+        set { stockage.set(max(newValue, 1), forKey: Cle.delaiFermetureAutomatique) }
     }
 
     // MARK: - Synthèse

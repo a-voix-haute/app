@@ -41,6 +41,9 @@ listening.
   checkboxes become text that listens well; code blocks are announced rather
   than recited
 - **Several simultaneous readings**, with configurable coexistence rules
+- **Optional auto-close** once playback is over — the countdown is cancelled by
+  any resumption and suspended while the pointer is over the player, so the
+  window never vanishes from under the cursor
 - **Voice selection** among the system voices, sorted by language and quality
 - **An interface in six languages** — French, English, Spanish, German, Italian,
   Portuguese — following the system language
@@ -54,7 +57,14 @@ listening.
 | Menu bar | The waveform icon, to read the clipboard |
 | Terminal | `pbpaste \| lire`, `lire document.md`, `lire --stop` |
 | AI assistants | Twelve command-line assistants, see below |
-| URL | `open "lire://presse-papiers"` |
+| URL | `open "read-aloud://clipboard"` |
+
+The command and the URL scheme answer to one name per interface language —
+`lire`, `read-aloud`, `leer`, `vorlesen`, `leggi`, `ler` — and `--stop` accepts
+`--arreter`, `--parar`, `--stopp`, `--ferma`. Every form is always active,
+independently of the system language: a command written down in a script has to
+work on any machine, which an identifier that followed the local language would
+not.
 
 ## Command-line assistants
 
@@ -86,13 +96,14 @@ cd "À Voix Haute"
 ./Scripts/installer.sh
 ```
 
-The script builds, installs into `/Applications`, links the `lire` command into
-`~/.local/bin`, registers the macOS service and enables launch at login.
+The script builds, installs into `/Applications`, links the command into
+`~/.local/bin` under its six names, registers the macOS service and enables
+launch at login.
 
 To remove everything:
 
 ```bash
-./Scripts/installer.sh --desinstaller
+./Scripts/installer.sh --desinstaller   # or --uninstall
 ```
 
 ## Development
@@ -110,7 +121,10 @@ source of truth. Swift files added under `Sources/` are picked up without any
 intervention in Xcode.
 
 Note that the codebase is written in French — identifiers, comments and commit
-messages included.
+messages included. Some user-facing identifiers keep that French form as their
+canonical spelling (`lire`, `lire://presse-papiers`, `--desinstaller`); each has
+an English equivalent that is equally valid, and both are shown where they
+appear.
 
 ```
 Sources/
@@ -134,7 +148,7 @@ Ressources/*.lproj translations, six languages
 |---|---|
 | `generer_projet.rb` | Regenerates the `.xcodeproj` |
 | `construire.sh` | Release build, `--distribuer` for the Developer ID signature |
-| `installer.sh` | Installation, launch at login, `--desinstaller` |
+| `installer.sh` | Installation, launch at login, `--desinstaller` / `--uninstall` |
 | `notariser.sh` | Submission to Apple and installer disk |
 | `enregistrer_service.sh` | Refreshes the Services menu during development |
 | `generer_icone.sh` | Produces the icon from a vector drawing |
@@ -144,6 +158,15 @@ Ressources/*.lproj translations, six languages
 ```bash
 xcodebuild -project AVoixHaute.xcodeproj -scheme AVoixHauteTests test
 ```
+
+### Translations
+
+Interface strings live in `Ressources/*.lproj/Localizable.strings`, one
+catalogue per language, and the generator picks up any `.lproj` directory on its
+own. Adding a language is documented step by step in
+[Documentation/ajouter-une-langue.md](Documentation/ajouter-une-langue.md)
+(in French) — including which identifiers are declined rather than translated,
+and why.
 
 ## Technical choices
 
