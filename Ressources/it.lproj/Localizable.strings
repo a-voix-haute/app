@@ -104,7 +104,13 @@
 "terminal.automatique" = "chiedigli di leggere ad alta voce";
 "terminal.aucuneInstallation" = "Non è stato installato nulla.";
 "terminal.note" = "Fai leggere ad alta voce la risposta di un assistente, un file o gli appunti senza lasciare il terminale.\n\nAlcuni assistenti si invocano con un comando, altri — Codex, Cursor — capiscono da soli che bisogna leggere: basta chiederglielo.";
-"terminal.noteCommande" = "Il comando `lire` deve essere disponibile nel terminale: viene installato insieme all’app.";
+"terminal.noteCommande" = "Gli assistenti chiamano il comando `lire`: deve essere installato qui sopra.";
+"installation.titre" = "Installazione";
+"installation.commande" = "Comando nel terminale";
+"installation.ouvertureSession" = "Avviare all’accesso";
+"installation.pathAbsent" = "~/.local/bin non è nel vostro PATH: il comando esiste ma non viene trovato. Aggiungete questa riga al vostro ~/.zshrc:";
+"installation.approbationRequise" = "macOS attende la vostra approvazione in Impostazioni di Sistema → Generali → Elementi login.";
+"installation.note" = "Il comando risponde a tutti e sei i nomi: lire, read-aloud, leer, vorlesen, leggi e ler. Queste impostazioni servono soprattutto dopo un’installazione dall’immagine disco: lo script di installazione le configura da sé.";
 
 /* MARK: - Impostazioni, testo */
 "texte.preparationTitre" = "Preparazione del testo";

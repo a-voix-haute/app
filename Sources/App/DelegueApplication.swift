@@ -30,6 +30,10 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         // instance de l'application, qui doit vivre même si une autre tourne.
         if !Self.sousTest, let existante = autreInstance() {
             existante.activate()
+            // Traité avant de céder la place : l'inscription concerne le
+            // bundle, non le processus, et cette instance-ci est aussi
+            // légitime que l'autre pour la demander.
+            appliquerArgumentsOuvertureSession()
             // Sans ce relais, une URL ouverte alors que l'application tourne
             // déjà serait perdue : cette instance-ci s'arrête, et celle qui
             // vit n'a jamais rien reçu.
@@ -55,6 +59,8 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         demarrageTermine = true
         traiterUrlsEnAttente()
 
+        appliquerArgumentsOuvertureSession()
+
         // Ni service ni raccourci sous test : ils sont enregistrés à l'échelle
         // du système et entreraient en conflit avec l'instance installée.
         guard !Self.sousTest else { return }
@@ -69,6 +75,21 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         // lancée des semaines, une seule au démarrage laisserait passer les
         // versions.
         VerificateurMiseAJour.partage.demarrerSurveillance()
+    }
+
+    /// Applique les arguments d'inscription à l'ouverture de session.
+    ///
+    /// `Scripts/installer.sh` les passe plutôt que de poser un agent launchd :
+    /// les deux mécanismes ne se voient pas, et l'interrupteur des réglages
+    /// interroge SMAppService.
+    private func appliquerArgumentsOuvertureSession() {
+        let arguments = CommandLine.arguments
+        if arguments.contains("--inscrire-ouverture-session") {
+            InstallationSysteme.definirLancementOuvertureSession(true)
+        }
+        if arguments.contains("--retirer-ouverture-session") {
+            InstallationSysteme.definirLancementOuvertureSession(false)
+        }
     }
 
     /// L'application est-elle hébergée par le harnais de tests ?

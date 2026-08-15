@@ -104,7 +104,13 @@
 "terminal.automatique" = "just ask it to read aloud";
 "terminal.aucuneInstallation" = "Nothing was installed.";
 "terminal.note" = "Have an assistant’s answer, a file or the clipboard read aloud without leaving the terminal.\n\nSome assistants are invoked by a command; others — Codex, Cursor — work out on their own that reading is called for: just ask them.";
-"terminal.noteCommande" = "The `lire` command must be available in the terminal: it is installed alongside the app.";
+"terminal.noteCommande" = "Assistants call the `lire` command: it must be installed above.";
+"installation.titre" = "Installation";
+"installation.commande" = "Terminal command";
+"installation.ouvertureSession" = "Launch at login";
+"installation.pathAbsent" = "~/.local/bin is not in your PATH: the command exists but cannot be found. Add this line to your ~/.zshrc:";
+"installation.approbationRequise" = "macOS is waiting for your approval in System Settings → General → Login Items.";
+"installation.note" = "The command answers to all six names: lire, read-aloud, leer, vorlesen, leggi and ler. These settings matter mostly after installing from the disk image — the install script sets them up itself.";
 
 /* MARK: - Settings, text */
 "texte.preparationTitre" = "Text preparation";

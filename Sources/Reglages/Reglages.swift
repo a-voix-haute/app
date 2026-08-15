@@ -29,6 +29,31 @@ final class Reglages {
 
     private let stockage: UserDefaults
 
+    /// Compteur incrémenté à chaque écriture, seul point observable de la
+    /// classe.
+    ///
+    /// `@Observable` réécrit les propriétés **stockées** pour y insérer ses
+    /// appels à `access` et `withMutation`. Les réglages, eux, sont des
+    /// propriétés calculées adossées à `UserDefaults` : le macro n'a rien à
+    /// instrumenter, et SwiftUI n'est jamais prévenu d'un changement. Une vue
+    /// dépourvue d'autre état ne se redessine donc pas — c'est ce qui laissait
+    /// la case du raccourci vide dans l'assistant de bienvenue, alors que le
+    /// réglage était bien écrit.
+    ///
+    /// Chaque accesseur lit ce compteur et chaque mutateur l'incrémente, ce qui
+    /// rétablit la chaîne d'observation sans changer le stockage.
+    private var revision = 0
+
+    /// À appeler au début de chaque `get`.
+    private func signalerLecture() {
+        _ = revision
+    }
+
+    /// À appeler à la fin de chaque `set`.
+    private func signalerEcriture() {
+        revision &+= 1
+    }
+
     private init(stockage: UserDefaults = .standard) {
         self.stockage = stockage
         // La reprise précède l'enregistrement des valeurs par défaut : après
@@ -131,33 +156,34 @@ final class Reglages {
 
     /// Démarrer automatiquement quand aucune autre lecture n'est en cours.
     var demarrageAutomatique: Bool {
-        get { stockage.bool(forKey: Cle.demarrageAutomatique) }
-        set { stockage.set(newValue, forKey: Cle.demarrageAutomatique) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.demarrageAutomatique) }
+        set { stockage.set(newValue, forKey: Cle.demarrageAutomatique); signalerEcriture() }
     }
 
     var comportementNouvelleLecture: ComportementNouvelleLecture {
         get {
+            signalerLecture()
             let brut = stockage.string(forKey: Cle.comportementNouvelleLecture) ?? ""
             return ComportementNouvelleLecture(rawValue: brut) ?? .continuer
         }
-        set { stockage.set(newValue.rawValue, forKey: Cle.comportementNouvelleLecture) }
+        set { stockage.set(newValue.rawValue, forKey: Cle.comportementNouvelleLecture); signalerEcriture() }
     }
 
     /// Nombre maximal de lecteurs ouverts simultanément, entre 1 et 10.
     var limiteLecteurs: Int {
-        get { min(max(stockage.integer(forKey: Cle.limiteLecteurs), 1), 10) }
-        set { stockage.set(min(max(newValue, 1), 10), forKey: Cle.limiteLecteurs) }
+        get { signalerLecture(); return min(max(stockage.integer(forKey: Cle.limiteLecteurs), 1), 10) }
+        set { stockage.set(min(max(newValue, 1), 10), forKey: Cle.limiteLecteurs); signalerEcriture() }
     }
 
     var vitesseParDefaut: Float {
-        get { stockage.float(forKey: Cle.vitesseParDefaut) }
-        set { stockage.set(newValue, forKey: Cle.vitesseParDefaut) }
+        get { signalerLecture(); return stockage.float(forKey: Cle.vitesseParDefaut) }
+        set { stockage.set(newValue, forKey: Cle.vitesseParDefaut); signalerEcriture() }
     }
 
     /// Amplitude des boutons d'avance et de recul, en secondes.
     var pasDecalage: Int {
-        get { max(stockage.integer(forKey: Cle.pasDecalage), 1) }
-        set { stockage.set(max(newValue, 1), forKey: Cle.pasDecalage) }
+        get { signalerLecture(); return max(stockage.integer(forKey: Cle.pasDecalage), 1) }
+        set { stockage.set(max(newValue, 1), forKey: Cle.pasDecalage); signalerEcriture() }
     }
 
     /// Fermer le lecteur seul, une fois sa lecture terminée.
@@ -166,8 +192,8 @@ final class Reglages {
     /// demandé se remarque, et les installations déjà en place ne doivent pas
     /// changer de comportement à la mise à jour.
     var fermetureAutomatique: Bool {
-        get { stockage.bool(forKey: Cle.fermetureAutomatique) }
-        set { stockage.set(newValue, forKey: Cle.fermetureAutomatique) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.fermetureAutomatique) }
+        set { stockage.set(newValue, forKey: Cle.fermetureAutomatique); signalerEcriture() }
     }
 
     /// Délais proposés par l'interface, en secondes.
@@ -175,18 +201,19 @@ final class Reglages {
 
     /// Attente entre la fin de la lecture et la fermeture, en secondes.
     var delaiFermetureAutomatique: Int {
-        get { max(stockage.integer(forKey: Cle.delaiFermetureAutomatique), 1) }
-        set { stockage.set(max(newValue, 1), forKey: Cle.delaiFermetureAutomatique) }
+        get { signalerLecture(); return max(stockage.integer(forKey: Cle.delaiFermetureAutomatique), 1) }
+        set { stockage.set(max(newValue, 1), forKey: Cle.delaiFermetureAutomatique); signalerEcriture() }
     }
 
     // MARK: - Synthèse
 
     var moteurActif: TypeMoteur {
         get {
+            signalerLecture()
             let brut = stockage.string(forKey: Cle.moteurActif) ?? ""
             return TypeMoteur(rawValue: brut) ?? .say
         }
-        set { stockage.set(newValue.rawValue, forKey: Cle.moteurActif) }
+        set { stockage.set(newValue.rawValue, forKey: Cle.moteurActif); signalerEcriture() }
     }
 
     /// Identifiant de la voix retenue pour un moteur donné.
@@ -194,80 +221,84 @@ final class Reglages {
     /// Les catalogues sont séparés : `say` n'accède pas aux voix Premium, une
     /// voix choisie pour l'un n'a pas de sens pour l'autre.
     func voix(pour moteur: TypeMoteur) -> String? {
-        stockage.string(forKey: moteur == .say ? Cle.voixSay : Cle.voixAVSpeech)
+        signalerLecture()
+        return stockage.string(forKey: moteur == .say ? Cle.voixSay : Cle.voixAVSpeech)
     }
 
     func definirVoix(_ identifiant: String?, pour moteur: TypeMoteur) {
         stockage.set(identifiant, forKey: moteur == .say ? Cle.voixSay : Cle.voixAVSpeech)
+        signalerEcriture()
     }
 
     /// Débit de la synthèse, distinct de la vitesse de lecture.
     var vitesseSyntheseBase: Float {
-        get { stockage.float(forKey: Cle.vitesseSyntheseBase) }
-        set { stockage.set(newValue, forKey: Cle.vitesseSyntheseBase) }
+        get { signalerLecture(); return stockage.float(forKey: Cle.vitesseSyntheseBase) }
+        set { stockage.set(newValue, forKey: Cle.vitesseSyntheseBase); signalerEcriture() }
     }
 
     var detectionLangueAuto: Bool {
-        get { stockage.bool(forKey: Cle.detectionLangueAuto) }
-        set { stockage.set(newValue, forKey: Cle.detectionLangueAuto) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.detectionLangueAuto) }
+        set { stockage.set(newValue, forKey: Cle.detectionLangueAuto); signalerEcriture() }
     }
 
     var langueParDefaut: String {
-        get { stockage.string(forKey: Cle.langueParDefaut) ?? "fr-FR" }
-        set { stockage.set(newValue, forKey: Cle.langueParDefaut) }
+        get { signalerLecture(); return stockage.string(forKey: Cle.langueParDefaut) ?? "fr-FR" }
+        set { stockage.set(newValue, forKey: Cle.langueParDefaut); signalerEcriture() }
     }
 
     // MARK: - Texte
 
     var nettoyageMarkdown: Bool {
-        get { stockage.bool(forKey: Cle.nettoyageMarkdown) }
-        set { stockage.set(newValue, forKey: Cle.nettoyageMarkdown) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.nettoyageMarkdown) }
+        set { stockage.set(newValue, forKey: Cle.nettoyageMarkdown); signalerEcriture() }
     }
 
     // MARK: - Entrées
 
     var restaurerPressePapiers: Bool {
-        get { stockage.bool(forKey: Cle.restaurerPressePapiers) }
-        set { stockage.set(newValue, forKey: Cle.restaurerPressePapiers) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.restaurerPressePapiers) }
+        set { stockage.set(newValue, forKey: Cle.restaurerPressePapiers); signalerEcriture() }
     }
 
     var raccourciGlobalActif: Bool {
-        get { stockage.bool(forKey: Cle.raccourciGlobalActif) }
-        set { stockage.set(newValue, forKey: Cle.raccourciGlobalActif) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.raccourciGlobalActif) }
+        set { stockage.set(newValue, forKey: Cle.raccourciGlobalActif); signalerEcriture() }
     }
 
     // MARK: - Premier lancement
 
     /// L'assistant de configuration a-t-il déjà été parcouru ?
     var assistantVu: Bool {
-        get { stockage.bool(forKey: Cle.assistantVu) }
-        set { stockage.set(newValue, forKey: Cle.assistantVu) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.assistantVu) }
+        set { stockage.set(newValue, forKey: Cle.assistantVu); signalerEcriture() }
     }
 
     // MARK: - Mise à jour
 
     /// Rechercher les mises à jour au démarrage puis chaque jour.
     var miseAJourAutomatique: Bool {
-        get { stockage.bool(forKey: Cle.miseAJourAutomatique) }
-        set { stockage.set(newValue, forKey: Cle.miseAJourAutomatique) }
+        get { signalerLecture(); return stockage.bool(forKey: Cle.miseAJourAutomatique) }
+        set { stockage.set(newValue, forKey: Cle.miseAJourAutomatique); signalerEcriture() }
     }
 
     /// Code de touche du raccourci global. 37 correspond à « L ».
     var raccourciCodeTouche: Int {
         get {
+            signalerLecture()
             let valeur = stockage.integer(forKey: Cle.raccourciCodeTouche)
             return valeur == 0 ? 37 : valeur
         }
-        set { stockage.set(newValue, forKey: Cle.raccourciCodeTouche) }
+        set { stockage.set(newValue, forKey: Cle.raccourciCodeTouche); signalerEcriture() }
     }
 
     /// Modificateurs du raccourci global, au format Carbon.
     var raccourciModificateurs: Int {
         get {
+            signalerLecture()
             let valeur = stockage.integer(forKey: Cle.raccourciModificateurs)
             // Par défaut Contrôle + Option, peu susceptible d'entrer en conflit.
             return valeur == 0 ? 0x1000 | 0x0800 : valeur
         }
-        set { stockage.set(newValue, forKey: Cle.raccourciModificateurs) }
+        set { stockage.set(newValue, forKey: Cle.raccourciModificateurs); signalerEcriture() }
     }
 }

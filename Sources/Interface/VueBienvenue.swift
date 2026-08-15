@@ -439,12 +439,21 @@ private struct Moyen: View {
 
 private struct EtapeTerminal: View {
 
-    @State private var revision = 0
     @State private var installes = 0
 
-    private var detectes: [AssistantIA] {
-        _ = revision
-        return IntegrationIA.assistantsPresents
+    /// Assistants détectés, et pour chacun l'état de sa commande.
+    ///
+    /// L'état est capturé dans la vue plutôt que relu à l'affichage :
+    /// `AssistantIA` est `Identifiable` et son `id` ne bouge pas quand le
+    /// fichier apparaît sur le disque, si bien que `ForEach` réutilisait les
+    /// lignes existantes sans les redessiner. La case restait vide jusqu'au
+    /// prochain passage par « Précédent », qui recréait la vue entière.
+    @State private var detectes: [(assistant: AssistantIA, installee: Bool)] = []
+
+    private func rafraichir() {
+        detectes = IntegrationIA.assistantsPresents.map {
+            ($0, $0.commandeInstallee)
+        }
     }
 
     var body: some View {
@@ -461,11 +470,12 @@ private struct EtapeTerminal: View {
                     .foregroundStyle(.secondary)
             } else {
                 VStack(alignment: .leading, spacing: 9) {
-                    ForEach(detectes) { assistant in
+                    ForEach(detectes, id: \.assistant.id) { entree in
+                        let assistant = entree.assistant
                         HStack(spacing: 9) {
-                            Image(systemName: assistant.commandeInstallee
+                            Image(systemName: entree.installee
                                   ? "checkmark.circle.fill" : "circle")
-                                .foregroundStyle(assistant.commandeInstallee
+                                .foregroundStyle(entree.installee
                                                  ? AnyShapeStyle(.green)
                                                  : AnyShapeStyle(.tertiary))
 
@@ -474,7 +484,7 @@ private struct EtapeTerminal: View {
 
                             Spacer()
 
-                            if assistant.commandeInstallee {
+                            if entree.installee {
                                 // Les compétences n'ont pas de commande à
                                 // taper : l'assistant s'en saisit de lui-même.
                                 Text(assistant.invocation.isEmpty
@@ -498,12 +508,12 @@ private struct EtapeTerminal: View {
 
                 Button {
                     installes = IntegrationIA.installerPartout()
-                    revision += 1
+                    rafraichir()
                 } label: {
                     Label(tr("bienvenue.terminal.installerPartout"), systemImage: "square.and.arrow.down.on.square")
                 }
                 .buttonStyle(.borderedProminent)
-                .disabled(!detectes.contains { !$0.commandeInstallee })
+                .disabled(!detectes.contains { !$0.installee })
 
                 if installes > 0 {
                     Text(tr("bienvenue.terminal.installees", installes))
@@ -518,7 +528,7 @@ private struct EtapeTerminal: View {
 
             Spacer()
         }
-        .onAppear { revision += 1 }
+        .onAppear { rafraichir() }
     }
 }
 

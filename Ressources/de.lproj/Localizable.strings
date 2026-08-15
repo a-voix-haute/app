@@ -104,7 +104,13 @@
 "terminal.automatique" = "bitten Sie ihn einfach, vorzulesen";
 "terminal.aucuneInstallation" = "Es wurde nichts installiert.";
 "terminal.note" = "Lassen Sie die Antwort eines Assistenten, eine Datei oder die Zwischenablage vorlesen, ohne das Terminal zu verlassen.\n\nManche Assistenten werden per Befehl aufgerufen, andere – Codex, Cursor – erkennen von selbst, dass vorgelesen werden soll: Sie müssen nur darum bitten.";
-"terminal.noteCommande" = "Der Befehl `lire` muss im Terminal verfügbar sein: Er wird zusammen mit der App installiert.";
+"terminal.noteCommande" = "Die Assistenten rufen den Befehl `lire` auf: er muss oben installiert sein.";
+"installation.titre" = "Installation";
+"installation.commande" = "Befehl im Terminal";
+"installation.ouvertureSession" = "Bei der Anmeldung starten";
+"installation.pathAbsent" = "~/.local/bin ist nicht in Ihrem PATH: der Befehl existiert, wird aber nicht gefunden. Fügen Sie diese Zeile in Ihre ~/.zshrc ein:";
+"installation.approbationRequise" = "macOS wartet auf Ihre Zustimmung in Systemeinstellungen → Allgemein → Anmeldeobjekte.";
+"installation.note" = "Der Befehl reagiert auf alle sechs Namen: lire, read-aloud, leer, vorlesen, leggi und ler. Diese Einstellungen sind vor allem nach einer Installation vom Image nützlich — das Installationsskript richtet sie selbst ein.";
 
 /* MARK: - Einstellungen, Text */
 "texte.preparationTitre" = "Textaufbereitung";
