@@ -21,6 +21,20 @@ ruby Scripts/generer_projet.rb      # après tout ajout ou suppression de fichie
 Compiler dans `build/` ne met pas à jour `/Applications`, et l'utilisateur
 testerait une version périmée sans le savoir.
 
+La version vient de `LECTEUR_VERSION`, que seul le workflow de publication
+renseigne ; à défaut, elle dérive du dernier tag Git. Sans ce repli, une
+compilation locale porterait 1.0.0 et proposerait une mise à jour à chaque
+lancement.
+
+**Le disque `.dmg` ne pose que le bundle.** Le service du clic droit, le
+raccourci et les schémas d'URL s'en accommodent — ils sont déclarés dans
+l'Info.plist ou enregistrés au lancement. La commande en ligne de commande et
+le lancement à l'ouverture de session, eux, s'activent depuis Réglages →
+Terminal → Installation (`InstallationSysteme`). Le script les met en place
+lui-même, en déléguant à l'application pour l'ouverture de session : un agent
+`launchd` et `SMAppService` ne se voient pas, et l'interrupteur des réglages
+interroge le second.
+
 ## Intégration continue
 
 Deux workflows distincts, à ne pas confondre :
@@ -79,15 +93,56 @@ intermédiaire de 140 Mo sur les longs textes.
 entre le gestionnaire et le moteur : `MoteurSay` garde une prise directe sur ses
 processus et les tue par `SIGTERM` puis `SIGKILL`.
 
+**`@Observable` n'instrumente que les propriétés stockées** — les réglages sont
+calculés au-dessus de `UserDefaults` : le macro n'a rien à réécrire, et SwiftUI
+n'est jamais prévenu d'un changement. `Reglages` porte donc un compteur
+`revision`, lu par chaque `get` et incrémenté par chaque `set`. Tout nouvel
+accesseur doit appeler `signalerLecture()` et `signalerEcriture()`, sans quoi
+une vue dépourvue d'autre état ne se redessinera pas.
+
+Le symptôme trompe : une vue qui possède d'autres `@State` se rafraîchit par
+ricochet et paraît fonctionner. Seule une vue sans état propre — une étape de
+l'assistant de bienvenue, par exemple — révèle le défaut.
+
+**Une vue affichant un état du disque doit le capturer** — `AssistantIA` est
+`Identifiable` et son `id` ne change pas quand le fichier apparaît : `ForEach`
+réutilise les lignes sans les redessiner. Capturer l'état dans un `@State` de
+la vue, rafraîchi après chaque action, plutôt que de le relire à l'affichage.
+
 **Le bac à sable reste désactivé** — `Process`, le socket hors conteneur et
 `CGEventPost` y sont incompatibles. Le Mac App Store est donc exclu, ce qui est
 assumé.
 
-**`get-task-allow` doit être retiré avant notarisation** — Xcode l'ajoute
-d'office en Release, et Apple rejette toute soumission qui le déclare. Le bundle
-est resigné sans lui.
+**`get-task-allow` doit être retiré, en distribution comme en local** — Xcode
+l'ajoute d'office en Release. Apple rejette toute soumission qui le déclare,
+mais la raison de fond est ailleurs : il autorise n'importe quel processus à
+s'attacher au débogueur, donc à lire la mémoire de l'application — le texte en
+cours de lecture compris. `construire.sh` resigne dans les deux branches, avec
+le certificat Developer ID ou à défaut en ad hoc.
+
+**Les fichiers temporaires portent le texte de l'utilisateur** — une sélection
+prise dans n'importe quelle application, parfois un mot de passe. Dossier en
+700, fichiers en 600 : `write(to:)` et `say` créent en 644, et le dossier
+temporaire de macOS ne protège que parce que le système le veut bien.
 
 ## Pièges rencontrés
+
+**`xcodebuild … test` compile en Debug dans le même `build/`** et laisse la
+cible Release dans un état intermédiaire. Installer après les tests copierait
+ce résultat partiel : réinstaller *après* les tests, jamais l'inverse. Devant un
+comportement périmé inexplicable, `rm -rf build` tranche.
+
+**Un heredoc non quoté est interprété par bash** — `<<PLIST` laissait les
+accents graves d'un commentaire XML former une substitution de commande, et
+`open -b` était réellement exécuté sans argument. Le fichier produit restait
+correct, l'aide de `open` s'affichait au milieu de l'installation. `<<'PLIST'`
+dès qu'aucune variable n'est à substituer.
+
+**Un `grep` en fin de tube masque le code de retour** — `xcodebuild | grep …`
+rend celui de `grep`. Sans test sur `${PIPESTATUS[0]}`, une compilation en échec
+passe pour une réussite et l'installation copie le build précédent. De même,
+`[ -d … ] && rm -rf …` s'évaluant à faux vaut un échec sous `set -e` et
+interrompt le script.
 
 **L'autorisation Accessibilité est attachée à l'emplacement du bundle** — une
 copie lancée depuis `build/` n'hérite pas de l'autorisation accordée à celle de
@@ -101,6 +156,23 @@ et info sont absents de `log show`. Un journal de fichier existe en doublon :
 **Les scripts cherchent les processus par `pgrep -x AVoixHaute`** — le chemin
 `/Applications/À Voix Haute.app` ne contient pas la chaîne « AVoixHaute.app »,
 un motif fondé sur le chemin échouerait.
+
+**L'identifiant est `app.avoixhaute.player` depuis la 2.0.0** — l'ancien,
+`fr.dimitri.AVoixHaute`, reste lu une fois par `Reglages` pour reprendre les
+préférences, et purgé par la désinstallation. La reprise précède
+`register(defaults:)` : après, `object(forKey:)` répond pour toute clé pourvue
+d'un défaut, et l'on ne distingue plus un choix d'une valeur d'usine. Voir
+`Documentation/migration-identifiant.md`.
+
+**Un texte se traduit, un identifiant se décline** — la commande répond à six
+noms, le schéma d'URL aussi, et `--stop` accepte quatre formes. Toutes restent
+actives en permanence et ne suivent jamais la langue du système : une commande
+notée dans un script doit fonctionner sur n'importe quelle machine. « read-aloud »
+et non « read », qui est une primitive du shell et l'emporterait sur le lien.
+
+Chaque schéma d'URL demande sa propre entrée `CFBundleURLTypes` : plusieurs
+schémas dans une même entrée, et LaunchServices n'enregistre que le premier,
+sans rien signaler.
 
 **Le nom porte deux formes** — « À Voix Haute » s'affiche, « AVoixHaute » sert
 partout ailleurs : exécutable, identifiant, socket, journal, nom de port du
