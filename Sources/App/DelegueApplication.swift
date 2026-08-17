@@ -111,7 +111,22 @@ final class DelegueApplication: NSObject, NSApplicationDelegate {
         RaccourciGlobal.partage.surDeclenchement = { [weak self] in
             self?.lireSelectionCourante()
         }
-        RaccourciGlobal.partage.activer()
+
+        // Un échec signifie que la combinaison appartient déjà à une autre
+        // application. Le réglage est alors remis à false : sans cela, les
+        // réglages afficheraient un raccourci actif que rien ne déclenche.
+        //
+        // Pas d'alerte ici, contrairement au clic sur l'interrupteur : au
+        // démarrage, l'utilisateur n'a rien demandé, et une fenêtre modale
+        // devant l'application qu'il utilise serait plus gênante qu'utile. La
+        // case décochée le lui dira quand il ouvrira les réglages.
+        // `activer()` rend déjà `false` quand le réglage est éteint : le test
+        // porte sur l'état voulu, pour ne pas confondre « désactivé » et
+        // « impossible à activer ».
+        guard Reglages.partage.raccourciGlobalActif else { return }
+        if !RaccourciGlobal.partage.activer() {
+            Reglages.partage.raccourciGlobalActif = false
+        }
     }
 
     /// Lit ce qui est sélectionné dans l'application au premier plan.

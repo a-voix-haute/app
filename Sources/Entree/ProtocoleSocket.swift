@@ -50,6 +50,11 @@ enum ProtocoleSocket {
     struct Reponse: Codable {
         let succes: Bool
         var message: String?
+        /// Nombre de lectures et de synthèses interrompues par `arreter`.
+        ///
+        /// Optionnel : une version antérieure du helper ne l'envoie pas, et
+        /// une réponse sans ce champ reste décodable.
+        var interrompues: Int?
     }
 
     // MARK: - Encodage de trame

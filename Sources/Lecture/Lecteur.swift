@@ -167,7 +167,13 @@ final class Lecteur {
         let temps = CMTime(seconds: cible, preferredTimescale: 600)
         joueur.seek(to: temps, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] termine in
             guard termine else { return }
-            MainActor.assumeIsolated {
+            // `Task { @MainActor }` et non `assumeIsolated` : la documentation
+            // d'AVFoundation ne dit rien du fil sur lequel ce rappel arrive.
+            // Mesuré, c'est aujourd'hui le fil principal — mais `assumeIsolated`
+            // est une assertion, qui ferait planter l'application si cela
+            // changeait. L'ordonnancement explicite reste correct dans les deux
+            // cas.
+            Task { @MainActor in
                 self?.position = temps.seconds
             }
         }

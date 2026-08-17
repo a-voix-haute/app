@@ -42,6 +42,7 @@ enum Protocole {
     struct Reponse: Codable {
         let succes: Bool
         var message: String?
+        var interrompues: Int?
     }
 
     static func encadrer(_ charge: Data) -> Data {
@@ -424,11 +425,22 @@ case "--stop", "-s", "--arreter", "--arrêter", "--parar", "--stopp", "--ferma":
     if let descripteur = Client.connecter() {
         defer { close(descripteur) }
         let requete = Protocole.Requete(commande: "arreter")
+
+        // Le message vient de la réponse et non du seul fait que
+        // l'application ait répondu : elle tourne souvent sans rien lire, et
+        // annoncer un arrêt dans ce cas serait faux.
+        var interrompu = false
         if let charge = try? JSONEncoder().encode(requete) {
             Protocole.ecrireTout(descripteur, Protocole.encadrer(charge))
-            _ = Protocole.lireTrame(descripteur)
+            if let brute = Protocole.lireTrame(descripteur),
+               let reponse = try? JSONDecoder().decode(Protocole.Reponse.self, from: brute) {
+                // Le champ prime ; le repli sur le message couvre une
+                // application antérieure qui ne l'enverrait pas.
+                interrompu = reponse.interrompues.map { $0 > 0 }
+                    ?? (reponse.message == "lectures arrêtées")
+            }
         }
-        print(Messages.lecturesArretees)
+        print(interrompu ? Messages.lecturesArretees : Messages.aucuneLecture)
     } else {
         print(Messages.aucuneLecture)
     }

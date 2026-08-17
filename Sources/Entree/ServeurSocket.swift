@@ -12,7 +12,7 @@ final class ServeurSocket {
     var surDemandeLecture: (@MainActor (String, String?, String?) -> Void)?
 
     /// Appelé pour chaque demande d'arrêt, sur la file principale.
-    var surDemandeArret: (@MainActor () -> Void)?
+    var surDemandeArret: (@MainActor () -> Int)?
 
     private var descripteurEcoute: Int32 = -1
     private var sourceEcoute: DispatchSourceRead?
@@ -184,9 +184,25 @@ final class ServeurSocket {
             repondre(client, succes: true, message: "prêt")
 
         case .arreter:
+            // La réponse attend le compte : le helper distingue ainsi « rien
+            // ne tournait » d'un arrêt réel. L'attente est brève — quelques
+            // invalidations sur le MainActor — et le client, lui, attend déjà.
             let rappel = surDemandeArret
-            Task { @MainActor in rappel?() }
-            repondre(client, succes: true, message: "lectures arrêtées")
+            let attente = DispatchSemaphore(value: 0)
+            var interrompues = 0
+            Task { @MainActor in
+                interrompues = rappel?() ?? 0
+                attente.signal()
+            }
+            // Le délai borne le cas où le MainActor serait bloqué : mieux vaut
+            // une réponse imprécise qu'un client suspendu.
+            _ = attente.wait(timeout: .now() + 5)
+            repondre(
+                client,
+                succes: true,
+                message: interrompues > 0 ? "lectures arrêtées" : "aucune lecture en cours",
+                interrompues: interrompues
+            )
 
         case .lire:
             guard let texte = requete.texte, !texte.isEmpty else {
@@ -200,8 +216,17 @@ final class ServeurSocket {
         }
     }
 
-    private func repondre(_ client: Int32, succes: Bool, message: String?) {
-        let reponse = ProtocoleSocket.Reponse(succes: succes, message: message)
+    private func repondre(
+        _ client: Int32,
+        succes: Bool,
+        message: String?,
+        interrompues: Int? = nil
+    ) {
+        let reponse = ProtocoleSocket.Reponse(
+            succes: succes,
+            message: message,
+            interrompues: interrompues
+        )
         guard let charge = try? JSONEncoder().encode(reponse) else { return }
         ProtocoleSocket.ecrireTout(client, ProtocoleSocket.encadrer(charge))
     }

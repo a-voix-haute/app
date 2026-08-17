@@ -125,7 +125,15 @@ final class GestionnaireLecteurs {
     }
 
     /// Arrête les lectures en cours et annule les synthèses en attente.
-    func toutArreter() {
+    /// Arrête tout et renvoie le nombre de lectures et de synthèses
+    /// effectivement interrompues.
+    ///
+    /// Le compte permet au helper de distinguer « rien ne tournait » d'un
+    /// arrêt réel : sans lui, `lire --stop` annonçait un arrêt dès que
+    /// l'application répondait, lecture ou non.
+    @discardableResult
+    func toutArreter() -> Int {
+        let interrompues = tachesSynthese.count + sessions.count
         Journal.fichier("lecture", "toutArreter : \(tachesSynthese.count) synthèse(s), \(sessions.count) lecteur(s)")
 
         for tache in tachesSynthese.values {
@@ -143,6 +151,7 @@ final class GestionnaireLecteurs {
         sessions.removeAll()
 
         Journal.lecture.info("Lectures arrêtées et synthèses annulées")
+        return interrompues
     }
 
     // MARK: - Ouverture
