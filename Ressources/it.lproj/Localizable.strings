@@ -120,6 +120,11 @@
 "texte.version" = "Versione";
 "texte.helper" = "Comando da terminale";
 "texte.journal" = "Registro";
+"texte.fichiersTemporaires" = "File temporanei";
+"texte.viderTemporaires" = "Svuota";
+"texte.temporairesVide" = "nessun file";
+"texte.temporairesOccupation" = "%d file, %d KB";
+"texte.temporairesLiberes" = "%d KB liberati";
 "texte.noteTerminal" = "Dal terminale: pbpaste | lire, lire file.md oppure lire --stop.";
 
 /* MARK: - Assistente di configurazione */

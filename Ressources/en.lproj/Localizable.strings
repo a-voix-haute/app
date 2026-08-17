@@ -120,6 +120,11 @@
 "texte.version" = "Version";
 "texte.helper" = "Command-line helper";
 "texte.journal" = "Log";
+"texte.fichiersTemporaires" = "Temporary files";
+"texte.viderTemporaires" = "Empty";
+"texte.temporairesVide" = "no files";
+"texte.temporairesOccupation" = "%d file(s), %d KB";
+"texte.temporairesLiberes" = "%d KB freed";
 "texte.noteTerminal" = "From the terminal: pbpaste | lire, lire file.md, or lire --stop.";
 
 /* MARK: - Setup assistant */

@@ -28,7 +28,15 @@ VERSION_SWIFT = '5.0'
 # Version affichée par l'application. Le workflow de publication la dérive du
 # tag Git, de sorte qu'un tag v1.2.0 produise une application se déclarant en
 # 1.2.0 — sans quoi le numéro figé dans ce script mentirait à l'utilisateur.
-VERSION_APP = ENV.fetch('LECTEUR_VERSION', '1.0.0')
+#
+# À défaut de variable, le dernier tag Git fait foi : une compilation locale
+# portait sinon 1.0.0 et se croyait perpétuellement périmée, ce qui proposait
+# une mise à jour à chaque lancement. Le repli littéral ne sert plus qu'aux
+# copies dépourvues d'historique Git.
+VERSION_APP = ENV.fetch('LECTEUR_VERSION') do
+  tag = `git -C "#{RACINE}" describe --tags --abbrev=0 2>/dev/null`.strip
+  tag.sub(/\Av/, '').empty? ? '1.0.0' : tag.sub(/\Av/, '')
+end
 
 # Numéro de compilation : le numéro d'exécution du workflow, ou 1 en local.
 VERSION_COMPILATION = ENV.fetch('LECTEUR_COMPILATION', '1')

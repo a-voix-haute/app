@@ -53,7 +53,11 @@ final class Lecteur {
 
     private let joueur: AVPlayer
     private let element: AVPlayerItem
-    private let fichier: URL
+    /// Fichier audio en cours de lecture.
+    ///
+    /// Exposé pour que le nettoyage manuel du dossier temporaire l'épargne :
+    /// le supprimer interromprait l'écoute.
+    let fichier: URL
     private var observateurTemps: Any?
     private var observateurFin: NSObjectProtocol?
 

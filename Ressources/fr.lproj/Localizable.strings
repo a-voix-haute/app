@@ -122,6 +122,11 @@
 "texte.version" = "Version";
 "texte.helper" = "Helper en ligne de commande";
 "texte.journal" = "Journal";
+"texte.fichiersTemporaires" = "Fichiers temporaires";
+"texte.viderTemporaires" = "Vider";
+"texte.temporairesVide" = "aucun fichier";
+"texte.temporairesOccupation" = "%d fichier(s), %d Ko";
+"texte.temporairesLiberes" = "%d Ko libérés";
 "texte.noteTerminal" = "Depuis le terminal : pbpaste | lire, lire fichier.md, ou lire --stop.";
 
 /* MARK: - Assistant de configuration */

@@ -38,6 +38,13 @@ final class GestionnaireLecteurs {
     /// Lecteurs ouverts, du plus ancien au plus récent.
     private(set) var sessions: [SessionLecture] = []
 
+    /// Fichiers qu'une lecture utilise à cet instant.
+    ///
+    /// Le nettoyage manuel les épargne : les supprimer couperait le son.
+    var fichiersEnUsage: Set<String> {
+        Set(sessions.map { $0.lecteur.fichier.standardizedFileURL.path })
+    }
+
     /// Nombre de synthèses en cours, pour l'affichage d'une progression.
     private(set) var syntheseEnCours = 0
 

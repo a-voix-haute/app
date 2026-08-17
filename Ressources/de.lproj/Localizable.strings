@@ -120,6 +120,11 @@
 "texte.version" = "Version";
 "texte.helper" = "Terminal-Befehl";
 "texte.journal" = "Protokoll";
+"texte.fichiersTemporaires" = "Temporäre Dateien";
+"texte.viderTemporaires" = "Leeren";
+"texte.temporairesVide" = "keine Dateien";
+"texte.temporairesOccupation" = "%d Datei(en), %d KB";
+"texte.temporairesLiberes" = "%d KB freigegeben";
 "texte.noteTerminal" = "Im Terminal: pbpaste | lire, lire datei.md oder lire --stop.";
 
 /* MARK: - Einrichtungsassistent */

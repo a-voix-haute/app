@@ -80,6 +80,22 @@ else
     # ce test, une compilation en échec passerait pour une réussite et
     # l'installation copierait le build précédent, périmé.
     [ "${PIPESTATUS[0]}" -eq 0 ] || { echo "Échec de la compilation." >&2; exit 1; }
+
+    # `get-task-allow` autorise n'importe quel processus à s'attacher au
+    # débogueur de l'application, donc à lire sa mémoire — le texte en cours
+    # de lecture compris. Xcode l'ajoute d'office, y compris en Release.
+    #
+    # La branche de distribution le retire déjà pour satisfaire Apple ; il
+    # n'y a pas de raison qu'une installation locale reste exposée. Signature
+    # ad hoc, faute de certificat ici : elle suffit à porter les
+    # entitlements.
+    echo "Resignature sans le droit de débogage…"
+    codesign --force --sign - \
+        --entitlements "Ressources/AVoixHaute.entitlements" \
+        "$SORTIE/Build/Products/Release/AVoixHaute.app/Contents/Resources/lire" 2>/dev/null
+    codesign --force --sign - \
+        --entitlements "Ressources/AVoixHaute.entitlements" \
+        "$SORTIE/Build/Products/Release/AVoixHaute.app" 2>/dev/null
 fi
 
 APP="$SORTIE/Build/Products/Release/AVoixHaute.app"

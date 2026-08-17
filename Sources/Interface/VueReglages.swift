@@ -429,6 +429,19 @@ private struct OngletTexte: View {
 
     @State private var reglages = Reglages.partage
 
+    /// Occupation du dossier temporaire, relue à l'affichage et après chaque
+    /// nettoyage : elle vit sur le disque, hors de portée de l'observation.
+    @State private var occupation: (fichiers: Int, octets: Int) = (0, 0)
+    @State private var derniersLiberes: Int?
+
+    private var libelleOccupation: String {
+        if let derniersLiberes, occupation.fichiers == 0 {
+            return tr("texte.temporairesLiberes", derniersLiberes / 1024)
+        }
+        guard occupation.fichiers > 0 else { return tr("texte.temporairesVide") }
+        return tr("texte.temporairesOccupation", occupation.fichiers, occupation.octets / 1024)
+    }
+
     /// Ouvre la licence embarquée dans l'éditeur de texte du système.
     ///
     /// Le fichier est copié hors du bundle : une application signée n'autorise
@@ -522,6 +535,27 @@ private struct OngletTexte: View {
                     Label(tr("texte.ouvrirDepot"), systemImage: "chevron.left.forwardslash.chevron.right")
                 }
 
+                LabeledContent(tr("texte.fichiersTemporaires")) {
+                    HStack(spacing: 8) {
+                        Text(libelleOccupation)
+                            .font(.caption)
+                            .monospacedDigit()
+                            .foregroundStyle(.secondary)
+
+                        Button(tr("texte.viderTemporaires")) {
+                            // Les fichiers d'une lecture en cours sont
+                            // épargnés : les supprimer couperait le son.
+                            let liberes = GestionnaireFichiersTemp.vider(
+                                sauf: GestionnaireLecteurs.partage.fichiersEnUsage
+                            )
+                            occupation = GestionnaireFichiersTemp.occupation()
+                            derniersLiberes = liberes.octets
+                        }
+                        .controlSize(.small)
+                        .disabled(occupation.fichiers == 0)
+                    }
+                }
+
                 LabeledContent(tr("texte.journal")) {
                     Text("~/Library/Logs/AVoixHaute.log")
                         .font(.caption)
@@ -538,6 +572,7 @@ private struct OngletTexte: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear { occupation = GestionnaireFichiersTemp.occupation() }
     }
 }
 

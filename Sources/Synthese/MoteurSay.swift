@@ -138,6 +138,9 @@ final class MoteurSay: MoteurSynthese {
 
         do {
             try contenu.write(to: fichierTexte, atomically: true, encoding: .utf8)
+            // `write(to:)` crée en 644 : le texte de l'utilisateur serait
+            // lisible par tout processus de la machine.
+            GestionnaireFichiersTemp.restreindre(fichierTexte)
         } catch {
             throw ErreurSynthese.echecEcriture(error.localizedDescription)
         }
@@ -168,6 +171,9 @@ final class MoteurSay: MoteurSynthese {
             GestionnaireFichiersTemp.supprimer(fichierAudio)
             throw error
         }
+
+        // `say` crée lui aussi son fichier en 644.
+        GestionnaireFichiersTemp.restreindre(fichierAudio)
 
         // L'annulation peut survenir entre la fin du processus et le retour.
         if Task.isCancelled {
