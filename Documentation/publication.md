@@ -33,7 +33,7 @@ Dans **Trousseaux d'accès** :
 3. Clic droit → **Exporter…**, format *Échange d'informations personnelles
    (.p12)*
 4. Choisir un mot de passe **non vide** et le noter : il devient le secret
-   `CERTIFICAT_MOT_DE_PASSE`.
+   `MAC_CERT_PASSWORD`.
 
    Un `.p12` exporté sans mot de passe est refusé à l'import par macOS, avec
    un message trompeur — « passphrase you entered is not correct ».
@@ -42,7 +42,7 @@ Puis encoder le fichier :
 
 ```bash
 base64 -i ~/Desktop/certificat.p12 -o /tmp/cert.b64
-gh secret set CERTIFICAT_P12_BASE64 --repo a-voix-haute/app < /tmp/cert.b64
+gh secret set MAC_CERT_P12 --repo a-voix-haute/app < /tmp/cert.b64
 rm /tmp/cert.b64
 ```
 
@@ -57,14 +57,14 @@ privée.
 
 Sur [account.apple.com](https://account.apple.com), rubrique **Connexion et
 sécurité**, puis **Mots de passe des apps**. Le mot de passe obtenu — de la
-forme `abcd-efgh-ijkl-mnop` — devient le secret `NOTARISATION_MOT_DE_PASSE`.
+forme `abcd-efgh-ijkl-mnop` — devient le secret `APPLE_APP_SPECIFIC_PASSWORD`.
 
 ### 3. Enregistrer les secrets
 
 ```bash
-gh secret set CERTIFICAT_P12_BASE64 --repo a-voix-haute/app
-gh secret set CERTIFICAT_MOT_DE_PASSE --repo a-voix-haute/app
-gh secret set NOTARISATION_MOT_DE_PASSE --repo a-voix-haute/app
+gh secret set MAC_CERT_P12 --repo a-voix-haute/app
+gh secret set MAC_CERT_PASSWORD --repo a-voix-haute/app
+gh secret set APPLE_APP_SPECIFIC_PASSWORD --repo a-voix-haute/app
 ```
 
 Chaque commande demande la valeur, sans l'afficher. Pour le premier secret,
