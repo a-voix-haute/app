@@ -38,12 +38,31 @@ enum QualiteVoix: Int, Comparable, Codable {
 enum TypeMoteur: String, Codable, CaseIterable {
     case say
     case avSpeech
+    case openAI
 
     var libelle: String {
         switch self {
         case .say:      return "Système (say)"
         case .avSpeech: return "AVSpeech (voix Premium)"
+        case .openAI:   return "OpenAI"
         }
+    }
+
+    /// Le moteur envoie-t-il le texte à un service distant ?
+    ///
+    /// Distingue ce qui reste sur la machine de ce qui en sort : l'interface
+    /// doit le dire, et rien ne doit partir sans que l'utilisateur l'ait voulu.
+    var estDistant: Bool {
+        self == .openAI
+    }
+
+    /// Le moteur gère-t-il seul le mélange de langues ?
+    ///
+    /// Les voix OpenAI sont multilingues : détecter la langue pour choisir une
+    /// voix n'aurait pas de sens, et c'est précisément ce qui rend ce moteur
+    /// utile sur un texte franglais.
+    var estMultilingue: Bool {
+        self == .openAI
     }
 }
 

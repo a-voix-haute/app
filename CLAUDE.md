@@ -178,9 +178,45 @@ sans rien signaler.
 partout ailleurs : exécutable, identifiant, socket, journal, nom de port du
 service. Ne pas introduire d'accent dans les chemins.
 
+**L'API OpenAI renvoie de l'AAC brut, pas un conteneur** — en
+`response_format: "aac"`, le flux est de l'ADTS, et `AVPlayer` refuse de le
+lire sous une extension `.m4a`, qui annonce du MPEG-4. Le lecteur s'ouvrait
+sans un son et sans erreur. Le projet emploie `mp3`, dont le format est porté
+par le fichier lui-même. Voir `Documentation/moteur-openai.md`.
+
+**`SecureField` refuse le collage dans un `Form`** — une clé d'API se colle,
+ne se tape pas. La feuille de saisie emploie un champ masqué par une bascule,
+doublé d'un bouton de collage explicite.
+
+**Dans un `Form` macOS, le premier argument de `TextField` est un libellé** —
+pas un texte d'invite. `TextField("Perso", text:)` affiche « Perso » *à côté*
+du champ. Pour une invite, `TextField("", text:, prompt:)` dans un
+`LabeledContent`, qui aligne le champ sur les autres réglages.
+
 **Les voix Siri sont inaccessibles** aux applications tierces, quelle que soit
 la signature. `say` accède en revanche aux voix Premium et Améliorées
 téléchargées, que `AVSpeechSynthesisVoice` ne liste pas toutes.
+
+## Moteur distant
+
+Le moteur OpenAI est le seul à faire sortir le texte de la machine. Il est
+inactif sans clé, et son emploi reste un choix de l'utilisateur.
+
+Les clés vivent dans le **trousseau**, jamais dans `UserDefaults` : seul
+l'index — identifiants et noms — y figure. Plusieurs clés coexistent, et le
+journal des appels (`~/Library/Logs/AVoixHaute-api.log`) retient laquelle a
+servi, ce qui permet de rapprocher une consommation d'un usage.
+
+**L'application ne calcule aucun coût.** Les tarifs changent ; un montant
+faux inspirerait moins confiance qu'un montant absent. Le journal enregistre
+ce qui est connu exactement — caractères, date, clé — et laisse la
+facturation à la console du fournisseur. Le texte envoyé n'y figure jamais.
+
+**La détection de langue est court-circuitée** pour ce moteur : ses voix sont
+multilingues (`TypeMoteur.estMultilingue`), et c'est précisément ce qui le
+rend utile sur un texte franglais. Un échec distant signale l'erreur puis
+retombe sur `say` — un moteur optionnel ne doit jamais rendre l'application
+muette.
 
 ## Langue
 

@@ -41,6 +41,11 @@ ajustable en cours d'écoute.
 - **Markdown nettoyé** avant la synthèse : titres, emphase, liens, tableaux et
   cases à cocher deviennent du texte qui s'écoute ; les blocs de code sont
   annoncés sans être lus
+- **Un moteur distant optionnel** (OpenAI), dont les voix multilingues
+  donnent à chaque passage l'accent qui lui convient — utile sur un texte
+  mêlant deux langues, qu'une voix du système lirait d'un seul. Inactif tant
+  qu'aucune clé n'est enregistrée ; voir
+  [Documentation/moteur-openai.md](Documentation/moteur-openai.md)
 - **Plusieurs lectures simultanées**, avec des règles de coexistence
   configurables
 - **Choix de la voix** parmi celles du système, triées par langue et par qualité

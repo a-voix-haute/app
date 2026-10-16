@@ -150,6 +150,8 @@ final class Reglages {
         static let assistantVu = "assistantVu"
         static let miseAJourAutomatique = "miseAJourAutomatique"
         static let repriseAncienDomaine = "repriseAncienDomaineFaite"
+        static let modeleOpenAI = "modeleOpenAI"
+        static let moteurSecondaire = "moteurSecondaire"
     }
 
     // MARK: - Lecture
@@ -244,6 +246,35 @@ final class Reglages {
     var langueParDefaut: String {
         get { signalerLecture(); return stockage.string(forKey: Cle.langueParDefaut) ?? "fr-FR" }
         set { stockage.set(newValue, forKey: Cle.langueParDefaut); signalerEcriture() }
+    }
+
+    // MARK: - Moteur distant
+
+    /// Modèle employé par le moteur OpenAI.
+    var modeleOpenAI: MoteurOpenAI.Modele {
+        get {
+            signalerLecture()
+            let brut = stockage.string(forKey: Cle.modeleOpenAI) ?? ""
+            return MoteurOpenAI.Modele(rawValue: brut) ?? .standard
+        }
+        set { stockage.set(newValue.rawValue, forKey: Cle.modeleOpenAI); signalerEcriture() }
+    }
+
+    /// Moteur proposé en second, atteignable depuis le lecteur.
+    ///
+    /// Permet d'écouter couramment avec une voix locale, et de reprendre un
+    /// passage qui le mérite avec une voix de meilleure qualité — sans changer
+    /// le réglage par défaut à chaque fois.
+    var moteurSecondaire: TypeMoteur? {
+        get {
+            signalerLecture()
+            guard let brut = stockage.string(forKey: Cle.moteurSecondaire),
+                  let moteur = TypeMoteur(rawValue: brut),
+                  moteur != moteurActif
+            else { return nil }
+            return moteur
+        }
+        set { stockage.set(newValue?.rawValue, forKey: Cle.moteurSecondaire); signalerEcriture() }
     }
 
     // MARK: - Texte

@@ -5,13 +5,14 @@ import SwiftUI
 
 /// Sections des réglages.
 private enum SectionReglages: String, CaseIterable, Identifiable {
-    case voix, lecture, raccourci, integrations, texte
+    case voix, lecture, moteurDistant, raccourci, integrations, texte
 
     var id: String { rawValue }
 
     var libelle: String {
         switch self {
         case .voix:      return tr("reglages.section.voix")
+        case .moteurDistant: return tr("reglages.section.moteurDistant")
         case .lecture:   return tr("reglages.section.lecture")
         case .raccourci: return tr("reglages.section.raccourci")
         case .integrations: return tr("reglages.section.terminal")
@@ -22,6 +23,7 @@ private enum SectionReglages: String, CaseIterable, Identifiable {
     var symbole: String {
         switch self {
         case .voix:      return "waveform"
+        case .moteurDistant: return "cloud"
         case .lecture:   return "play.circle"
         case .raccourci: return "command"
         case .integrations: return "terminal"
@@ -46,6 +48,7 @@ struct VueReglages: View {
             Group {
                 switch section {
                 case .voix:      OngletVoix()
+                case .moteurDistant: VueMoteurDistant()
                 case .lecture:   OngletLecture()
                 case .raccourci: OngletRaccourci()
                 case .integrations: VueIntegrations()
@@ -54,7 +57,7 @@ struct VueReglages: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 560, height: 490)
+        .frame(width: 600, height: 490)
     }
 
     private var barreSections: some View {
@@ -92,7 +95,7 @@ private struct BoutonSection: View {
                     .font(.system(size: 11, weight: .medium))
             }
             .foregroundStyle(actif ? Color.accentColor : Color.primary.opacity(0.75))
-            .frame(width: 74, height: 50)
+            .frame(width: 62, height: 50)
             .background(
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .fill(fondCourant)
@@ -118,8 +121,42 @@ private struct OngletVoix: View {
     @State private var groupes: [(langue: String, voix: [VoixDisponible])] = []
     @State private var voixChoisie: String?
 
+    /// Voix du moteur distant, réglée ici pour que les deux choix de voix
+    /// voisinent : c'est la même décision, qu'elle porte sur une voix locale
+    /// ou distante.
+    @State private var voixCloud = ""
+    @State private var apercuCloudEnCours = false
+    @State private var cleCloudPresente = false
+
     var body: some View {
         Form {
+            Section {
+                Picker(tr("moteur.parDefaut"), selection: Binding(
+                    get: { reglages.moteurActif },
+                    set: { reglages.moteurActif = $0 }
+                )) {
+                    ForEach(TypeMoteur.allCases, id: \.self) { type in
+                        Text(type.libelle).tag(type)
+                    }
+                }
+
+                Picker(tr("moteur.secondaire"), selection: Binding(
+                    get: { reglages.moteurSecondaire ?? reglages.moteurActif },
+                    set: { reglages.moteurSecondaire = $0 == reglages.moteurActif ? nil : $0 }
+                )) {
+                    Text(cle: "moteur.aucunSecondaire").tag(reglages.moteurActif)
+                    ForEach(TypeMoteur.allCases.filter { $0 != reglages.moteurActif }, id: \.self) { type in
+                        Text(type.libelle).tag(type)
+                    }
+                }
+            } header: {
+                Text(cle: "moteur.titre")
+            } footer: {
+                Text(cle: "moteur.note")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 Picker(tr("voix.libelle"), selection: Binding(
                     get: { voixChoisie ?? "" },
@@ -155,6 +192,43 @@ private struct OngletVoix: View {
                 Text(cle: "voix.titre")
             } footer: {
                 Text(cle: "voix.noteAutomatique")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Picker(tr("voix.cloud"), selection: Binding(
+                    get: { voixCloud },
+                    set: { nouvelle in
+                        voixCloud = nouvelle
+                        reglages.definirVoix(nouvelle.isEmpty ? nil : nouvelle, pour: .openAI)
+                    }
+                )) {
+                    ForEach(MoteurOpenAI.voix, id: \.identifiant) { voix in
+                        Text(voix.nom).tag(voix.identifiant)
+                    }
+                }
+
+                HStack(spacing: 8) {
+                    Button {
+                        ecouterApercuCloud()
+                    } label: {
+                        Label(tr("voix.ecouterExtrait"), systemImage: "play.circle")
+                    }
+                    .disabled(!cleCloudPresente || apercuCloudEnCours || voixCloud.isEmpty)
+
+                    if apercuCloudEnCours { ProgressView().controlSize(.small) }
+                }
+
+                if !cleCloudPresente {
+                    Text(cle: "openai.apercuSansCle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text(cle: "voix.cloudTitre")
+            } footer: {
+                Text(cle: "voix.noteCloud")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -217,6 +291,33 @@ private struct OngletVoix: View {
     private func charger() {
         groupes = CatalogueVoix.parLangue(moteur)
         voixChoisie = reglages.voix(pour: .say)
+        voixCloud = reglages.voix(pour: .openAI) ?? MoteurOpenAI.voix.first?.identifiant ?? ""
+        cleCloudPresente = ClesAPI.active() != nil
+    }
+
+    /// Fait entendre la voix distante choisie.
+    ///
+    /// L'extrait passe par une vraie synthèse — le moteur ne parle pas, il
+    /// produit un fichier — et le fichier est retiré après écoute.
+    private func ecouterApercuCloud() {
+        apercuCloudEnCours = true
+        Task { @MainActor in
+            defer { apercuCloudEnCours = false }
+            let moteurDistant = MoteurOpenAI()
+            guard let voix = moteurDistant.voixDisponibles().first(where: { $0.id == voixCloud })
+            else { return }
+            do {
+                let fichier = try await moteurDistant.synthetiser(
+                    texte: tr("voix.apercu"),
+                    voix: voix,
+                    vitesseBase: reglages.vitesseSyntheseBase,
+                    progression: { _ in }
+                )
+                CatalogueVoix.ecouterFichier(fichier)
+            } catch {
+                Journal.fichier("reglages", "aperçu distant échoué : \(error.localizedDescription)")
+            }
+        }
     }
 }
 

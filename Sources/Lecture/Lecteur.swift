@@ -58,13 +58,21 @@ final class Lecteur {
     /// Exposé pour que le nettoyage manuel du dossier temporaire l'épargne :
     /// le supprimer interromprait l'écoute.
     let fichier: URL
+
+    /// Texte d'origine, conservé pour une relecture par un autre moteur.
+    ///
+    /// Le lecteur ne manipule que de l'audio ; garder le texte évite de
+    /// redemander la sélection, qui a peut-être changé depuis.
+    let texteSource: String
+
     private var observateurTemps: Any?
     private var observateurFin: NSObjectProtocol?
 
     // MARK: - Cycle de vie
 
-    init(fichier: URL, vitesseInitiale: Float = 1.0) {
+    init(fichier: URL, vitesseInitiale: Float = 1.0, texteSource: String = "") {
         self.fichier = fichier
+        self.texteSource = texteSource
 
         element = AVPlayerItem(url: fichier)
         // Le point décisif : « Modest quality, less expensive. Suitable for

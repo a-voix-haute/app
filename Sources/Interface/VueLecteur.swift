@@ -144,6 +144,21 @@ struct VueLecteur: View {
                 lecteur.decaler(de: 15)
             }
 
+            // Relecture par le moteur secondaire : n'apparaît que s'il en
+            // existe un, la fenêtre étant trop étroite pour un bouton inerte.
+            if let secondaire = reglages.moteurSecondaire, !lecteur.texteSource.isEmpty {
+                boutonIcone(
+                    "sparkles",
+                    aide: tr("lecteur.relireAvec", secondaire.libelle)
+                ) {
+                    GestionnaireLecteurs.partage.relireAvecMoteurSecondaire(
+                        lecteur,
+                        titre: titre
+                    )
+                }
+                .padding(.leading, 8)
+            }
+
             Spacer()
 
             blocVitesse

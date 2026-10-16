@@ -81,6 +81,28 @@ enum CatalogueVoix {
         }
     }
 
+    /// Lit un fichier audio déjà synthétisé, puis le supprime.
+    ///
+    /// Les moteurs distants produisent un fichier plutôt que de parler
+    /// directement : l'aperçu passe donc par là, et le fichier temporaire ne
+    /// survit pas à l'écoute.
+    static func ecouterFichier(_ fichier: URL) {
+        arreterApercu()
+        guard let lecteur = try? AVAudioPlayer(contentsOf: fichier) else {
+            GestionnaireFichiersTemp.supprimer(fichier)
+            return
+        }
+        lecteurApercu = lecteur
+        lecteur.play()
+
+        // Le fichier est retiré une fois la lecture écoulée : le garder
+        // n'apporterait rien, et il porte le texte d'aperçu.
+        let duree = lecteur.duration + 0.5
+        DispatchQueue.main.asyncAfter(deadline: .now() + duree) {
+            GestionnaireFichiersTemp.supprimer(fichier)
+        }
+    }
+
     static func arreterApercu() {
         if let processus = processusApercu, processus.isRunning {
             processus.terminate()

@@ -152,3 +152,47 @@ final class FormatageLecteurTests: XCTestCase {
         XCTAssertEqual(vitesses.last, 3.0)
     }
 }
+
+/// Découpage des textes dépassant la limite de l'API OpenAI.
+final class DecoupageOpenAITests: XCTestCase {
+
+    func testTexteCourtResteEntier() {
+        let texte = "Un texte bref."
+        XCTAssertEqual(MoteurOpenAI.decouper(texte), [texte])
+    }
+
+    func testTexteLongEstDecoupe() {
+        let phrase = "Voici une phrase de test. "
+        let texte = String(repeating: phrase, count: 400)  // ~10 400 caractères
+        let fragments = MoteurOpenAI.decouper(texte)
+
+        XCTAssertGreaterThan(fragments.count, 1)
+        XCTAssertTrue(fragments.allSatisfy { $0.count <= MoteurOpenAI.limiteCaracteres })
+    }
+
+    func testRienNestPerduAuDecoupage() {
+        let texte = String(repeating: "Phrase courte. ", count: 500)
+        let assemble = MoteurOpenAI.decouper(texte).joined()
+        // Le découpage ne doit rien retirer : seule la répartition change.
+        XCTAssertEqual(assemble.count, texte.count)
+    }
+
+    func testPhraseUniquePlusLongueQueLaLimite() {
+        // Sans frontière de phrase, le texte est coupé net faute de mieux.
+        let texte = String(repeating: "a", count: 10_000)
+        let fragments = MoteurOpenAI.decouper(texte)
+
+        XCTAssertTrue(fragments.allSatisfy { $0.count <= MoteurOpenAI.limiteCaracteres })
+        XCTAssertEqual(fragments.joined().count, texte.count)
+    }
+
+    func testToutesLesVoixSontMultilingues() {
+        let moteur = MoteurOpenAI()
+        let voix = moteur.voixDisponibles()
+        XCTAssertEqual(voix.count, 6)
+        XCTAssertTrue(voix.allSatisfy { $0.langue == "mul" })
+        XCTAssertTrue(TypeMoteur.openAI.estMultilingue)
+        XCTAssertTrue(TypeMoteur.openAI.estDistant)
+        XCTAssertFalse(TypeMoteur.say.estDistant)
+    }
+}

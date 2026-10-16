@@ -45,6 +45,10 @@ listening.
   any resumption and suspended while the pointer is over the player, so the
   window never vanishes from under the cursor
 - **Voice selection** among the system voices, sorted by language and quality
+- **An optional remote engine** (OpenAI) whose multilingual voices give each
+  passage the right accent — useful on text that mixes languages, where a
+  system voice reads everything with one. Off until you add your own API key;
+  see [Documentation/moteur-openai.md](Documentation/moteur-openai.md)
 - **An interface in six languages** — French, English, Spanish, German, Italian,
   Portuguese — following the system language
 

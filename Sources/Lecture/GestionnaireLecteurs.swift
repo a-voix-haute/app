@@ -56,6 +56,7 @@ final class GestionnaireLecteurs {
     private var tachesSynthese: [UUID: Task<Void, Never>] = [:]
 
     private var moteurSay = MoteurSay()
+    private let moteurOpenAI = MoteurOpenAI()
 
     private init() {}
 
@@ -65,7 +66,14 @@ final class GestionnaireLecteurs {
     ///
     /// Le texte est nettoyé, synthétisé, puis confié à un nouveau lecteur dont
     /// le démarrage dépend de l'état des lecteurs déjà ouverts.
-    func demanderLecture(texte: String, source: SourceLecture, titre: String? = nil) {
+    /// - Parameter moteurImpose: force un moteur au lieu de celui des
+    ///   réglages, pour une relecture demandée depuis le lecteur.
+    func demanderLecture(
+        texte: String,
+        source: SourceLecture,
+        titre: String? = nil,
+        moteurImpose: TypeMoteur? = nil
+    ) {
         let reglages = Reglages.partage
 
         let prepare = reglages.nettoyageMarkdown
@@ -77,7 +85,7 @@ final class GestionnaireLecteurs {
             return
         }
 
-        let moteur = moteurCourant()
+        let moteur = moteurImpose.map { moteur(pour: $0) } ?? moteurCourant()
         guard let voix = choisirVoix(pour: moteur, texte: prepare) else {
             Journal.synthese.error("Aucune voix disponible pour le moteur \(moteur.type.rawValue, privacy: .public)")
             return
@@ -115,7 +123,8 @@ final class GestionnaireLecteurs {
                 await MainActor.run {
                     self?.ouvrirLecteur(
                         fichier: audio,
-                        titre: titre ?? source.titreParDefaut
+                        titre: titre ?? source.titreParDefaut,
+                        texteSource: texte
                     )
                 }
             } catch is CancellationError {
@@ -124,14 +133,30 @@ final class GestionnaireLecteurs {
                 Journal.synthese.info("Synthèse interrompue")
             } catch {
                 Journal.synthese.error("Synthèse échouée : \(error.localizedDescription, privacy: .public)")
-                await MainActor.run { self?.signalerEchec(error) }
+                await MainActor.run {
+                    // Un moteur distant échoue pour des raisons qui lui sont
+                    // propres — réseau coupé, clé refusée, quota atteint. La
+                    // lecture n'a pas à en pâtir : l'erreur est dite, puis le
+                    // moteur local prend le relais. Sans ce repli, une panne
+                    // de réseau rendrait l'application muette.
+                    if moteur.type.estDistant {
+                        self?.signalerEchec(error)
+                        self?.demanderLecture(
+                            texte: prepare,
+                            source: source,
+                            titre: titre,
+                            moteurImpose: .say
+                        )
+                    } else {
+                        self?.signalerEchec(error)
+                    }
+                }
             }
         }
 
         tachesSynthese[identifiant] = tache
     }
 
-    /// Arrête les lectures en cours et annule les synthèses en attente.
     /// Arrête tout et renvoie le nombre de lectures et de synthèses
     /// effectivement interrompues.
     ///
@@ -161,9 +186,31 @@ final class GestionnaireLecteurs {
         return interrompues
     }
 
+    // MARK: - Relecture par un autre moteur
+
+    /// Relit le texte d'un lecteur avec le moteur secondaire.
+    ///
+    /// Une nouvelle synthèse ne peut reprendre où la précédente en était :
+    /// le découpage du texte ne correspond à aucune position dans l'audio.
+    /// La lecture repart donc du début, dans une nouvelle fenêtre.
+    func relireAvecMoteurSecondaire(_ lecteur: Lecteur, titre: String) {
+        guard let type = Reglages.partage.moteurSecondaire,
+              !lecteur.texteSource.isEmpty else { return }
+
+        Journal.fichier("lecture", "relecture avec \(type.rawValue)")
+        demanderLecture(
+            texte: lecteur.texteSource,
+            source: .url,
+            titre: titre,
+            moteurImpose: type
+        )
+    }
+
     // MARK: - Ouverture
 
-    private func ouvrirLecteur(fichier: URL, titre: String) {
+    /// - Parameter texteSource: texte d'origine, conservé pour permettre une
+    ///   relecture par un autre moteur sans repasser par la source.
+    private func ouvrirLecteur(fichier: URL, titre: String, texteSource: String) {
         let reglages = Reglages.partage
 
         // Décidé avant d'ajouter la nouvelle session, sinon elle se compterait
@@ -172,7 +219,11 @@ final class GestionnaireLecteurs {
 
         libererPlace()
 
-        let lecteur = Lecteur(fichier: fichier, vitesseInitiale: reglages.vitesseParDefaut)
+        let lecteur = Lecteur(
+            fichier: fichier,
+            vitesseInitiale: reglages.vitesseParDefaut,
+            texteSource: texteSource
+        )
         let controleur = ControleurFenetreLecteur(
             lecteur: lecteur,
             titre: titre,
@@ -268,8 +319,21 @@ final class GestionnaireLecteurs {
     // MARK: - Moteur et voix
 
     private func moteurCourant() -> MoteurSynthese {
-        // MoteurAVSpeech arrive à l'étape 8 ; d'ici là, `say` assure les deux.
-        moteurSay
+        moteur(pour: Reglages.partage.moteurActif)
+    }
+
+    /// Moteur correspondant à un type, avec repli sur `say`.
+    ///
+    /// OpenAI n'est retenu que si une clé est enregistrée : sans elle, l'appel
+    /// échouerait à coup sûr, et mieux vaut une voix locale qu'une erreur.
+    func moteur(pour type: TypeMoteur) -> MoteurSynthese {
+        switch type {
+        case .openAI:
+            return ClesAPI.active() != nil ? moteurOpenAI : moteurSay
+        case .say, .avSpeech:
+            // MoteurAVSpeech arrive à l'étape 8 ; d'ici là, `say` assure les deux.
+            return moteurSay
+        }
     }
 
     /// Choisit la voix réglée, ou la meilleure disponible dans la langue voulue.
@@ -284,6 +348,14 @@ final class GestionnaireLecteurs {
         if let identifiant = reglages.voix(pour: moteur.type),
            let choisie = disponibles.first(where: { $0.id == identifiant }) {
             return choisie
+        }
+
+        // Les voix d'un moteur multilingue ne se rattachent à aucune langue :
+        // détecter celle du texte pour en choisir une n'aurait pas de sens.
+        // C'est d'ailleurs l'intérêt de ce moteur sur un texte mêlant deux
+        // langues, qu'une voix locale lirait d'un seul accent.
+        if moteur.type.estMultilingue {
+            return disponibles.first
         }
 
         let langue = reglages.detectionLangueAuto

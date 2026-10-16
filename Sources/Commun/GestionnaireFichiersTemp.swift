@@ -1,6 +1,7 @@
 // Gestion des fichiers audio temporaires.
 //
-// Chaque lecture produit un fichier .m4a dans un dossier dédié. Ces fichiers
+// Chaque lecture produit un fichier audio dans un dossier dédié — .m4a
+// pour `say`, .mp3 pour les moteurs distants. Ces fichiers
 // sont supprimés à la fermeture du lecteur correspondant ; ceux qu'un arrêt
 // brutal aurait laissés derrière sont balayés au démarrage de l'application.
 //
