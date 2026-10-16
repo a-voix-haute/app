@@ -186,6 +186,8 @@ final class DecoupageOpenAITests: XCTestCase {
         XCTAssertEqual(fragments.joined().count, texte.count)
     }
 
+    /// `@MainActor` : le moteur y est isolé, puisqu'il lit les réglages.
+    @MainActor
     func testToutesLesVoixSontMultilingues() {
         let moteur = MoteurOpenAI()
         let voix = moteur.voixDisponibles()

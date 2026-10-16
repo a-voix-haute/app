@@ -11,6 +11,9 @@
 
 import Foundation
 
+/// Isolé au MainActor : le moteur lit les réglages et les clés, tous deux
+/// isolés. L'appel réseau, lui, est `async` et ne bloque pas l'interface.
+@MainActor
 final class MoteurOpenAI: MoteurSynthese {
 
     let type: TypeMoteur = .openAI
@@ -34,7 +37,7 @@ final class MoteurOpenAI: MoteurSynthese {
     /// `langue` vaut « mul » — multilingue : le reste de l'application range
     /// les voix par langue, et prétendre que celles-ci sont françaises les
     /// exclurait d'un texte anglais.
-    static let voix: [(identifiant: String, nom: String)] = [
+    nonisolated static let voix: [(identifiant: String, nom: String)] = [
         ("alloy", "Alloy"), ("echo", "Echo"), ("fable", "Fable"),
         ("onyx", "Onyx"), ("nova", "Nova"), ("shimmer", "Shimmer")
     ]
@@ -42,7 +45,10 @@ final class MoteurOpenAI: MoteurSynthese {
     private static let urlAPI = URL(string: "https://api.openai.com/v1/audio/speech")!
 
     /// Limite imposée par l'API : au-delà, la requête est refusée.
-    static let limiteCaracteres = 4096
+    ///
+    /// `nonisolated` : constante et découpage sont purs, utilisables depuis
+    /// n'importe quel contexte — et testables sans passer par le MainActor.
+    nonisolated static let limiteCaracteres = 4096
 
     func voixDisponibles() -> [VoixDisponible] {
         Self.voix.map {
@@ -173,7 +179,7 @@ final class MoteurOpenAI: MoteurSynthese {
 
     /// Découpe en fragments d'au plus 4096 caractères, aux frontières de
     /// phrase quand c'est possible : couper au milieu d'un mot s'entend.
-    static func decouper(_ texte: String, limite: Int = limiteCaracteres) -> [String] {
+    nonisolated static func decouper(_ texte: String, limite: Int = limiteCaracteres) -> [String] {
         guard texte.count > limite else { return [texte] }
 
         var fragments: [String] = []
@@ -203,7 +209,7 @@ final class MoteurOpenAI: MoteurSynthese {
         return fragments.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
-    private static func phrases(_ texte: String) -> [String] {
+    nonisolated private static func phrases(_ texte: String) -> [String] {
         var resultat: [String] = []
         var courante = ""
         for caractere in texte {

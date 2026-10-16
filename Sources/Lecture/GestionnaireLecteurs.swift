@@ -85,7 +85,9 @@ final class GestionnaireLecteurs {
             return
         }
 
-        let moteur = moteurImpose.map { moteur(pour: $0) } ?? moteurCourant()
+        // `self.moteur(pour:)` et non `moteur(pour:)` : la variable déclarée
+        // sur cette ligne masque la méthode du même nom.
+        let moteur = moteurImpose.map { self.moteur(pour: $0) } ?? moteurCourant()
         guard let voix = choisirVoix(pour: moteur, texte: prepare) else {
             Journal.synthese.error("Aucune voix disponible pour le moteur \(moteur.type.rawValue, privacy: .public)")
             return
